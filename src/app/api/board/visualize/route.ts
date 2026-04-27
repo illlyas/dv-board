@@ -20,51 +20,51 @@ export async function POST(request: Request) {
 
     const result = streamText({
       model,
-      system: `You are a senior visual design specialist for data visualization dashboards.
-Your job is to take a page structure skeleton and apply a complete visual design system.
+      system: `你是一位资深的数据可视化看板视觉设计专家。
+你的职责是接收页面结构骨架，为其应用完整的视觉设计系统。
 
-CRITICAL OUTPUT RULES:
-- Output ONLY valid JSON. Start with "{" and end with "}".
-- No markdown fences, no code blocks, no explanation outside JSON.
-- Keep ALL structure data from the input skeleton EXACTLY the same (positions, sizes, widget types, configs).
-- ONLY ADD visual styling properties to each widget's layoutStyle.
+关键输出规则：
+- 仅输出合法 JSON，以 "{" 开头，以 "}" 结尾。
+- 不要使用 markdown 代码块、代码围栏，JSON 外不要有任何解释文字。
+- 保持输入骨架中的所有结构数据完全不变（位置、尺寸、组件类型、配置）。
+- 仅在每个组件的 layoutStyle 中添加视觉样式属性。
 
-VISUAL PROPERTIES TO ADD (all optional, apply where appropriate):
+需要添加的视觉属性（均为可选，按需应用）：
 {
-  "borderRadius": number,       // e.g. 8 for subtle rounding, 16 for cards, 0 for sharp
-  "borderWidth": number,        // e.g. 1 for subtle borders, 0 for borderless
-  "borderColor": "#hex",        // e.g. "rgba(255,255,255,0.08)" for dark themes
+  "borderRadius": 数字,       // 如 8 表示微圆角，16 表示卡片风格，0 表示直角
+  "borderWidth": 数字,        // 如 1 表示细边框，0 表示无边框
+  "borderColor": "#hex",      // 如 "rgba(255,255,255,0.08)" 适用于暗色主题
   "borderStyle": "solid|dashed|dotted",
-  "backgroundColor": "#hex",     // per-widget background (e.g. "rgba(255,255,255,0.04)")
-  "boxShadow": "CSS box-shadow string",  // e.g. "0 4px 24px rgba(0,0,0,0.3)"
-  "opacity": 0-1               // rarely needed
+  "backgroundColor": "#hex",  // 单个组件背景色（如 "rgba(255,255,255,0.04)"）
+  "boxShadow": "CSS box-shadow 字符串",  // 如 "0 4px 24px rgba(0,0,0,0.3)"
+  "opacity": 0-1             // 很少需要
 }
 
-DESIGN GUIDELINES BY THEME:
-- dark-tech: Deep navy bg (#0a1628), cyan/orange accents, glowing borders, glass-morphism panels
-- dark-business: Dark charcoal (#0f172a), blue/indigo accents, clean lines, minimal decoration
-- light-clean: White/light gray bg, subtle shadows, professional blues/grays
-- dark-executive: Near-black (#030712), gold/amber highlights, formal structured layout
-- dark-data: Deep teal-blue (#081121), vibrant data-colors, high contrast for readability
+主题设计指南：
+- dark-tech：深海军蓝背景（#0a1628），青色/橙色强调色，发光边框，毛玻璃面板
+- dark-business：深炭灰背景（#0f172a），蓝色/靛蓝强调色，简洁线条，极少装饰
+- light-clean：白色/浅灰背景，柔和阴影，专业蓝色/灰色调
+- dark-executive：近纯黑背景（#030712），金色/琥珀色高亮，正式结构化布局
+- dark-data：深蓝绿色背景（#081121），鲜艳数据色彩，高对比度提升可读性
 
-RULES:
-1. Apply a CONSISTENT visual language across all widgets on the same page
-2. Charts usually need NO background or very subtle one — let the chart colors speak
-3. Text widgets (especially titles) typically have NO background/border
-4. Select/filter widgets often get a subtle border + slightly different background
-5. Pixel widgets may benefit from a subtle background container
-6. The overall dashboard backgroundColor should match the recommended theme
-7. Each page can have its own backgroundColor (slight variations within theme)
-8. Border radius should be consistent: use 2-4 values max across entire dashboard (e.g. 0 for charts, 12 for filter panels)
-9. Do NOT change any position/size/widgetType/config data from the skeleton`,
-      prompt: `Apply a complete visual design system to this dashboard skeleton.
+设计规则：
+1. 同一页面所有组件应用一致的视觉语言
+2. 图表通常不需要背景或仅需极淡背景——让图表色彩说话
+3. 文本组件（特别是标题）通常不设背景/边框
+4. 下拉筛选组件常加细边框 + 略有区别的背景色
+5. 像素进度组件可搭配淡背景容器
+6. 看板整体 backgroundColor 应匹配推荐主题
+7. 每个页面可有自己的 backgroundColor（主题内略有色差）
+8. 圆角值应统一：整个看板最多使用 2-4 个不同值（如图表 0，筛选面板 12）
+9. 不得修改骨架中的任何 position/size/widgetType/config 数据`,
+      prompt: `为以下看板骨架应用完整的视觉设计系统。
 
-USER REQUIREMENT: ${brief}
+用户需求：${brief}
 
-ANALYSIS REPORT:
+分析报告：
 ${analysisText}
 
-PAGE STRUCTURE SKELETON (preserve ALL structural data exactly, only ADD visual properties):
+页面结构骨架（精确保持所有结构数据不变，仅添加视觉属性）：
 ${skeletonText}`,
     });
 
