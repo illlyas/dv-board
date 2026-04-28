@@ -3,11 +3,13 @@ export async function callPipelineStep(
   url: string,
   body: Record<string, unknown>,
   onStreamText?: (text: string) => void,
+  signal?: AbortSignal,
 ): Promise<{ json: unknown; rawText: string }> {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal,
   });
 
   if (!res.ok) throw new Error(`API ${url} returned ${res.status}`);

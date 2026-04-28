@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import type { WidgetNode, GroupNode, PageModel, VisdocModel } from "@/lib/dashboard-schema";
+import type { WidgetNode, GroupNode, VisdocModel } from "@/lib/dashboard-schema";
 
 // ─── Types ────────────────────────────────────────────────
 

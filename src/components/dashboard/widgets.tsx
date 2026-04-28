@@ -1,5 +1,6 @@
 "use client";
 
+import { createElement } from "react";
 import ReactECharts from "echarts-for-react";
 import {
   Activity,
@@ -107,7 +108,7 @@ function ChartHeader({
 }) {
   if (!title) return null;
 
-  const Icon = resolveChartMeta(title, iconHint, widgetType);
+  const chartIcon = resolveChartMeta(title, iconHint, widgetType);
   const primaryText = visualSystem?.tokens?.textPrimary ?? "#f8fafc";
   const secondaryText = visualSystem?.tokens?.textSecondary ?? "rgba(248,250,252,0.72)";
   const iconColor = visualSystem?.tokens?.chartTitleIcon ?? visualSystem?.tokens?.accent ?? "#38bdf8";
@@ -145,7 +146,7 @@ function ChartHeader({
               backgroundColor: badgeBg,
             }}
           >
-            <Icon size={iconSize} strokeWidth={2.1} />
+            {createElement(chartIcon, { size: iconSize, strokeWidth: 2.1 })}
           </span>
           <h3 className="truncate text-sm font-semibold" style={{ color: primaryText }}>
             {title}

@@ -1,8 +1,5 @@
 "use client";
 
-import { LayoutGrid } from "lucide-react";
-
-import { LOCAL_STORAGE_KEY } from "@/lib/dashboard-schema";
 import { resolveActivePage } from "@/lib/dashboard-helpers";
 import type { StreamedVisdocModel } from "@/lib/dashboard-helpers";
 import { PageCanvas } from "@/components/dashboard/page-canvas";
@@ -33,35 +30,9 @@ export function DashboardStage({
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* ── 纯画布区域（无预设 chrome）── */}
       {!hasData ? (
-        /* 空状态 */
-        <div className="flex h-full w-full flex-col items-center justify-center gap-4">
-          <div className="rounded-2xl border border-dashed border-white/[0.08] bg-white/[0.02] p-10 text-center">
-            <LayoutGrid className="mx-auto mb-4 h-12 w-12 text-white/[0.12]" />
-            <p className="text-base font-medium text-white/48">暂无看板数据</p>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/28">
-              在左侧输入框描述你想要的数据可视化看板，
-              <br />AI 将自动生成分页文档并在此处渲染。
-            </p>
-            <button
-              type="button"
-              className="mt-5 cursor-pointer rounded-xl bg-white/[0.06] px-5 py-2.5 text-sm text-white/56 transition hover:bg-white/[0.10] hover:text-white/78"
-              onClick={() => {
-                try {
-                  const demoRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
-                  if (demoRaw) {
-                    window.dispatchEvent(new CustomEvent("dv-board-load-demo"));
-                  }
-                } catch { /* ignore */ }
-              }}
-            >
-              或加载示例看板预览效果 →
-            </button>
-          </div>
-        </div>
+        <div className="h-full w-full" />
       ) : (
-        /* 有数据时显示画布 */
         <PageCanvas board={board!} page={activePage} />
       )}
 

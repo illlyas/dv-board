@@ -20,9 +20,6 @@ import {
   XIcon,
 } from "lucide-react";
 import type {
-  ChangeEvent,
-  ChangeEventHandler,
-  ClipboardEventHandler,
   ComponentProps,
   FormEvent,
   FormEventHandler,
@@ -30,7 +27,7 @@ import type {
   KeyboardEventHandler,
   ReactNode,
 } from "react";
-import { Children, useCallback, createContext, useContext, useState } from "react";
+import { Children, useCallback, useState } from "react";
 
 // ============================================================================
 // Types
