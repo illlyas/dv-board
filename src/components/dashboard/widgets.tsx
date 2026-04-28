@@ -5,6 +5,13 @@ import { MousePointerClick } from "lucide-react";
 
 import type { WidgetNode } from "@/lib/dashboard-schema";
 
+type VisualSystemLike = {
+  tokens?: {
+    textPrimary?: string;
+    textSecondary?: string;
+  };
+};
+
 // ─── ECharts Helpers ──────────────────────────────────────
 
 /** 合并 ECharts series 覆盖配置 */
@@ -20,14 +27,20 @@ function mergeSeriesOverrides<T extends Record<string, unknown>>(base: T, overri
 // ══════════════════════════════════════════════════════════
 
 /** Text 文本组件 */
-export function TextWidget({ config }: { config: Extract<WidgetNode, { widgetType: "text" }>["config"] }) {
+export function TextWidget({
+  config,
+  visualSystem,
+}: {
+  config: Extract<WidgetNode, { widgetType: "text" }>["config"];
+  visualSystem?: VisualSystemLike;
+}) {
   if (!config) return <div className="h-full w-full flex items-center justify-center text-xs text-white/30">空文本</div>;
 
   return (
     <div
       className="flex h-full w-full items-center p-3"
       style={{
-        color: config.color ?? "#fff",
+        color: config.color ?? visualSystem?.tokens?.textPrimary ?? "#fff",
         fontSize: `${config.fontSize ?? 16}px`,
         fontWeight: config.fontWeight ?? 400,
         fontStyle: config.fontStyle ?? "normal",
@@ -72,7 +85,13 @@ export function ImageWidget({ config }: { config: Extract<WidgetNode, { widgetTy
 }
 
 /** Pixel 像素进度组件 */
-export function PixelWidget({ config }: { config: Extract<WidgetNode, { widgetType: "pixel" }>["config"] }) {
+export function PixelWidget({
+  config,
+  visualSystem,
+}: {
+  config: Extract<WidgetNode, { widgetType: "pixel" }>["config"];
+  visualSystem?: VisualSystemLike;
+}) {
   if (!config) return <div className="h-full w-full" />;
 
   const {
@@ -106,15 +125,18 @@ export function PixelWidget({ config }: { config: Extract<WidgetNode, { widgetTy
     return 1;
   };
 
+  const primaryText = visualSystem?.tokens?.textPrimary ?? "#f8fafc";
+  const secondaryText = visualSystem?.tokens?.textSecondary ?? "rgba(248,250,252,0.72)";
+
   return (
     <div className="flex h-full w-full flex-col p-4">
       {showTitle && title ? (
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs uppercase tracking-[0.18em] text-white/35 font-medium">pixel metric</p>
-          <span className="text-3xl font-bold tabular-nums text-white">{value}%</span>
+          <p className="text-xs uppercase tracking-[0.18em] font-medium" style={{ color: secondaryText }}>pixel metric</p>
+          <span className="text-3xl font-bold tabular-nums" style={{ color: primaryText }}>{value}%</span>
         </div>
       ) : showTitle ? null : null}
-      <h3 className={`text-lg font-semibold text-white ${!showTitle ? "" : "mt-1"}`}>{title}</h3>
+      <h3 className={`text-lg font-semibold ${!showTitle ? "" : "mt-1"}`} style={{ color: primaryText }}>{title}</h3>
       <div
         className="grid flex-1"
         style={{
@@ -143,19 +165,28 @@ export function PixelWidget({ config }: { config: Extract<WidgetNode, { widgetTy
 }
 
 /** Select 选择器组件 */
-export function SelectWidget({ config }: { config: Extract<WidgetNode, { widgetType: "select" }>["config"] }) {
+export function SelectWidget({
+  config,
+  visualSystem,
+}: {
+  config: Extract<WidgetNode, { widgetType: "select" }>["config"];
+  visualSystem?: VisualSystemLike;
+}) {
   if (!config) return <div className="h-full w-full" />;
+
+  const primaryText = visualSystem?.tokens?.textPrimary ?? "#f8fafc";
+  const secondaryText = visualSystem?.tokens?.textSecondary ?? "rgba(248,250,252,0.72)";
 
   return (
     <div className="flex h-full w-full items-center px-3">
       <div className="w-full px-3 py-2">
-        <div className="mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-white/34">
+        <div className="mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em]" style={{ color: secondaryText }}>
           <MousePointerClick className="h-3 w-3" />
           filter
         </div>
         <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="text-white/72">{config.placeholder || "请选择…"}</span>
-          <span className="text-white/34">{config.options?.[0] ?? "—"}</span>
+          <span style={{ color: primaryText }}>{config.placeholder || "请选择…"}</span>
+          <span style={{ color: secondaryText }}>{config.options?.[0] ?? "—"}</span>
         </div>
       </div>
     </div>
@@ -251,7 +282,11 @@ function buildFunnelOption(cfg: NonNullable<Extract<WidgetNode, { widgetType: "f
 // ─── Chart Widget (unified entry) ────────────────────────
 
 /** Chart 图表统一渲染器 */
-export function ChartWidget({ widget }: { widget: Extract<WidgetNode, { widgetType: "bar" | "line" | "pie" | "funnel" }> }) {
+export function ChartWidget({
+  widget,
+}: {
+  widget: Extract<WidgetNode, { widgetType: "bar" | "line" | "pie" | "funnel" }>;
+}) {
   const option = (() => {
     if (!widget.config) return {};
     switch (widget.widgetType) {

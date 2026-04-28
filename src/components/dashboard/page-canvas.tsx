@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { ScanLine, ImageIcon, LayoutGrid, MousePointerClick, Type } from "lucide-react";
 
-import type { WidgetNode, PageModel } from "@/lib/dashboard-schema";
+import type { WidgetNode } from "@/lib/dashboard-schema";
 import { useCanvasScale } from "@/hooks/use-canvas-scale";
 import { isGroupNode, isWidgetNode, widgetShell } from "@/lib/dashboard-helpers";
 import type { StreamedVisdocModel } from "@/lib/dashboard-helpers";
@@ -15,14 +15,21 @@ import {
   ChartWidget,
 } from "@/components/dashboard/widgets";
 
+type VisualSystemLike = {
+  tokens?: {
+    textPrimary?: string;
+    textSecondary?: string;
+  };
+};
+
 // ─── Widget Router ────────────────────────────────────────
 
-function renderWidgetByType(widget: WidgetNode): ReactNode {
+function renderWidgetByType(widget: WidgetNode, visualSystem?: VisualSystemLike): ReactNode {
   switch (widget.widgetType) {
-    case "text":   return <TextWidget config={widget.config} />;
+    case "text":   return <TextWidget config={widget.config} visualSystem={visualSystem} />;
     case "image":  return <ImageWidget config={widget.config} />;
-    case "pixel":  return <PixelWidget config={widget.config} />;
-    case "select": return <SelectWidget config={widget.config} />;
+    case "pixel":  return <PixelWidget config={widget.config} visualSystem={visualSystem} />;
+    case "select": return <SelectWidget config={widget.config} visualSystem={visualSystem} />;
     case "bar":
     case "line":
     case "pie":
@@ -50,9 +57,11 @@ function widgetIcon(type: string) {
 function RenderNode({
   nodeId,
   nodeMap,
+  visualSystem,
 }: {
   nodeId: string;
   nodeMap: StreamedVisdocModel["nodeMap"];
+  visualSystem?: VisualSystemLike;
 }): ReactNode {
   const node = nodeMap?.[nodeId];
 
@@ -64,7 +73,7 @@ function RenderNode({
   if (isGroupNode(node)) {
     const children = node.childrenIds?.filter(Boolean).map((childId) => {
       if (typeof childId !== "string") return null;
-      return <RenderNode key={childId} nodeId={childId} nodeMap={nodeMap} />;
+      return <RenderNode key={childId} nodeId={childId} nodeMap={nodeMap} visualSystem={visualSystem} />;
     });
     return <>{children}</>;
   }
@@ -85,7 +94,7 @@ function RenderNode({
         >
           {widgetIcon(node.widgetType)} {node.name}
         </div>
-        {renderWidgetByType(node)}
+        {renderWidgetByType(node, visualSystem)}
       </div>
     );
   }
@@ -107,6 +116,7 @@ export function PageCanvas({
   const width = board.viewSize?.width ?? 1920;
   const height = board.viewSize?.height ?? 1080;
   const bgColor = (page?.backgroundColor ?? board.backgroundColor ?? "#081121") as string;
+  const visualSystem = board.visualSystem;
   const { hostRef, scale } = useCanvasScale(width, height);
 
   return (
@@ -128,7 +138,7 @@ export function PageCanvas({
       >
         <div className="relative" style={{ width, height }}>
           {page?.rootNodeId ? (
-            <RenderNode nodeId={page.rootNodeId} nodeMap={board.nodeMap} />
+            <RenderNode nodeId={page.rootNodeId} nodeMap={board.nodeMap} visualSystem={visualSystem} />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <div className="text-center">

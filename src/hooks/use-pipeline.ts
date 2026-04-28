@@ -4,11 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { analysisReportSchema } from "@/lib/analysis-report";
 import { LOCAL_STORAGE_KEY, visdocSchema } from "@/lib/dashboard-schema";
-import { pageSkeletonSchema } from "@/lib/page-skeleton";
+import { buildStructureDigest } from "@/lib/structure-digest";
+import { boardStructureSchema } from "@/lib/structure-schema";
+import { visualSystemSchema } from "@/lib/visual-system";
+import { composeVisdoc } from "@/lib/visual-composer";
 import { callPipelineStep } from "@/lib/pipeline-api";
 import type { PipelineState, PipelineStep } from "@/lib/pipeline-types";
 import { RUNNING_STEPS } from "@/lib/pipeline-types";
-import type { VisdocModel } from "@/lib/dashboard-schema";
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -50,7 +52,9 @@ const INITIAL_STATE: PipelineState = {
   step: "idle",
   brief: "",
   analysis: null,
-  skeleton: null,
+  structure: null,
+  structureDigest: null,
+  visualSystem: null,
   visdoc: null,
   statusText: "等待生成请求。",
   errorMsg: null,
@@ -142,9 +146,16 @@ export function usePipeline(): UsePipelineReturn {
           updateAssistant(`📐 步骤 2/3 — 结构设计中…（已接收 ${Math.min(streamText.length / 8, 99)}%）`);
         },
       );
-      const skeleton = pageSkeletonSchema.parse(structureRes.json);
+      const structure = boardStructureSchema.parse(structureRes.json);
+      const structureDigest = buildStructureDigest(structure);
 
-      setState((s) => ({ ...s, step: "structured", skeleton, statusText: `✅ 结构设计完成：${Object.keys(skeleton.nodeMap).length} 个节点` }));
+      setState((s) => ({
+        ...s,
+        step: "structured",
+        structure,
+        structureDigest,
+        statusText: `✅ 结构设计完成：${Object.keys(structure.nodeMap).length} 个节点`,
+      }));
 
       // ═══ Step 3: Visualize ═══
       updateAssistant(`🎨 步骤 3/3 — 设计视觉效果…`);
@@ -152,23 +163,28 @@ export function usePipeline(): UsePipelineReturn {
 
       const visualizeRes = await callPipelineStep(
         "/api/board/visualize",
-        { brief, analysis: analyzeRes.json, skeleton: structureRes.json },
+        {
+          brief,
+          visualBrief: analysis.visualBrief,
+          structureDigest,
+        },
         (streamText) => {
           updateAssistant(`🎨 步骤 3/3 — 视觉设计中…（已接收 ${Math.min(streamText.length / 10, 99)}%）`);
           try {
-            const partialVis = JSON.parse(streamText.replace(/^```.*\n?/i, "").replace(/\n?```.*/g, ""));
-            if (partialVis.nodeMap && Object.keys(partialVis.nodeMap).length > 0) {
+            const partialVisual = JSON.parse(streamText.replace(/^```.*\n?/i, "").replace(/\n?```.*/g, ""));
+            if (visualSystemSchema.safeParse(partialVisual).success) {
+              const visualSystem = visualSystemSchema.parse(partialVisual);
               setState((s) => ({
                 ...s,
-                visdoc: visdocSchema.safeParse(partialVis).success
-                  ? visdocSchema.parse(partialVis)
-                  : partialVis as unknown as VisdocModel,
+                visualSystem,
+                visdoc: s.structure ? composeVisdoc(s.structure, visualSystem) : s.visdoc,
               }));
             }
           } catch { /* ok */ }
         },
       );
-      const visdoc = visdocSchema.parse(visualizeRes.json);
+      const visualSystem = visualSystemSchema.parse(visualizeRes.json);
+      const visdoc = composeVisdoc(structure, visualSystem);
 
       // 保存到 localStorage
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(visdoc));
@@ -177,7 +193,9 @@ export function usePipeline(): UsePipelineReturn {
         step: "done",
         brief,
         analysis,
-        skeleton,
+        structure,
+        structureDigest,
+        visualSystem,
         visdoc,
         activePageId: visdoc.currentPageId,
         statusText: `✅ 全部完成！${visdoc.pages.length} 页看板已生成`,

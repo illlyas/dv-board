@@ -1,6 +1,8 @@
 import type { AnalysisReport } from "@/lib/analysis-report";
-import type { PageSkeleton } from "@/lib/page-skeleton";
 import type { VisdocModel } from "@/lib/dashboard-schema";
+import type { StructureDigest } from "@/lib/structure-digest";
+import type { BoardStructure } from "@/lib/structure-schema";
+import type { VisualSystemSpec } from "@/lib/visual-system";
 
 // ─── Pipeline Step ────────────────────────────────────────
 
@@ -20,7 +22,9 @@ export interface PipelineState {
   step: PipelineStep;
   brief: string;
   analysis: AnalysisReport | null;
-  skeleton: PageSkeleton | null;
+  structure: BoardStructure | null;
+  structureDigest: StructureDigest | null;
+  visualSystem: VisualSystemSpec | null;
   visdoc: VisdocModel | null;
   activePageId?: string;
   statusText: string;

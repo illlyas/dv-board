@@ -1,71 +1,63 @@
 import { streamText } from "ai";
 import { createDeepSeekModel, toTextStreamResponse } from "@/lib/board-stream-utils";
+import { visualSystemSchemaPrompt } from "@/lib/visual-system";
 
 export const maxDuration = 120;
 
 /**
  * 节点 3：视觉设计
- * 输入：brief + analysis + skeleton（节点2的结构骨架）
- * 输出：VisdocModel（完整看板，layoutStyle 含所有视觉属性）
+ * 输入：brief + visualBrief + structureDigest
+ * 输出：VisualSystemSpec（短版视觉系统）
  */
 export async function POST(request: Request) {
-  const body = (await request.json()) as { brief?: string; analysis?: unknown; skeleton?: unknown };
+  const body = (await request.json()) as { brief?: string; visualBrief?: unknown; structureDigest?: unknown };
   const brief = body?.brief?.trim();
   if (!brief) return new Response("Missing brief", { status: 400 });
 
   try {
     const model = createDeepSeekModel();
-    const analysisText = typeof body.analysis === "object" ? JSON.stringify(body.analysis, null, 2) : String(body.analysis ?? "");
-    const skeletonText = typeof body.skeleton === "object" ? JSON.stringify(body.skeleton, null, 2) : String(body.skeleton ?? "");
+    const visualBriefText = typeof body.visualBrief === "object" ? JSON.stringify(body.visualBrief, null, 2) : String(body.visualBrief ?? "");
+    const structureDigestText = typeof body.structureDigest === "object" ? JSON.stringify(body.structureDigest, null, 2) : String(body.structureDigest ?? "");
 
     const result = streamText({
       model,
-      system: `你是一位资深的数据可视化看板视觉设计专家。
-你的职责是接收页面结构骨架，为其应用完整的视觉设计系统。
+      system: `你是一位资深的数据可视化看板视觉系统设计师。
+你的职责不是为每个组件逐一补样式，而是定义一份短小、统一、可执行的视觉系统 spec，供程序自动应用到整套看板。
 
 关键输出规则：
 - 仅输出合法 JSON，以 "{" 开头，以 "}" 结尾。
 - 不要使用 markdown 代码块、代码围栏，JSON 外不要有任何解释文字。
-- 保持输入骨架中的所有结构数据完全不变（位置、尺寸、组件类型、配置）。
-- 仅在每个组件的 layoutStyle 中添加视觉样式属性。
+- 输出必须严格符合下方给出的 JSON Schema。
+- 输出尽量短，只给视觉决策，不要解释原因。
+- spec 必须足够统一，能够覆盖整套看板的所有页面和组件类型。
+- 优先定义全局 token 和少量组件规则，而不是写很多局部特例。
 
-需要添加的视觉属性（均为可选，按需应用）：
-{
-  "borderRadius": 数字,       // 如 8 表示微圆角，16 表示卡片风格，0 表示直角
-  "borderWidth": 数字,        // 如 1 表示细边框，0 表示无边框
-  "borderColor": "#hex",      // 如 "rgba(255,255,255,0.08)" 适用于暗色主题
-  "borderStyle": "solid|dashed|dotted",
-  "backgroundColor": "#hex",  // 单个组件背景色（如 "rgba(255,255,255,0.04)"）
-  "boxShadow": "CSS box-shadow 字符串",  // 如 "0 4px 24px rgba(0,0,0,0.3)"
-  "opacity": 0-1             // 很少需要
-}
+主题提示：
+- dark-tech：深海军蓝、冷色强调、科技感
+- dark-business：深炭灰、商务蓝、克制
+- light-clean：浅底、清爽、专业
+- dark-executive：近黑背景、琥珀高亮、正式汇报
+- dark-data：深蓝绿色、高对比、高信息密度
 
-主题设计指南：
-- dark-tech：深海军蓝背景（#0a1628），青色/橙色强调色，发光边框，毛玻璃面板
-- dark-business：深炭灰背景（#0f172a），蓝色/靛蓝强调色，简洁线条，极少装饰
-- light-clean：白色/浅灰背景，柔和阴影，专业蓝色/灰色调
-- dark-executive：近纯黑背景（#030712），金色/琥珀色高亮，正式结构化布局
-- dark-data：深蓝绿色背景（#081121），鲜艳数据色彩，高对比度提升可读性
-
-设计规则：
-1. 同一页面所有组件应用一致的视觉语言
-2. 图表通常不需要背景或仅需极淡背景——让图表色彩说话
-3. 文本组件（特别是标题）通常不设背景/边框
-4. 下拉筛选组件常加细边框 + 略有区别的背景色
-5. 像素进度组件可搭配淡背景容器
-6. 看板整体 backgroundColor 应匹配推荐主题
-7. 每个页面可有自己的 backgroundColor（主题内略有色差）
-8. 圆角值应统一：整个看板最多使用 2-4 个不同值（如图表 0，筛选面板 12）
-9. 不得修改骨架中的任何 position/size/widgetType/config 数据`,
-      prompt: `为以下看板骨架应用完整的视觉设计系统。
+输出 JSON Schema：
+${visualSystemSchemaPrompt}`,
+      prompt: `根据以下信息生成一份短版看板视觉系统 spec。
 
 用户需求：${brief}
 
-分析报告：
-${analysisText}
+视觉简报：
+${visualBriefText}
 
-页面结构骨架（精确保持所有结构数据不变，仅添加视觉属性）：
-${skeletonText}`,
+结构摘要：
+${structureDigestText}
+
+要求：
+- themeProfile 必须与 visualBrief.themeHint / tone / densityHint 协调
+- token 要能覆盖标题、正文、面板、边框、状态色、图表色板
+- chartPalette 需要适合整个看板反复复用，避免只有一两种颜色
+- componentRules 必须足够少，但能区分标题、KPI 卡片、图表面板、筛选器、注释文本
+- 如果结构摘要显示页面很多或密度高，优先选择 compact/balanced、subtle-panels 或 transparent-charts
+- 不要输出任何页面节点、组件坐标、widget 配置，也不要重复 structureDigest`,
     });
 
     return toTextStreamResponse(result);

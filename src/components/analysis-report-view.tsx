@@ -69,6 +69,17 @@ export function AnalysisReportView({ report }: ReportViewProps) {
         </span>
       </div>
 
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4">
+          <div className="mb-1 text-xs font-medium uppercase tracking-wider text-white/40">主要受众</div>
+          <p className="text-sm leading-6 text-white/72">{report.audience}</p>
+        </div>
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4">
+          <div className="mb-1 text-xs font-medium uppercase tracking-wider text-white/40">整体目标</div>
+          <p className="text-sm leading-6 text-white/72">{report.overallGoal}</p>
+        </div>
+      </div>
+
       {/* ── 分页规划（每页一个卡片） ── */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-white/44">
@@ -114,6 +125,13 @@ function PagePlanCard({ page, index }: { page: AnalysisReport["pages"][number]; 
         </div>
       </div>
 
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-white/46">
+        <span className="rounded-md bg-white/[0.04] px-2 py-1">叙事角色: {page.storyRole}</span>
+        <span className="rounded-md bg-white/[0.04] px-2 py-1">核心问题: {page.keyQuestion}</span>
+      </div>
+
+      <p className="mb-3 text-xs leading-6 text-white/58">{page.narrative}</p>
+
       {/* 关键指标 */}
       {page.keyMetrics?.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
@@ -125,17 +143,55 @@ function PagePlanCard({ page, index }: { page: AnalysisReport["pages"][number]; 
         </div>
       )}
 
+      {page.primaryData?.length > 0 && (
+        <div className="mb-3">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-white/34">主要数据内容</div>
+          <div className="flex flex-wrap gap-1.5">
+            {page.primaryData.map((item) => (
+              <span key={item} className="inline-flex rounded-md bg-black/20 px-2 py-0.5 text-[11px] text-white/52">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {page.filters?.length > 0 && (
+        <div className="mb-3">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-white/34">建议筛选维度</div>
+          <div className="flex flex-wrap gap-1.5">
+            {page.filters.map((item) => (
+              <span key={item} className="inline-flex rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-300/80">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 建议组件列表 */}
       {page.suggestedWidgets?.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
           {page.suggestedWidgets.map((w) => {
             const meta = WIDGET_TYPE_MAP[w.type] ?? { label: w.type, color: "bg-gray-500/15 text-gray-400" };
             return (
-              <span key={w.label} className={`rounded-md px-2 py-0.5 text-[11px] font-medium ${meta.color}`}>
-                {meta.label}
+              <span key={`${w.label}-${w.role}`} className={`rounded-md px-2 py-0.5 text-[11px] font-medium ${meta.color}`}>
+                {meta.label} · {w.role} · {w.priority}
               </span>
             );
           })}
+        </div>
+      )}
+
+      {page.suggestedWidgets?.length > 0 && (
+        <div className="mb-3 space-y-2">
+          {page.suggestedWidgets.map((w) => (
+            <div key={`${w.label}-${w.role}-detail`} className="rounded-lg bg-black/20 px-3 py-2">
+              <div className="text-xs font-medium text-white/72">{w.label}</div>
+              <div className="mt-1 text-[11px] leading-5 text-white/46">{w.dataDescription}</div>
+              <div className="mt-1 text-[11px] leading-5 text-white/34">原因: {w.rationale}</div>
+            </div>
+          ))}
         </div>
       )}
 
