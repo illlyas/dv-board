@@ -2,17 +2,23 @@ import { z } from "zod";
 
 import type { BoardStructure } from "@/lib/structure-schema";
 
-type WidgetTypeKey = "text" | "image" | "pixel" | "select" | "bar" | "line" | "pie" | "funnel";
+type WidgetTypeKey = "section" | "divider" | "text" | "image" | "pixel" | "bullet" | "rank" | "table" | "select" | "bar" | "line" | "pie" | "funnel" | "waterfall";
 
 const widgetCountRecordSchema = z.object({
+  section: z.number().int().nonnegative(),
+  divider: z.number().int().nonnegative(),
   text: z.number().int().nonnegative(),
   image: z.number().int().nonnegative(),
   pixel: z.number().int().nonnegative(),
+  bullet: z.number().int().nonnegative(),
+  rank: z.number().int().nonnegative(),
+  table: z.number().int().nonnegative(),
   select: z.number().int().nonnegative(),
   bar: z.number().int().nonnegative(),
   line: z.number().int().nonnegative(),
   pie: z.number().int().nonnegative(),
   funnel: z.number().int().nonnegative(),
+  waterfall: z.number().int().nonnegative(),
 });
 
 export const structureDigestSchema = z.object({
@@ -25,7 +31,7 @@ export const structureDigestSchema = z.object({
   pages: z.array(z.object({
     name: z.string(),
     widgetCounts: widgetCountRecordSchema,
-    dominantWidget: z.enum(["text", "image", "pixel", "select", "bar", "line", "pie", "funnel", "mixed"]),
+    dominantWidget: z.enum(["section", "divider", "text", "image", "pixel", "bullet", "rank", "table", "select", "bar", "line", "pie", "funnel", "waterfall", "mixed"]),
     hasFilters: z.boolean(),
     hasHeroTitle: z.boolean(),
     density: z.enum(["low", "medium", "high"]),
@@ -37,14 +43,20 @@ export type StructureDigest = z.infer<typeof structureDigestSchema>;
 
 function emptyCounts(): Record<WidgetTypeKey, number> {
   return {
+    section: 0,
+    divider: 0,
     text: 0,
     image: 0,
     pixel: 0,
+    bullet: 0,
+    rank: 0,
+    table: 0,
     select: 0,
     bar: 0,
     line: 0,
     pie: 0,
     funnel: 0,
+    waterfall: 0,
   };
 }
 
@@ -75,8 +87,8 @@ function detectLayoutPattern(widgets: StructureWidget[]) {
   const positioned = widgets;
   if (!positioned.length) return "mixed" as const;
   const heroTitle = positioned.some((node) => node.widgetType === "text" && (node.layoutStyle?.position?.[1] ?? 9999) < 140 && (node.layoutStyle?.width ?? 0) > 720);
-  const kpiCount = positioned.filter((node) => node.widgetType === "pixel").length;
-  const chartCount = positioned.filter((node) => ["bar", "line", "pie", "funnel"].includes(node.widgetType)).length;
+  const kpiCount = positioned.filter((node) => ["pixel", "bullet"].includes(node.widgetType)).length;
+  const chartCount = positioned.filter((node) => ["bar", "line", "pie", "funnel", "waterfall", "rank", "table"].includes(node.widgetType)).length;
   const leftSide = positioned.filter((node) => (node.layoutStyle?.position?.[0] ?? 0) < 640).length;
   const rightSide = positioned.length - leftSide;
 

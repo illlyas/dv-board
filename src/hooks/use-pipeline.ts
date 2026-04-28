@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { analysisReportSchema } from "@/lib/analysis-report";
+import { analysisReportSchema, normalizeAnalysisReport } from "@/lib/analysis-report";
 import { LOCAL_STORAGE_KEY, visdocSchema } from "@/lib/dashboard-schema";
 import { buildStructureDigest } from "@/lib/structure-digest";
 import { boardStructureSchema } from "@/lib/structure-schema";
@@ -123,15 +123,16 @@ export function usePipeline(): UsePipelineReturn {
           try {
             const partial = JSON.parse(streamText.replace(/^```.*\n?/i, "").replace(/\n?```.*/g, ""));
             if (partial.summary || partial.pages) {
+              const normalizedPartial = normalizeAnalysisReport(partial);
               setState((s) => ({
                 ...s,
-                analysis: analysisReportSchema.safeParse(partial).success ? analysisReportSchema.parse(partial) : s.analysis,
+                analysis: analysisReportSchema.safeParse(normalizedPartial).success ? analysisReportSchema.parse(normalizedPartial) : s.analysis,
               }));
             }
           } catch { /* 增量解析失败是正常的 */ }
         },
       );
-      const analysis = analysisReportSchema.parse(analyzeRes.json);
+      const analysis = analysisReportSchema.parse(normalizeAnalysisReport(analyzeRes.json));
 
       setState((s) => ({ ...s, step: "analyzed", analysis, statusText: `✅ 需求分析完成：${analysis.pages.length} 个页面规划` }));
 

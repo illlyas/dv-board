@@ -1,16 +1,21 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ScanLine, ImageIcon, LayoutGrid, MousePointerClick, Type } from "lucide-react";
+import { ScanLine, ImageIcon, LayoutGrid, ListTree, Minus, MousePointerClick, PanelsTopLeft, Table2, Target, TrendingUp, Type } from "lucide-react";
 
 import type { WidgetNode } from "@/lib/dashboard-schema";
 import { useCanvasScale } from "@/hooks/use-canvas-scale";
 import { isGroupNode, isWidgetNode, widgetShell } from "@/lib/dashboard-helpers";
 import type { StreamedVisdocModel } from "@/lib/dashboard-helpers";
 import {
+  SectionWidget,
+  DividerWidget,
   TextWidget,
   ImageWidget,
   PixelWidget,
+  BulletWidget,
+  RankWidget,
+  TableWidget,
   SelectWidget,
   ChartWidget,
 } from "@/components/dashboard/widgets";
@@ -19,6 +24,24 @@ type VisualSystemLike = {
   tokens?: {
     textPrimary?: string;
     textSecondary?: string;
+    sectionBg?: string;
+    sectionBorder?: string;
+    divider?: string;
+    chartTitleIcon?: string;
+    chartTitleBadgeBg?: string;
+    chartTitleBorder?: string;
+    chartTitleHighlightBg?: string;
+    accent?: string;
+    accentSoft?: string;
+    panelBorder?: string;
+    positive?: string;
+    warning?: string;
+    negative?: string;
+    chartTitleIconSize?: number;
+  };
+  componentRules?: {
+    chartTitleBadge?: "subtle" | "solid";
+    chartTitleHighlight?: "none" | "solid-tint" | "gradient-tint";
   };
 };
 
@@ -26,14 +49,20 @@ type VisualSystemLike = {
 
 function renderWidgetByType(widget: WidgetNode, visualSystem?: VisualSystemLike): ReactNode {
   switch (widget.widgetType) {
+    case "section": return <SectionWidget config={widget.config} visualSystem={visualSystem} />;
+    case "divider": return <DividerWidget config={widget.config} visualSystem={visualSystem} />;
     case "text":   return <TextWidget config={widget.config} visualSystem={visualSystem} />;
     case "image":  return <ImageWidget config={widget.config} />;
     case "pixel":  return <PixelWidget config={widget.config} visualSystem={visualSystem} />;
+    case "bullet": return <BulletWidget config={widget.config} visualSystem={visualSystem} />;
+    case "rank":   return <RankWidget config={widget.config} visualSystem={visualSystem} />;
+    case "table":  return <TableWidget config={widget.config} visualSystem={visualSystem} />;
     case "select": return <SelectWidget config={widget.config} visualSystem={visualSystem} />;
     case "bar":
     case "line":
     case "pie":
-    case "funnel": return <ChartWidget widget={widget} />;
+    case "funnel":
+    case "waterfall": return <ChartWidget widget={widget} visualSystem={visualSystem} />;
     default:       return (
       <div className="flex h-full w-full items-center justify-center text-sm text-white/32">
         未知类型: {String((widget as Record<string, unknown>).widgetType)}
@@ -44,10 +73,16 @@ function renderWidgetByType(widget: WidgetNode, visualSystem?: VisualSystemLike)
 
 function widgetIcon(type: string) {
   switch (type) {
+    case "section": return <PanelsTopLeft className="h-3 w-3" />;
+    case "divider": return <Minus className="h-3 w-3" />;
     case "text":   return <Type className="h-3 w-3" />;
     case "image":  return <ImageIcon className="h-3 w-3" />;
     case "pixel":  return <LayoutGrid className="h-3 w-3" />;
+    case "bullet": return <Target className="h-3 w-3" />;
+    case "rank":   return <TrendingUp className="h-3 w-3" />;
+    case "table":  return <Table2 className="h-3 w-3" />;
     case "select": return <MousePointerClick className="h-3 w-3" />;
+    case "waterfall": return <ListTree className="h-3 w-3" />;
     default:       return <ScanLine className="h-3 w-3" />;
   }
 }

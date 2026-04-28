@@ -20,8 +20,12 @@ const WIDGET_TYPE_MAP: Record<string, { label: string; color: string }> = {
   pie:    { label: "饼图",    color: "bg-emerald-500/15 text-emerald-400" },
   funnel: { label: "漏斗图",  color: "bg-pink-500/15 text-pink-400" },
   pixel:  { label: "像素进度", color: "bg-violet-500/15 text-violet-400" },
+  bullet: { label: "目标达成", color: "bg-lime-500/15 text-lime-400" },
+  rank:   { label: "排名变化", color: "bg-sky-500/15 text-sky-400" },
+  table:  { label: "明细表",  color: "bg-rose-500/15 text-rose-400" },
   select: { label: "筛选器",  color: "bg-amber-500/15 text-amber-400" },
   image:  { label: "图片",    color: "bg-teal-500/15 text-teal-400" },
+  waterfall: { label: "贡献拆解", color: "bg-fuchsia-500/15 text-fuchsia-400" },
 };
 
 const THEME_LABELS: Record<string, string> = {
@@ -30,6 +34,24 @@ const THEME_LABELS: Record<string, string> = {
   "light-clean":      "浅色简洁风",
   "dark-executive":   "深色行政风",
   "dark-data":        "深色数据风",
+};
+
+const INDUSTRY_LABELS: Record<string, string> = {
+  energy: "能源",
+  industrial: "工业",
+  water: "水利",
+  transport: "交通",
+  port: "港口",
+  tourism: "文旅",
+  government: "政务",
+  agriculture: "农业",
+  finance: "金融",
+  "sports-culture": "文体",
+  campus: "校园",
+  park: "园区",
+  retail: "零售",
+  "ops-maintenance": "运维",
+  generic: "通用",
 };
 
 // ══════════════════════════════════════════════════════════
@@ -77,6 +99,37 @@ export function AnalysisReportView({ report }: ReportViewProps) {
         <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4">
           <div className="mb-1 text-xs font-medium uppercase tracking-wider text-white/40">整体目标</div>
           <p className="text-sm leading-6 text-white/72">{report.overallGoal}</p>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-4">
+        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-white/40">AI 推断的业务上下文</div>
+        <p className="text-sm leading-6 text-white/72">
+          {report.inferredContext.industryHypothesis}，核心对象是“{report.inferredContext.coreEntity}”，
+          业务模式判断为：{report.inferredContext.businessModelGuess}
+        </p>
+        <div className="mt-2 inline-flex rounded-full bg-[#f97316]/12 px-3 py-1 text-xs font-medium text-[#fbbf24]">
+          行业模板: {INDUSTRY_LABELS[report.inferredContext.industryTag] ?? report.inferredContext.industryTag}
+        </div>
+        <div className="mt-3">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-white/34">默认分析维度</div>
+          <div className="flex flex-wrap gap-1.5">
+            {report.inferredContext.defaultSlices.map((item) => (
+              <span key={item} className="inline-flex rounded-md bg-white/[0.04] px-2 py-0.5 text-[11px] text-white/58">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="mt-3">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-white/34">默认关注问题</div>
+          <div className="flex flex-wrap gap-1.5">
+            {report.inferredContext.defaultConcerns.map((item) => (
+              <span key={item} className="inline-flex rounded-md bg-black/20 px-2 py-0.5 text-[11px] text-white/52">
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -128,9 +181,41 @@ function PagePlanCard({ page, index }: { page: AnalysisReport["pages"][number]; 
       <div className="mb-3 flex flex-wrap items-center gap-2 text-[11px] text-white/46">
         <span className="rounded-md bg-white/[0.04] px-2 py-1">叙事角色: {page.storyRole}</span>
         <span className="rounded-md bg-white/[0.04] px-2 py-1">核心问题: {page.keyQuestion}</span>
+        <span className="rounded-md bg-[#f97316]/10 px-2 py-1 text-[#fbbf24]">分析动作: {page.analysisGoal}</span>
       </div>
 
       <p className="mb-3 text-xs leading-6 text-white/58">{page.narrative}</p>
+
+      {page.mustInsights?.length > 0 && (
+        <div className="mb-3 rounded-lg bg-[#f97316]/8 px-3 py-2">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-[#fbbf24]">必须讲清的洞察</div>
+          <div className="space-y-1">
+            {page.mustInsights.map((insight) => (
+              <p key={insight} className="text-xs leading-5 text-white/68">{insight}</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {page.analysisAngles?.length > 0 && (
+        <div className="mb-3">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-white/34">分析角度</div>
+          <div className="flex flex-wrap gap-1.5">
+            {page.analysisAngles.map((angle) => (
+              <span key={angle} className="inline-flex rounded-md bg-cyan-500/10 px-2 py-0.5 text-[11px] text-cyan-300/80">
+                {angle}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {page.decisionAction ? (
+        <div className="mb-3 rounded-lg bg-white/[0.03] px-3 py-2">
+          <div className="mb-1 text-[11px] uppercase tracking-wider text-white/34">看完后应采取的动作</div>
+          <p className="text-xs leading-5 text-white/62">{page.decisionAction}</p>
+        </div>
+      ) : null}
 
       {/* 关键指标 */}
       {page.keyMetrics?.length > 0 && (
@@ -176,7 +261,7 @@ function PagePlanCard({ page, index }: { page: AnalysisReport["pages"][number]; 
             const meta = WIDGET_TYPE_MAP[w.type] ?? { label: w.type, color: "bg-gray-500/15 text-gray-400" };
             return (
               <span key={`${w.label}-${w.role}`} className={`rounded-md px-2 py-0.5 text-[11px] font-medium ${meta.color}`}>
-                {meta.label} · {w.role} · {w.priority}
+                {meta.label} · {w.analyticRole} · {w.priority}
               </span>
             );
           })}
@@ -189,7 +274,7 @@ function PagePlanCard({ page, index }: { page: AnalysisReport["pages"][number]; 
             <div key={`${w.label}-${w.role}-detail`} className="rounded-lg bg-black/20 px-3 py-2">
               <div className="text-xs font-medium text-white/72">{w.label}</div>
               <div className="mt-1 text-[11px] leading-5 text-white/46">{w.dataDescription}</div>
-              <div className="mt-1 text-[11px] leading-5 text-white/34">原因: {w.rationale}</div>
+              <div className="mt-1 text-[11px] leading-5 text-white/34">分析角色: {w.analyticRole} · 原因: {w.rationale}</div>
             </div>
           ))}
         </div>

@@ -54,8 +54,11 @@ ${structureDigestText}
 要求：
 - themeProfile 必须与 visualBrief.themeHint / tone / densityHint 协调
 - token 要能覆盖标题、正文、面板、边框、状态色、图表色板
+- token 还要覆盖区域块 section 的背景和边框、divider 分割线颜色，以及图表标题 icon/徽标/底线/高亮背景样式，使页面能形成清晰的分区层级
 - chartPalette 需要适合整个看板反复复用，避免只有一两种颜色
-- componentRules 必须足够少，但能区分标题、KPI 卡片、图表面板、筛选器、注释文本
+- 图表标题头部需要兼顾标题文字、SVG icon、徽标底色、分隔底线，以及与主色调呼应的半透明高亮背景
+- componentRules 必须足够少，但能区分标题、区域块、divider 分割线、图表标题头部、KPI 卡片、图表面板、筛选器、注释文本
+- 图表标题高亮背景可采用纯色透明底或渐变透明底，但必须克制、统一，并与 accent / chartTitleIcon 呼应
 - 如果结构摘要显示页面很多或密度高，优先选择 compact/balanced、subtle-panels 或 transparent-charts
 - 不要输出任何页面节点、组件坐标、widget 配置，也不要重复 structureDigest`,
     });

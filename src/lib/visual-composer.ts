@@ -106,6 +106,46 @@ function styleTextWidget(node: Extract<BoardStructure["nodeMap"][string], { type
   };
 }
 
+function sectionPanelVariant(visual: VisualSystemSpec) {
+  switch (visual.componentRules.sectionPanel) {
+    case "solid":
+      return "solid" as const;
+    case "outline":
+      return "outline" as const;
+    default:
+      return "soft" as const;
+  }
+}
+
+function styleSectionWidget(node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "section" }>, visual: VisualSystemSpec) {
+  const baseStyle = panelStyle(sectionPanelVariant(visual), visual);
+  return {
+    ...node,
+    layoutStyle: {
+      ...node.layoutStyle,
+      ...baseStyle,
+      backgroundColor: visual.tokens.sectionBg,
+      borderColor: visual.tokens.sectionBorder,
+    },
+  };
+}
+
+function styleDividerWidget(node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "divider" }>, visual: VisualSystemSpec) {
+  return {
+    ...node,
+    config: {
+      ...node.config,
+      emphasis: visual.componentRules.dividerStyle === "strong" ? "strong" : node.config.emphasis,
+    },
+    layoutStyle: {
+      ...node.layoutStyle,
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      boxShadow: "none",
+    },
+  };
+}
+
 function styleSelectWidget(node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "select" }>, visual: VisualSystemSpec) {
   return {
     ...node,
@@ -145,6 +185,50 @@ function stylePixelWidget(node: Extract<BoardStructure["nodeMap"][string], { typ
   };
 }
 
+function kpiPanelVariant(visual: VisualSystemSpec) {
+  return visual.componentRules.kpiCard === "outline"
+    ? "outline"
+    : visual.componentRules.kpiCard === "solid"
+      ? "solid"
+      : "soft";
+}
+
+function styleBulletWidget(node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "bullet" }>, visual: VisualSystemSpec) {
+  return {
+    ...node,
+    config: {
+      ...node.config,
+      accentColor: visual.tokens.accent,
+      positiveColor: visual.tokens.positive,
+      negativeColor: visual.tokens.negative,
+    },
+    layoutStyle: {
+      ...node.layoutStyle,
+      ...panelStyle(kpiPanelVariant(visual), visual),
+    },
+  };
+}
+
+function styleRankWidget(node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "rank" }>, visual: VisualSystemSpec) {
+  return {
+    ...node,
+    layoutStyle: {
+      ...node.layoutStyle,
+      ...panelStyle("soft", visual),
+    },
+  };
+}
+
+function styleTableWidget(node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "table" }>, visual: VisualSystemSpec) {
+  return {
+    ...node,
+    layoutStyle: {
+      ...node.layoutStyle,
+      ...panelStyle("soft", visual),
+    },
+  };
+}
+
 function chartOptionBase(visual: VisualSystemSpec) {
   const gridLineColor =
     visual.componentRules.chartGrid === "strong"
@@ -175,7 +259,7 @@ function chartOptionBase(visual: VisualSystemSpec) {
 }
 
 function styleChartWidget(
-  node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "bar" | "line" | "pie" | "funnel" }>,
+  node: Extract<BoardStructure["nodeMap"][string], { type: "widget"; widgetType: "bar" | "line" | "pie" | "funnel" | "waterfall" }>,
   visual: VisualSystemSpec,
 ) {
   const palette = visual.tokens.chartPalette;
@@ -187,6 +271,8 @@ function styleChartWidget(
       config: {
         ...node.config,
         theme: visual.themeProfile.theme,
+        title: node.config.title ?? node.name,
+        iconHint: node.config.iconHint ?? node.name,
         seriesData: node.config.seriesData.map((series, index) => ({
           ...series,
           color: palette[index % palette.length],
@@ -200,11 +286,34 @@ function styleChartWidget(
     };
   }
 
+  if (node.widgetType === "waterfall") {
+    return {
+      ...node,
+      config: {
+        ...node.config,
+        title: node.config.title ?? node.name,
+        iconHint: node.config.iconHint ?? node.name,
+        steps: node.config.steps.map((step, index) => ({
+          ...step,
+          color: step.value >= 0
+            ? palette[index % palette.length]
+            : visual.tokens.negative,
+        })),
+      },
+      layoutStyle: {
+        ...node.layoutStyle,
+        ...panelStyle(chartPanelVariant(visual), visual),
+      },
+    };
+  }
+
   return {
     ...node,
     config: {
       ...node.config,
       theme: visual.themeProfile.theme,
+      title: node.config.title ?? node.name,
+      iconHint: node.config.iconHint ?? node.name,
       data: node.config.data.map((item, index) => ({
         ...item,
         color: palette[index % palette.length],
@@ -232,16 +341,27 @@ function styleNode(node: BoardStructure["nodeMap"][string], visual: VisualSystem
   if (node.type === "group") return node;
 
   switch (node.widgetType) {
+    case "section":
+      return styleSectionWidget(node, visual) as WidgetNode;
+    case "divider":
+      return styleDividerWidget(node, visual) as WidgetNode;
     case "text":
       return styleTextWidget(node, visual) as WidgetNode;
     case "select":
       return styleSelectWidget(node, visual) as WidgetNode;
     case "pixel":
       return stylePixelWidget(node, visual) as WidgetNode;
+    case "bullet":
+      return styleBulletWidget(node, visual) as WidgetNode;
+    case "rank":
+      return styleRankWidget(node, visual) as WidgetNode;
+    case "table":
+      return styleTableWidget(node, visual) as WidgetNode;
     case "bar":
     case "line":
     case "pie":
     case "funnel":
+    case "waterfall":
       return styleChartWidget(node, visual) as WidgetNode;
     case "image":
       return styleImageWidget(node, visual) as WidgetNode;

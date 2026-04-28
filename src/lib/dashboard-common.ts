@@ -45,14 +45,20 @@ export const widgetBaseFields = {
 } as const;
 
 export const widgetTypeValues = [
+  "section",
+  "divider",
   "text",
   "image",
   "pixel",
+  "bullet",
+  "rank",
+  "table",
   "select",
   "bar",
   "line",
   "pie",
   "funnel",
+  "waterfall",
 ] as const;
 
 export const widgetTypeSchema = z.enum(widgetTypeValues);
@@ -67,6 +73,18 @@ export const textWidgetConfigSchema = z.object({
   verticalAlign: z.enum(["top", "middle", "bottom"]),
   fontWeight: z.union([z.number(), z.enum(["normal", "bold"])]),
   fontStyle: z.enum(["normal", "italic"]),
+});
+
+export const sectionWidgetConfigSchema = z.object({
+  title: z.string(),
+  subtitle: z.string().optional(),
+  align: z.enum(["left", "center", "right"]).default("left"),
+});
+
+export const dividerWidgetConfigSchema = z.object({
+  direction: z.enum(["horizontal", "vertical"]),
+  emphasis: z.enum(["subtle", "strong"]).default("subtle"),
+  label: z.string().optional(),
 });
 
 export const imageWidgetConfigSchema = z.object({
@@ -108,6 +126,38 @@ export const pixelWidgetConfigSchema = z.object({
 export const selectWidgetConfigSchema = z.object({
   placeholder: z.string(),
   options: z.array(z.string()).default([]),
+});
+
+export const bulletWidgetConfigSchema = z.object({
+  title: z.string(),
+  value: z.number(),
+  target: z.number(),
+  previous: z.number().optional(),
+  unit: z.string().optional(),
+  note: z.string().optional(),
+  accentColor: colorSchema.optional(),
+  positiveColor: colorSchema.optional(),
+  negativeColor: colorSchema.optional(),
+});
+
+export const rankWidgetConfigSchema = z.object({
+  title: z.string().optional(),
+  items: z.array(z.object({
+    name: z.string(),
+    value: z.number(),
+    rank: z.number().int().positive(),
+    previousRank: z.number().int().positive().optional(),
+    note: z.string().optional(),
+    highlight: z.boolean().optional(),
+  })).min(3).max(10),
+});
+
+export const tableWidgetConfigSchema = z.object({
+  title: z.string().optional(),
+  columns: z.array(z.string()).min(2).max(8),
+  rows: z.array(z.array(z.union([z.string(), z.number(), z.null()]))).min(1).max(12),
+  summary: z.string().optional(),
+  anomalyRowIndexes: z.array(z.number().int().nonnegative()).default([]),
 });
 
 // ─── layoutStyle 基础字段（位置 + 尺寸，两个 schema 共用）──
@@ -167,15 +217,20 @@ export const chartSeriesSchema = z.object({
   color: colorSchema.optional(),
 });
 
+const chartHeaderSchema = z.object({
+  title: z.string().optional(),
+  subtitle: z.string().optional(),
+  iconHint: z.string().optional(),
+});
+
 export const chartSliceSchema = z.object({
   name: z.string(),
   value: z.union([z.number(), z.null()]),
   color: colorSchema.optional(),
 });
 
-export const barWidgetConfigSchema = z.object({
+export const barWidgetConfigSchema = chartHeaderSchema.extend({
   theme: z.string(),
-  title: z.string().optional(),
   categories: z.array(z.string()),
   seriesData: z.array(chartSeriesSchema).min(1),
   barWidth: z.string().optional(),
@@ -183,9 +238,8 @@ export const barWidgetConfigSchema = z.object({
   option: jsonValueSchema.optional(),
 });
 
-export const lineWidgetConfigSchema = z.object({
+export const lineWidgetConfigSchema = chartHeaderSchema.extend({
   theme: z.string(),
-  title: z.string().optional(),
   categories: z.array(z.string()),
   seriesData: z.array(chartSeriesSchema).min(1),
   smooth: z.boolean().optional(),
@@ -194,21 +248,31 @@ export const lineWidgetConfigSchema = z.object({
   option: jsonValueSchema.optional(),
 });
 
-export const pieWidgetConfigSchema = z.object({
+export const pieWidgetConfigSchema = chartHeaderSchema.extend({
   theme: z.string(),
-  title: z.string().optional(),
   data: z.array(chartSliceSchema).min(3),
   radius: z.array(z.string()).optional(),
   series: jsonValueSchema.optional(),
   option: jsonValueSchema.optional(),
 });
 
-export const funnelWidgetConfigSchema = z.object({
+export const funnelWidgetConfigSchema = chartHeaderSchema.extend({
   theme: z.string(),
-  title: z.string().optional(),
   data: z.array(chartSliceSchema).min(3),
   series: jsonValueSchema.optional(),
   option: jsonValueSchema.optional(),
+});
+
+export const waterfallWidgetConfigSchema = chartHeaderSchema.extend({
+  startLabel: z.string().optional(),
+  endLabel: z.string().optional(),
+  startValue: z.number(),
+  steps: z.array(z.object({
+    name: z.string(),
+    value: z.number(),
+    color: colorSchema.optional(),
+  })).min(2).max(8),
+  endValue: z.number(),
 });
 
 // ─── Widget schema 工厂（接受任意 layoutStyle schema）────────
@@ -218,14 +282,20 @@ export const funnelWidgetConfigSchema = z.object({
  * dashboard-schema 传入含视觉属性的完整版，structure-schema 传入精简版。
  */
 export function makeWidgetSchemas<L extends z.ZodTypeAny>(layoutStyle: L) {
+  const section = z.object({ ...widgetBaseFields, widgetType: z.literal("section"), config: sectionWidgetConfigSchema, layoutStyle });
+  const divider = z.object({ ...widgetBaseFields, widgetType: z.literal("divider"), config: dividerWidgetConfigSchema, layoutStyle });
   const text   = z.object({ ...widgetBaseFields, widgetType: z.literal("text"),   config: textWidgetConfigSchema,   layoutStyle });
   const image  = z.object({ ...widgetBaseFields, widgetType: z.literal("image"),  config: imageWidgetConfigSchema,  layoutStyle });
   const pixel  = z.object({ ...widgetBaseFields, widgetType: z.literal("pixel"),  config: pixelWidgetConfigSchema,  layoutStyle });
+  const bullet = z.object({ ...widgetBaseFields, widgetType: z.literal("bullet"), config: bulletWidgetConfigSchema, layoutStyle });
+  const rank   = z.object({ ...widgetBaseFields, widgetType: z.literal("rank"),   config: rankWidgetConfigSchema,   layoutStyle });
+  const table  = z.object({ ...widgetBaseFields, widgetType: z.literal("table"),  config: tableWidgetConfigSchema,  layoutStyle });
   const select = z.object({ ...widgetBaseFields, widgetType: z.literal("select"), config: selectWidgetConfigSchema, layoutStyle });
   const bar    = z.object({ ...widgetBaseFields, widgetType: z.literal("bar"),    config: barWidgetConfigSchema,    layoutStyle });
   const line   = z.object({ ...widgetBaseFields, widgetType: z.literal("line"),   config: lineWidgetConfigSchema,   layoutStyle });
   const pie    = z.object({ ...widgetBaseFields, widgetType: z.literal("pie"),    config: pieWidgetConfigSchema,    layoutStyle });
   const funnel = z.object({ ...widgetBaseFields, widgetType: z.literal("funnel"), config: funnelWidgetConfigSchema, layoutStyle });
+  const waterfall = z.object({ ...widgetBaseFields, widgetType: z.literal("waterfall"), config: waterfallWidgetConfigSchema, layoutStyle });
 
-  return z.discriminatedUnion("widgetType", [text, image, pixel, select, bar, line, pie, funnel]);
+  return z.discriminatedUnion("widgetType", [section, divider, text, image, pixel, bullet, rank, table, select, bar, line, pie, funnel, waterfall]);
 }
