@@ -1,3 +1,5 @@
+"use client";
+
 import { BoardStudio } from "@/components/board-studio";
 
 export default function Home() {

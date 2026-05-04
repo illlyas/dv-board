@@ -1,21 +1,45 @@
+/**
+ * 管线状态管理 Hook
+ *
+ * 管理 3 步流程：
+ *   Step 1 (design-vi) + Step 2 (design-story) 并发执行
+ *   → Step 3 (generate-jsx) 等待两者完成后执行
+ */
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { analysisReportSchema, normalizeAnalysisReport } from "@/lib/analysis-report";
-import type { AnalysisReport } from "@/lib/analysis-report";
-import { LOCAL_STORAGE_KEY, visdocSchema } from "@/lib/dashboard-schema";
-import { buildStructureDigest } from "@/lib/structure-digest";
-import { boardStructureSchema } from "@/lib/structure-schema";
-import type { BoardStructure } from "@/lib/structure-schema";
-import { visualSystemSchema } from "@/lib/visual-system";
-import type { VisualSystemSpec } from "@/lib/visual-system";
-import { composeVisdoc } from "@/lib/visual-composer";
+import { viSystemSchema } from "@/lib/board/vi-system";
+import type { VISystem } from "@/lib/board/vi-system";
+import { boardStorySchema, normalizeBoardStory } from "@/lib/board/board-story";
+import type { BoardStory } from "@/lib/board/board-story";
+import { jsxCodeSchema, normalizeJSXCode, EMPTY_JSX_CODE } from "@/lib/board/jsx-output";
+import type { JSXCode } from "@/lib/board/jsx-output";
 import { callPipelineStep } from "@/lib/pipeline-api";
-import type { PipelineState, PipelineStep } from "@/lib/pipeline-types";
-import { RUNNING_STEPS } from "@/lib/pipeline-types";
 
 // ─── Types ────────────────────────────────────────────────
+
+export type PipelineStep =
+  | "idle"
+  | "designing"        // Step 1+2 并发中
+  | "designed"          // Step 1+2 完成
+  | "generating"        // Step 3 执行中
+  | "done"              // 全部完成
+  | "error";
+
+export interface PipelineState {
+  step: PipelineStep;
+  brief: string;
+  /** Step 1 输出：VI 系统 */
+  viSystem: VISystem | null;
+  /** Step 2 输出：看板故事 */
+  boardStory: BoardStory | null;
+  /** Step 3 输出：JSX 代码 */
+  jsxCode: JSXCode | null;
+  /** 当前活跃的流式文本（用于展示进度） */
+  statusText: string;
+  errorMsg: string | null;
+}
 
 export type ChatMessage = {
   id: string;
@@ -24,21 +48,12 @@ export type ChatMessage = {
 };
 
 export type UsePipelineReturn = {
-  /** 当前 pipeline 状态 */
   state: PipelineState;
-  /** 对话消息列表 */
   messages: ChatMessage[];
-  /** 是否正在运行 */
   isRunning: boolean;
-  /** 启动三步流水线 */
   runPipeline: (brief: string) => Promise<void>;
-  /** 中止当前运行 */
   stop: () => void;
-  /** 清空所有状态 */
   clear: () => void;
-  /** 加载示例数据 */
-  /** 切换页面 */
-  changePage: (pageId: string) => void;
 };
 
 // ─── Helpers ──────────────────────────────────────────────
@@ -47,27 +62,30 @@ function createTextMessage(role: "user" | "assistant", text: string): ChatMessag
   return {
     id: crypto.randomUUID(),
     role,
-    parts: [{ type: "text" as const, text }],
+    parts: [{ type: "text", text }],
   };
 }
 
-function cleanStreamText(text: string) {
+function cleanStreamText(text: string): string {
   return text
     .replace(/^```(?:json)?\s*\n?/i, "")
     .replace(/\n?\s*```\s*$/g, "")
     .trim();
 }
 
-function readJsonStringField(text: string, field: string) {
+/** 从流式文本中提取 JSON 字段值（用于进度展示） */
+function readJsonStringField(text: string, field: string): string | undefined {
   const match = text.match(new RegExp(`"${field}"\\s*:\\s*"([^"]{1,180})`));
   return match?.[1];
 }
 
-function uniqueValues(values: Array<string | undefined>, limit = 6) {
-  return Array.from(new Set(values.filter((value): value is string => Boolean(value?.trim())))).slice(0, limit);
+function uniqueValues(values: Array<string | undefined>, limit = 6): string[] {
+  return Array.from(new Set(values.filter((v): v is string => Boolean(v?.trim())))).slice(0, limit);
 }
 
-function renderProgress(title: string, lines: string[], streamText: string) {
+// ─── 进度摘要函数 ─────────────────────────────────────────
+
+function renderProgress(title: string, lines: string[], streamText: string): string {
   const received = Math.max(1, Math.round(cleanStreamText(streamText).length / 120));
   return [
     title,
@@ -78,156 +96,79 @@ function renderProgress(title: string, lines: string[], streamText: string) {
   ].join("\n");
 }
 
-function summarizeAnalysisStream(streamText: string) {
+function summarizeVIStream(streamText: string): string {
   const cleaned = cleanStreamText(streamText);
-  const pageNames = uniqueValues(Array.from(cleaned.matchAll(/"name"\s*:\s*"([^"]{1,60})"/g)).map((match) => match[1]), 5);
-  const metrics = uniqueValues(Array.from(cleaned.matchAll(/"keyMetrics"\s*:\s*\[([\s\S]*?)\]/g))
-    .flatMap((match) => Array.from(match[1].matchAll(/"([^"]{1,50})"/g)).map((item) => item[1])), 8);
-  const concerns = uniqueValues(Array.from(cleaned.matchAll(/"defaultConcerns"\s*:\s*\[([\s\S]*?)\]/g))
-    .flatMap((match) => Array.from(match[1].matchAll(/"([^"]{1,60})"/g)).map((item) => item[1])), 6);
-  const insights = uniqueValues(Array.from(cleaned.matchAll(/"mustInsights"\s*:\s*\[([\s\S]*?)\]/g))
-    .flatMap((match) => Array.from(match[1].matchAll(/"([^"]{1,90})"/g)).map((item) => item[1])), 6);
-  const widgetLabels = uniqueValues(Array.from(cleaned.matchAll(/"label"\s*:\s*"([^"]{1,80})"/g)).map((match) => match[1]), 8);
+  const palette = uniqueValues(
+    Array.from(cleaned.matchAll(/#[0-9a-fA-F]{6}/g)).map((m) => m[0]),
+    8,
+  );
   const lines = [
-    readJsonStringField(cleaned, "summary") ? `看板定位：${readJsonStringField(cleaned, "summary")}` : "正在提炼看板的业务定位和核心目标。",
-    readJsonStringField(cleaned, "audience") ? `目标受众：${readJsonStringField(cleaned, "audience")}` : "正在判断这套看板主要服务的使用者。",
-    readJsonStringField(cleaned, "coreEntity") ? `核心对象：${readJsonStringField(cleaned, "coreEntity")}` : "正在识别分析围绕的核心业务对象。",
-    pageNames.length ? `页面规划：${pageNames.join("、")}` : "正在拆分页面叙事结构。",
-    metrics.length ? `重点指标：${metrics.join("、")}` : "正在筛选需要优先呈现的指标与维度。",
-    concerns.length ? `关注问题：${concerns.join("、")}` : "正在判断用户真正关心的经营/运营问题。",
-    insights.length ? `关键洞察：${insights.join("、")}` : "正在为每个页面提炼必须讲清的洞察。",
-    widgetLabels.length ? `建议模块：${widgetLabels.join("、")}` : "正在规划标题、指标、图表、筛选与注释模块。",
+    readJsonStringField(cleaned, "name") ? `VI 名称：${readJsonStringField(cleaned, "name")}` : "正在确定 VI 系统名称和主题方向。",
+    readJsonStringField(cleaned, "theme") ? `主题模式：${readJsonStringField(cleaned, "theme")} / ${readJsonStringField(cleaned, "mode")}` : "正在匹配暗色/亮色模式和视觉风格。",
+    palette.length ? `色彩样本：${palette.join("、")}` : "正在生成完整的颜色 token 系统（背景/前景/语义色/图表色板）。",
   ];
-  return renderProgress("步骤 1/3：需求分析", lines, streamText);
+  return renderProgress("① 设计 VI 系统", lines, streamText);
 }
 
-function summarizeAnalysisResult(analysis: AnalysisReport) {
-  const pageLines = analysis.pages
-    .map((page, index) => `${index + 1}. ${page.name}：${page.keyQuestion}`)
-    .join("\n");
-  const metrics = uniqueValues(analysis.pages.flatMap((page) => page.keyMetrics), 10);
-
-  return [
-    "步骤 1/3：需求分析完成",
-    "",
-    `看板定位：${analysis.summary}`,
-    `服务对象：${analysis.audience}`,
-    `业务目标：${analysis.overallGoal}`,
-    "",
-    "页面叙事：",
-    pageLines,
-    "",
-    metrics.length ? `核心指标：${metrics.join("、")}` : "",
-    "",
-    `主题建议：${analysis.recommendedTheme} / ${analysis.visualBrief.tone} / ${analysis.visualBrief.densityHint}`,
-    `内容重心：${analysis.visualBrief.emphasis}`,
-  ].filter(Boolean).join("\n");
-}
-
-function summarizeStructureStream(streamText: string, analysis: AnalysisReport) {
+function summarizeStoryStream(streamText: string): string {
   const cleaned = cleanStreamText(streamText);
-  const widgetTypes = uniqueValues(Array.from(cleaned.matchAll(/"widgetType"\s*:\s*"([^"]{1,30})"/g)).map((match) => match[1]), 8);
-  const nodeNames = uniqueValues(Array.from(cleaned.matchAll(/"name"\s*:\s*"([^"]{1,60})"/g)).map((match) => match[1]), 10);
-  const nodeIds = uniqueValues(Array.from(cleaned.matchAll(/"(node-[^"]{1,80})"\s*:/g)).map((match) => match[1]), 8);
-  const pageNames = analysis.pages.map((page, index) => `${index + 1}. ${page.name}`).join("\n");
+  const pageNames = uniqueValues(
+    Array.from(cleaned.matchAll(/"name"\s*:\s*"([^"]{1,60})"/g)).map((m) => m[1]),
+    5,
+  );
+  const insights = uniqueValues(
+    Array.from(cleaned.matchAll(/"mustInsights"/g))
+      .flatMap(() => []),
+    4,
+  );
   const lines = [
-    `页面清单：\n${pageNames}`,
-    widgetTypes.length ? `组件类型：${widgetTypes.join("、")}` : "组件类型：正在安排标题、指标、图表、筛选和注释模块。",
-    nodeNames.length ? `组件/分区名称：${nodeNames.join("、")}` : "组件/分区名称：正在生成可视化模块命名。",
-    nodeIds.length ? `节点样例：${nodeIds.join("、")}` : "节点样例：正在生成 nodeMap 和页面根节点。",
-    "结构字段：page.rootNodeId、nodeMap、childrenIds、layoutStyle.position、layoutStyle.width/height",
+    pageNames.length ? `页面规划：${pageNames.join("、")}` : "正在拆分页面叙事结构和分析目标。",
+    readJsonStringField(cleaned, "summary") ? `看板定位：${readJsonStringField(cleaned, "summary")}` : "正在提炼看板的核心目标和业务价值。",
+    insights.length > 0 || readJsonStringField(cleaned, "keyQuestion")
+      ? "正在为每个页面定义关键问题和必须讲清的洞察。"
+      : "正在识别分析角度和建议的内容模块。",
   ];
-  return renderProgress("步骤 2/3：页面结构设计", lines, streamText);
+  return renderProgress("② 设计看板故事", lines, streamText);
 }
 
-function summarizeStructureResult(structure: BoardStructure) {
-  const nodes = Object.values(structure.nodeMap);
-  const pages = structure.pages.map((page, index) => `${index + 1}. ${page.name} / root: ${page.rootNodeId}`).join("\n");
-  const widgetCounts = nodes.reduce<Record<string, number>>((acc, node) => {
-    if (node?.type === "widget") {
-      const widgetType = node.widgetType ?? "widget";
-      acc[widgetType] = (acc[widgetType] ?? 0) + 1;
-    }
-    return acc;
-  }, {});
-  const widgetSummary = Object.entries(widgetCounts)
-    .map(([type, count]) => `${type} × ${count}`)
-    .join("、");
-  const nodeSketch = nodes
-    .slice(0, 12)
-    .map((node) => {
-      if (node?.type === "group") {
-        return `- ${node.id} / group / ${node.name} / children: ${node.childrenIds.length}`;
-      }
-      if (node?.type === "widget") {
-        const width = Math.round(node.layoutStyle.width);
-        const height = Math.round(node.layoutStyle.height);
-        const [x, y] = node.layoutStyle.position.map((value) => Math.round(value));
-        return `- ${node.id} / ${node.widgetType} / ${node.name} / ${width}×${height} @ ${x},${y}`;
-      }
-      return null;
-    })
-    .filter(Boolean)
-    .join("\n");
+function summarizeJSXStream(streamText: string): string {
+  const cleaned = cleanStreamText(streamText);
+  const componentCount = (cleaned.match(/React\.createElement/g) ?? []).length;
+  const lines = [
+    `已生成约 ${componentCount} 个 React 元素节点。`,
+    "正在组装完整的看板组件代码...",
+  ];
+  return renderProgress("③ 生成 JSX 看板代码", lines, streamText);
+}
 
+function summarizeFinalResult(jsxCode: JSXCode, story: BoardStory, vi: VISystem): string {
+  const pages = story.pages.map((p, i) => `${i + 1}. ${p.name}`).join("\n");
   return [
-    "步骤 2/3：页面结构设计完成",
+    "✅ V2 管线全部完成！",
+    "",
+    `组件名称：${jsxCode.metadata.componentName}`,
+    `画布尺寸：${jsxCode.metadata.canvasSize.width} × ${jsxCode.metadata.canvasSize.height}`,
+    `页面数量：${jsxCode.metadata.pageCount} 页`,
+    `组件数量：约 ${jsxCode.metadata.estimatedComponents} 个`,
+    `图表类型：${jsxCode.metadata.chartTypesUsed.join("、") || "无"}`,
     "",
     "页面结构：",
     pages,
     "",
-    `节点总数：${nodes.length} 个`,
-    widgetSummary ? `组件构成：${widgetSummary}` : "",
-    "",
-    "节点草图：",
-    nodeSketch,
-    "",
-    "结构策略：关键指标优先占据高可见区域，趋势、排行、拆解和明细模块围绕主结论提供证据。",
-  ].filter(Boolean).join("\n");
+    "VI 主题：" + vi.themeProfile.name + " (" + vi.themeProfile.theme + ")",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
-function summarizeVisualStream(streamText: string) {
-  const cleaned = cleanStreamText(streamText);
-  const palette = Array.from(cleaned.matchAll(/#[0-9a-fA-F]{6}/g)).map((match) => match[0]);
-  const lines = [
-    readJsonStringField(cleaned, "theme") ? `主题方向：${readJsonStringField(cleaned, "theme")}` : "正在确定整体主题方向。",
-    readJsonStringField(cleaned, "tone") ? `表达气质：${readJsonStringField(cleaned, "tone")}` : "正在匹配看板的业务语气。",
-    readJsonStringField(cleaned, "density") ? `信息密度：${readJsonStringField(cleaned, "density")}` : "正在控制页面密度和可读性。",
-    palette.length ? `候选色彩：${uniqueValues(palette, 6).join("、")}` : "正在生成背景、面板、图表和状态色。",
-  ];
-  return renderProgress("步骤 3/3：视觉系统设计", lines, streamText);
-}
-
-function summarizeVisualResult(visualSystem: VisualSystemSpec) {
-  return [
-    "步骤 3/3：视觉系统设计完成",
-    "",
-    `主题：${visualSystem.themeProfile.theme}`,
-    `气质：${visualSystem.themeProfile.tone}`,
-    `密度：${visualSystem.themeProfile.density}`,
-    `对比度：${visualSystem.themeProfile.contrast}`,
-    `面板风格：${visualSystem.themeProfile.surfaceStyle}`,
-    `图表色板：${visualSystem.tokens.chartPalette.join("、")}`,
-    `状态色：正向 ${visualSystem.tokens.positive} / 警示 ${visualSystem.tokens.warning} / 负向 ${visualSystem.tokens.negative}`,
-    "",
-    "组件规则：",
-    `- KPI 卡片：${visualSystem.componentRules.kpiCard}`,
-    `- 图表面板：${visualSystem.componentRules.chartPanel}`,
-    `- 标题徽标：${visualSystem.componentRules.chartTitleBadge}`,
-    `- 图表网格：${visualSystem.componentRules.chartGrid}`,
-    "",
-    "正在合成最终看板并进入预览界面。",
-  ].join("\n");
-}
+// ─── Initial State ────────────────────────────────────────
 
 const INITIAL_STATE: PipelineState = {
   step: "idle",
   brief: "",
-  analysis: null,
-  structure: null,
-  structureDigest: null,
-  visualSystem: null,
-  visdoc: null,
+  viSystem: null,
+  boardStory: null,
+  jsxCode: null,
   statusText: "等待生成请求。",
   errorMsg: null,
 };
@@ -242,27 +183,7 @@ export function usePipeline(): UsePipelineReturn {
   const abortRef = useRef<AbortController | null>(null);
   const isRunningRef = useRef(false);
 
-  // ── 恢复 localStorage ──
-  useEffect(() => {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = visdocSchema.parse(JSON.parse(raw));
-      window.setTimeout(() => {
-        setState((prev) => ({
-          ...prev,
-          visdoc: parsed,
-          activePageId: parsed.currentPageId,
-          step: "done",
-          statusText: `已恢复上次保存的看板文档（${parsed.pages.length} 页）`,
-        }));
-      }, 0);
-    } catch {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-    }
-  }, []);
-
-  // ── 运行三步流水线 ──
+  // ── 运行管线 ──
   const runPipeline = useCallback(async (brief: string) => {
     if (isRunningRef.current) return;
     const trimmedBrief = brief.trim();
@@ -277,126 +198,127 @@ export function usePipeline(): UsePipelineReturn {
     setMessages((prev) => [
       ...prev,
       createTextMessage("user", trimmedBrief),
-      { id: assistantId, role: "assistant", parts: [{ type: "text" as const, text: "开始理解你的看板需求..." }] },
+      { id: assistantId, role: "assistant", parts: [{ type: "text" as const, text: "开始设计你的数据大屏..." }] },
     ]);
 
     const updateAssistant = (text: string) => {
       setMessages((prev) =>
-        prev.map((m) => m.id === assistantId ? { ...m, parts: [{ type: "text" as const, text }] } : m),
+        prev.map((m) => (m.id === assistantId ? { ...m, parts: [{ type: "text" as const, text }] } : m)),
       );
-    };
-    const completedSections: string[] = [];
-    const renderTranscript = (draft?: string) => {
-      updateAssistant([...completedSections, draft].filter(Boolean).join("\n\n---\n\n"));
-    };
-    const commitTranscript = (section: string) => {
-      completedSections.push(section);
-      renderTranscript();
     };
 
     try {
-      // ═══ Step 1: Analyze ═══
-      setState((s) => ({ ...s, step: "analyzing", brief: trimmedBrief, statusText: "正在分析用户需求…" }));
-      renderTranscript("步骤 1/3：需求分析\n\n正在识别业务主题、页面范围、核心指标和视觉表达方向...");
+      // ════════════════════════════════════════
+      // Step 1 + Step 2 并发执行
+      // ════════════════════════════════════════
+      setState((s) => ({ ...s, step: "designing", brief: trimmedBrief, statusText: "同时启动 VI 设计和故事设计…" }));
+      updateAssistant("正在同时进行两步设计工作…\n\n");
 
-      const analyzeRes = await callPipelineStep(
-        "/api/board/analyze",
-        { brief: trimmedBrief },
-        (streamText) => {
-          renderTranscript(summarizeAnalysisStream(streamText));
-          try {
-            const partial = JSON.parse(cleanStreamText(streamText));
-            if (partial.summary || partial.pages) {
-              const normalizedPartial = normalizeAnalysisReport(partial);
-              setState((s) => ({
-                ...s,
-                analysis: analysisReportSchema.safeParse(normalizedPartial).success ? analysisReportSchema.parse(normalizedPartial) : s.analysis,
-              }));
-            }
-          } catch { /* 增量解析失败是正常的 */ }
-        },
-        ac.signal,
-      );
-      const analysis = analysisReportSchema.parse(normalizeAnalysisReport(analyzeRes.json));
+      let viStreamAcc = "";
+      let storyStreamAcc = "";
 
-      setState((s) => ({ ...s, step: "analyzed", analysis, statusText: `✅ 需求分析完成：${analysis.pages.length} 个页面规划` }));
-      commitTranscript(summarizeAnalysisResult(analysis));
+      const [viResult, storyResult] = await Promise.allSettled([
+        callPipelineStep(
+          "/api/board/design-vi",
+          { brief: trimmedBrief },
+          (streamText) => {
+            viStreamAcc = streamText;
+            updateAssistant(
+              `① 设计 VI 系统\n\n${summarizeVIStream(streamText)}\n\n---\n\n② 设计看板故事\n\n${storyStreamAcc ? summarizeStoryStream(storyStreamAcc) : "等待 VI 设计完成后自动开始…"}`,
+            );
+            // 尝试增量解析
+            try {
+              const partial = JSON.parse(cleanStreamText(streamText));
+              if (partial.colors?.background) {
+                setState((s) => ({
+                  ...s,
+                  viSystem: viSystemSchema.safeParse(partial).success
+                    ? viSystemSchema.parse(partial)
+                    : s.viSystem,
+                }));
+              }
+            } catch { /* 增量解析失败是正常的 */ }
+          },
+          ac.signal,
+        ),
+        callPipelineStep(
+          "/api/board/design-story",
+          { brief: trimmedBrief },
+          (streamText) => {
+            storyStreamAcc = streamText;
+            updateAssistant(
+              `① 设计 VI 系统\n\n${viStreamAcc ? summarizeVIStream(viStreamAcc) : "正在分析用户需求并设计 VI Token 系统…"}\n\n---\n\n② 设计看板故事\n\n${summarizeStoryStream(streamText)}`,
+            );
+          },
+          ac.signal,
+        ),
+      ]);
 
-      // ═══ Step 2: Structure ═══
-      renderTranscript(`步骤 2/3：页面结构设计\n\n需求分析完成，已规划 ${analysis.pages.length} 个页面。正在生成布局、组件层级和数据模块结构...`);
-      setState((s) => ({ ...s, step: "structuring", statusText: "正在设计页面布局结构…" }));
+      // 解析 Step 1 结果
+      let viSystem: VISystem;
+      if (viResult.status === "fulfilled") {
+        const parsed = viSystemSchema.parse(viResult.value.json);
+        viSystem = parsed;
+      } else {
+        throw new Error(`VI 设计失败: ${viResult.reason instanceof Error ? viResult.reason.message : String(viResult.reason)}`);
+      }
 
-      const structureRes = await callPipelineStep(
-        "/api/board/structure",
-        { brief: trimmedBrief, analysis: analyzeRes.json },
-        (streamText) => {
-          renderTranscript(summarizeStructureStream(streamText, analysis));
-        },
-        ac.signal,
-      );
-      const structure = boardStructureSchema.parse(structureRes.json);
-      const structureDigest = buildStructureDigest(structure);
+      // 解析 Step 2 结果
+      let boardStory: BoardStory;
+      if (storyResult.status === "fulfilled") {
+        const normalized = normalizeBoardStory(storyResult.value.json);
+        boardStory = boardStorySchema.parse(normalized);
+      } else {
+        throw new Error(`故事设计失败: ${storyResult.reason instanceof Error ? storyResult.reason.message : String(storyResult.reason)}`);
+      }
 
       setState((s) => ({
         ...s,
-        step: "structured",
-        structure,
-        structureDigest,
-        statusText: `✅ 结构设计完成：${Object.keys(structure.nodeMap).length} 个节点`,
+        step: "designed",
+        viSystem,
+        boardStory,
+        statusText: `✅ VI 系统和看板故事已完成（${boardStory.pages.length} 页）`,
       }));
-      commitTranscript(summarizeStructureResult(structure));
 
-      // ═══ Step 3: Visualize ═══
-      renderTranscript(`步骤 3/3：视觉系统设计\n\n结构设计完成，已生成 ${Object.keys(structure.nodeMap).length} 个节点。正在配置主题、图表样式、颜色和大屏视觉层次...`);
-      setState((s) => ({ ...s, step: "visualizing", statusText: "正在应用视觉风格系统…" }));
+      // ════════════════════════════════════════
+      // Step 3: JSX 代码生成
+      // ════════════════════════════════════════
+      updateAssistant(`✅ VI 系统和故事设计完成！\n\nVI 主题：${viSystem.themeProfile.name}\n页面规划：${boardStory.pages.map((p) => p.name).join("、")}\n\n正在生成最终的 JSX 看板代码…\n\n`);
 
-      const visualizeRes = await callPipelineStep(
-        "/api/board/visualize",
+      setState((s) => ({ ...s, step: "generating", statusText: "正在生成 JSX 看板代码…" }));
+
+      const jsxResult = await callPipelineStep(
+        "/api/board/generate-jsx",
         {
           brief: trimmedBrief,
-          visualBrief: analysis.visualBrief,
-          structureDigest,
+          viSystem: viResult.status === "fulfilled" ? viResult.value.json : undefined,
+          boardStory: storyResult.status === "fulfilled" ? storyResult.value.json : undefined,
         },
         (streamText) => {
-          renderTranscript(summarizeVisualStream(streamText));
-          try {
-            const partialVisual = JSON.parse(cleanStreamText(streamText));
-            if (visualSystemSchema.safeParse(partialVisual).success) {
-              const visualSystem = visualSystemSchema.parse(partialVisual);
-              setState((s) => ({
-                ...s,
-                visualSystem,
-                visdoc: s.structure ? composeVisdoc(s.structure, visualSystem) : s.visdoc,
-              }));
-            }
-          } catch { /* ok */ }
+          updateAssistant(summarizeJSXStream(streamText));
         },
         ac.signal,
       );
-      const visualSystem = visualSystemSchema.parse(visualizeRes.json);
-      commitTranscript(summarizeVisualResult(visualSystem));
-      const visdoc = composeVisdoc(structure, visualSystem);
 
-      // 保存到 localStorage
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(visdoc));
+      // 标准化 JSX 输出，处理缺失字段
+      const normalizedJSX = normalizeJSXCode(jsxResult.json);
+      const jsxCode = jsxCodeSchema.parse(normalizedJSX);
 
       setState({
         step: "done",
         brief: trimmedBrief,
-        analysis,
-        structure,
-        structureDigest,
-        visualSystem,
-        visdoc,
-        activePageId: visdoc.currentPageId,
-        statusText: `✅ 全部完成！${visdoc.pages.length} 页看板已生成`,
+        viSystem,
+        boardStory,
+        jsxCode,
+        statusText: `✅ 全部完成！${jsxCode.metadata.componentName} 已就绪`,
         errorMsg: null,
       });
-      commitTranscript(`看板生成完毕。\n\n共 ${visdoc.pages.length} 页、${Object.keys(visdoc.nodeMap).length} 个组件，正在进入预览界面。`);
+
+      updateAssistant(summarizeFinalResult(jsxCode, boardStory, viSystem));
 
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
-        renderTranscript("已停止本次生成。");
+        updateAssistant("已停止本次生成。");
         setState((s) => ({ ...s, step: "idle", statusText: "已中止", errorMsg: null }));
         return;
       }
@@ -408,8 +330,7 @@ export function usePipeline(): UsePipelineReturn {
         errorMsg: msg,
         statusText: `❌ 流水线中断: ${msg.slice(0, 120)}`,
       }));
-      renderTranscript(`❌ 出错了: ${msg.slice(0, 200)}。请重试。`);
-
+      updateAssistant(`❌ 出错了: ${msg.slice(0, 200)}。请重试。`);
     } finally {
       isRunningRef.current = false;
     }
@@ -425,22 +346,11 @@ export function usePipeline(): UsePipelineReturn {
   // ── 清空 ──
   const clear = useCallback(() => {
     stop();
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
     setMessages([]);
     setState({ ...INITIAL_STATE });
   }, [stop]);
 
-  // ── 切换页面 ──
-  const changePage = useCallback((pageId: string) => {
-    setState((s) => {
-      if (!s.visdoc) return s;
-      const nextDoc = { ...s.visdoc, currentPageId: pageId };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextDoc));
-      return { ...s, activePageId: pageId, visdoc: nextDoc };
-    });
-  }, []);
+  const isRunning = state.step === "designing" || state.step === "generating";
 
-  const isRunning = RUNNING_STEPS.has(state.step as PipelineStep);
-
-  return { state, messages, isRunning, runPipeline, stop, clear, changePage };
+  return { state, messages, isRunning, runPipeline, stop, clear };
 }

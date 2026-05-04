@@ -1,436 +1,666 @@
 "use client";
 
-import { LoaderCircle, RefreshCw, Wand2 } from "lucide-react";
-
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@/components/ai-elements/message";
-import {
-  PromptInput,
-  PromptInputBody,
-  PromptInputButton,
-  PromptInputFooter,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
-import { DashboardStage } from "@/components/dashboard-stage";
+import React, { useCallback, useEffect, useState } from "react";
+import { JsxRenderer } from "./jsx-renderer";
+import { ViPreview } from "./vi-preview";
+import { StoryPreview } from "./story-preview";
 import { usePipeline } from "@/hooks/use-pipeline";
-import type { AnalysisReport, PagePlan, SuggestedWidget } from "@/lib/analysis-report";
-import type { PipelineState } from "@/lib/pipeline-types";
-import type { BoardStructure } from "@/lib/structure-schema";
-import type { VisualSystemSpec } from "@/lib/visual-system";
+import type { VISystem } from "@/lib/board/vi-system";
+import type { BoardStory } from "@/lib/board/board-story";
+import type { JSXCode } from "@/lib/board/jsx-output";
 
-function extractColors(text: string) {
-  return Array.from(new Set(text.match(/#[0-9a-fA-F]{6}/g) ?? [])).slice(0, 12);
+type ThemeMode = "light" | "dark";
+
+// ============================================================================
+// 类型定义
+// ============================================================================
+
+interface BoardStudioProps {
+  /** 初始用户输入的看板需求描述 */
+  initialPrompt?: string;
 }
 
-function PalettePreview({ text }: { text: string }) {
-  const colors = extractColors(text);
-  if (!colors.length) return null;
+// ============================================================================
+// 子组件：阶段指示器 (Step Indicator)
+// ============================================================================
+
+interface StepIndicatorProps {
+  currentPhase: string;
+  onStepClick?: (phase: string) => void;
+}
+
+const STEPS: {
+  phase: string;
+  label: string;
+  description: string;
+  icon: string;
+}[] = [
+  {
+    phase: "design-vi",
+    label: "VI 设计",
+    description: "设计视觉系统 Token",
+    icon: "🎨",
+  },
+  {
+    phase: "design-story",
+    label: "故事设计",
+    description: "规划看板布局与内容",
+    icon: "📖",
+  },
+  {
+    phase: "generate-jsx",
+    label: "生成代码",
+    description: "生成 JSX 看板代码",
+    icon: "⚡",
+  },
+];
+
+function StepIndicator({ currentPhase, onStepClick }: StepIndicatorProps) {
+  const currentStepIndex = STEPS.findIndex((s) => s.phase === currentPhase);
 
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
-      {colors.map((color) => (
-        <span
-          key={color}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1 pl-1 pr-2.5 text-xs font-medium text-white/72"
+    <div className="step-indicator flex items-center justify-center w-full py-3 px-4">
+      {STEPS.map((step, index) => {
+        const isCompleted = index < currentStepIndex;
+        const isCurrent = index === currentStepIndex;
+
+        return (
+          <React.Fragment key={step.phase}>
+            {/* 步骤节点 */}
+            <button
+              onClick={() =>
+                onStepClick?.(step.phase)
+              }
+              disabled={!isCurrent && !isCompleted}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                isCurrent
+                  ? "bg-primary text-primary-foreground shadow-md scale-105"
+                  : isCompleted
+                    ? "bg-primary/10 text-primary cursor-pointer hover:bg-primary/20"
+                    : "text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+            >
+              <span className="text-base">{isCompleted ? "✓" : step.icon}</span>
+              {!isCurrent ? (
+                <>
+                  <span className="text-xs font-medium hidden sm:inline">
+                    {step.label}
+                  </span>
+                  <span className="text-[10px] hidden md:inline opacity-70">
+                    {step.description}
+                  </span>
+                </>
+              ) : (
+                <div className="text-left hidden sm:block">
+                  <div className="text-xs font-semibold leading-tight">
+                    Step {index + 1}: {step.label}
+                  </div>
+                  <div className="text-[10px] opacity-80 leading-tight">
+                    {step.description}
+                  </div>
+                </div>
+              )}
+            </button>
+
+            {/* 连接线 */}
+            {index < STEPS.length - 1 && (
+              <div
+                className={`w-8 sm:w-12 h-0.5 mx-1 ${
+                  index < currentStepIndex
+                    ? "bg-primary"
+                    : "bg-border"
+                }`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================================================
+// 子组件：提示词输入区域
+// ============================================================================
+
+interface PromptInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  isLoading: boolean;
+  placeholder?: string;
+}
+
+function PromptInput({
+  value,
+  onChange,
+  onSubmit,
+  isLoading,
+  placeholder,
+}: PromptInputProps) {
+  // Ctrl/Cmd + Enter 提交
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (!isLoading && value.trim()) {
+          onSubmit();
+        }
+      }
+    },
+    [isLoading, value, onSubmit]
+  );
+
+  return (
+    <div className="prompt-input relative">
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={
+          placeholder ??
+          "描述你想要的数据看板…\n\n例如：\n• 一个展示电商销售数据的仪表盘\n• 用户增长趋势分析面板\n• 财务报表概览\n• 运营监控大屏"
+        }
+        disabled={isLoading}
+        rows={4}
+        className="w-full resize-none rounded-lg border border-input bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none disabled:opacity-50 transition-colors"
+      />
+      <div className="absolute bottom-3 right-3 flex items-center gap-2">
+        <kbd
+          className={`hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border ${
+            isLoading ? "opacity-50" : ""
+          }`}
         >
-          <span
-            className="h-5 w-5 rounded-full border border-white/20 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.22)]"
-            style={{ backgroundColor: color }}
-          />
-          {color}
-        </span>
-      ))}
+          ⌘↵
+        </kbd>
+        <button
+          onClick={onSubmit}
+          disabled={isLoading || !value.trim()}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+        >
+          {isLoading ? (
+            <>
+              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              处理中…
+            </>
+          ) : (
+            <>
+              开始设计
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
 
-function WidgetRolePill({ widget }: { widget: SuggestedWidget }) {
-  const tone =
-    widget.priority === "high"
-      ? "border-orange-300/20 bg-orange-300/[0.08] text-orange-100"
-      : widget.priority === "medium"
-        ? "border-cyan-300/20 bg-cyan-300/[0.07] text-cyan-100"
-        : "border-white/10 bg-white/[0.04] text-white/64";
+// ============================================================================
+// 子组件：主题切换按钮组
+// ============================================================================
 
+interface ThemeToggleProps {
+  mode: ThemeMode;
+  onChange: (mode: ThemeMode) => void;
+}
+
+function ThemeToggle({ mode, onChange }: ThemeToggleProps) {
   return (
-    <div className={`rounded-xl border px-3 py-2 ${tone}`}>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-md bg-black/20 px-2 py-0.5 text-[11px] uppercase tracking-wide">{widget.type}</span>
-        <span className="text-xs font-semibold">{widget.label}</span>
-      </div>
-      <p className="mt-1 line-clamp-2 text-xs leading-5 opacity-75">{widget.rationale}</p>
+    <div className="theme-toggle inline-flex rounded-lg border border-border p-0.5">
+      <button
+        onClick={() => onChange("light")}
+        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          mode === "light"
+            ? "bg-background shadow-sm text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        ☀️ 亮色
+      </button>
+      <button
+        onClick={() => onChange("dark")}
+        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+          mode === "dark"
+            ? "bg-background shadow-sm text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        🌙 暗色
+      </button>
     </div>
   );
 }
 
-function PagePlanCard({ page, index }: { page: PagePlan; index: number }) {
+// ============================================================================
+// 子组件：操作工具栏
+// ============================================================================
+
+interface ToolbarProps {
+  jsxCode: string;
+  onCopyCode: () => void;
+  onDownloadCode: () => void;
+  onRegenerate: () => void;
+  isLoading: boolean;
+  themeMode: ThemeMode;
+  onThemeChange: (mode: ThemeMode) => void;
+}
+
+function Toolbar({
+  jsxCode,
+  onCopyCode,
+  onRegenerate,
+  isLoading,
+  themeMode,
+  onThemeChange,
+}: ToolbarProps) {
   return (
-    <article className="rounded-xl border border-white/8 bg-black/18 p-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="text-xs text-white/38">页面 {index + 1}</div>
-          <h3 className="mt-1 text-sm font-semibold text-white">{page.name}</h3>
-        </div>
-        <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-xs text-white/62">
-          {page.analysisGoal}
-        </span>
-      </div>
+    <div className="toolbar flex items-center justify-between py-2 px-3 border-b border-border/50 bg-muted/20">
+      <div className="flex items-center gap-2">
+        <ThemeToggle mode={themeMode} onChange={onThemeChange} />
 
-      <p className="mt-3 text-sm leading-6 text-white/76">{page.keyQuestion}</p>
-      <div className="mt-3 grid gap-2 md:grid-cols-2">
-        <div className="rounded-lg bg-white/[0.035] p-2">
-          <div className="text-[11px] text-white/38">必须讲清</div>
-          <div className="mt-1 space-y-1 text-xs leading-5 text-white/68">
-            {page.mustInsights.map((item) => <div key={item}>· {item}</div>)}
-          </div>
-        </div>
-        <div className="rounded-lg bg-white/[0.035] p-2">
-          <div className="text-[11px] text-white/38">决策动作</div>
-          <p className="mt-1 text-xs leading-5 text-white/68">{page.decisionAction}</p>
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {page.keyMetrics.slice(0, 8).map((metric) => (
-          <span key={metric} className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] text-white/58">
-            {metric}
+        {jsxCode && (
+          <span className="text-[11px] text-muted-foreground font-mono ml-2">
+            {jsxCode.length.toLocaleString()} chars
           </span>
-        ))}
+        )}
       </div>
 
-      <div className="mt-3 grid gap-2 lg:grid-cols-2">
-        {page.suggestedWidgets.slice(0, 4).map((widget) => (
-          <WidgetRolePill key={`${page.name}-${widget.label}`} widget={widget} />
-        ))}
+      <div className="flex items-center gap-1.5">
+        {/* 复制代码 */}
+        <button
+          onClick={onCopyCode}
+          disabled={!jsxCode}
+          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-medium hover:bg-muted disabled:opacity-40 transition-colors"
+          title="复制 JSX 代码"
+        >
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
+            />
+          </svg>
+          复制
+        </button>
+
+        {/* 重新生成 */}
+        <button
+          onClick={onRegenerate}
+          disabled={isLoading}
+          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-medium text-primary hover:bg-primary/10 disabled:opacity-40 transition-colors"
+          title="重新生成（仅当前步骤）"
+        >
+          {isLoading ? (
+            <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          ) : (
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+              />
+            </svg>
+          )}
+          重试
+        </button>
       </div>
-    </article>
+    </div>
   );
 }
 
-function AnalysisPreview({ analysis }: { analysis: AnalysisReport }) {
-  const context = analysis.inferredContext;
+// ============================================================================
+// 主组件：BoardStudio
+// ============================================================================
+
+/**
+ * 看板工作室主组件
+ *
+ * 三步管线流程：
+ * 1. VI 系统设计 → 预览 Design Tokens
+ * 2. 看板故事设计 → 预览布局结构
+ * 3. JSX 代码生成 → 实时渲染预览
+ *
+ * 支持：
+ * - Step 1 & 2 并行执行
+ * - 亮色/暗色主题切换
+ * - 逐步确认 / 一键完成两种工作模式
+ */
+export function BoardStudio({
+  initialPrompt = "",
+}: BoardStudioProps) {
+  // ===== 本地状态 =====
+  const [prompt, setPrompt] = useState(initialPrompt);
+  const [activeTab, setActiveTab] = useState<
+    "input" | "preview" | "render"
+  >("input");
+  const [themeMode, setThemeMode] = useState<ThemeMode>("light");
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+
+  // ===== 管线 Hook =====
+  const { state, messages, isRunning, runPipeline, stop, clear } = usePipeline();
+
+  // ===== 从管线状态派生值 =====
+  const viDesign: VISystem | null = state.viSystem;
+  const story: BoardStory | null = state.boardStory;
+  const jsxResult: JSXCode | null = state.jsxCode;
+
+  // 调试日志
+  useEffect(() => {
+    console.log("[BoardStudio] State updated:", {
+      step: state.step,
+      hasViSystem: !!state.viSystem,
+      hasBoardStory: !!state.boardStory,
+      hasJsxCode: !!state.jsxCode,
+      jsxCodeLength: state.jsxCode?.code?.length,
+    });
+  }, [state]);
+
+  // ===== 事件处理 =====
+
+  /** 启动管线（从输入提交） */
+  const handleSubmit = useCallback(() => {
+    if (!prompt.trim()) return;
+    runPipeline(prompt);
+    setActiveTab("preview");
+  }, [prompt, runPipeline]);
+
+  /** 复制 JSX 代码到剪贴板 */
+  const handleCopyCode = useCallback(async () => {
+    if (!jsxResult?.code) return;
+    try {
+      await navigator.clipboard.writeText(jsxResult.code);
+      // TODO: 添加 toast 提示
+      console.log("[BoardStudio] 代码已复制到剪贴板");
+    } catch (err) {
+      console.error("[BoardStudio] 复制失败:", err);
+    }
+  }, [jsxResult]);
+
+  /** 下载 JSX 代码为文件 */
+  const handleDownloadCode = useCallback(() => {
+    if (!jsxResult?.code) return;
+    const blob = new Blob([jsxResult.code], {
+      type: "text/typescript;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dashboard-${Date.now()}.tsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [jsxResult]);
+
+  /** 重新执行当前步骤 */
+  const handleRegenerate = useCallback(() => {
+    // V2 管线不支持单步重试，只能重新运行整个流程
+    if (prompt.trim()) {
+      runPipeline(prompt);
+    }
+  }, [prompt, runPipeline]);
+
+  /** 切换到指定步骤 */
+  const handleStepClick = useCallback(
+    (phase: string) => {
+      // 管线是线性流程，不支持跳转
+      console.log(`[BoardStudio] 步骤点击: ${phase}`);
+    },
+    []
+  );
+
+
+
+  // ===== 渲染 =====
 
   return (
-    <section className="mt-5 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-      <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-xl border border-white/8 bg-black/18 p-4">
-          <div className="text-xs text-white/42">需求理解</div>
-          <h2 className="mt-2 text-lg font-semibold leading-7 text-white">{analysis.summary}</h2>
-          <p className="mt-2 text-sm leading-6 text-white/64">{analysis.overallGoal}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {[analysis.audience, context.industryTag, context.coreEntity, analysis.recommendedTheme].map((item) => (
-              <span key={item} className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs text-white/70">
-                {item}
-              </span>
-            ))}
-          </div>
+    <div
+      className="board-studio flex flex-col h-full bg-background text-foreground overflow-hidden"
+      data-pipeline-step={state.step}
+      data-pipeline-status={isRunning ? "running" : state.step}
+    >
+      {/* ====== 顶部栏 ====== */}
+      <header className="flex items-center justify-between px-4 py-2 border-b border-border/50 shrink-0">
+        {/* 左侧：标题 */}
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-bold tracking-tight">
+            AI 数据看板
+          </h1>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-xl border border-cyan-300/10 bg-cyan-300/[0.035] p-3">
-            <div className="text-xs text-cyan-100/58">业务假设</div>
-            <p className="mt-2 text-sm leading-6 text-white/70">{context.industryHypothesis}</p>
-          </div>
-          <div className="rounded-xl border border-orange-300/10 bg-orange-300/[0.035] p-3">
-            <div className="text-xs text-orange-100/58">经营模型</div>
-            <p className="mt-2 text-sm leading-6 text-white/70">{context.businessModelGuess}</p>
-          </div>
+        {/* 右侧：状态指示 */}
+        <div className="flex items-center gap-2">
+          {isRunning && (
+            <div className="flex items-center gap-1.5 text-xs text-primary animate-pulse">
+              <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+              AI 处理中…
+            </div>
+          )}
+          {state.step === "error" && (
+            <div className="flex items-center gap-1.5 text-xs text-destructive">
+              ❌ 出错了
+            </div>
+          )}
+          {state.step === "done" && (
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+              ✅ 完成
+            </div>
+          )}
         </div>
-      </div>
+      </header>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        {[
-          ["默认切片", context.defaultSlices],
-          ["关注问题", context.defaultConcerns],
-          ["潜在需求", analysis.potentialNeeds],
-        ].map(([label, values]) => (
-          <div key={label as string} className="rounded-xl border border-white/8 bg-black/18 p-3">
-            <div className="text-xs text-white/42">{label as string}</div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {(values as string[]).slice(0, 8).map((value) => (
-                <span key={value} className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] text-white/62">
-                  {value}
-                </span>
+      {/* ====== 阶段指示器 ====== */}
+      <StepIndicator
+        currentPhase={state.step === "designing" ? "design-vi" : state.step === "generating" ? "generate-jsx" : "design-vi"}
+        onStepClick={handleStepClick}
+      />
+
+      {/* ====== 主内容区 ====== */}
+      <main className="flex-1 overflow-auto">
+        {/* --- 输入模式 --- */}
+        {(state.step === "idle" ||
+          state.step === "error" ||
+          activeTab === "input") && (
+          <div className="max-w-2xl mx-auto p-6 space-y-4">
+            <div className="text-center mb-6 space-y-2">
+              <h2 className="text-xl font-bold">三步创建专业数据看板</h2>
+              <p className="text-sm text-muted-foreground">
+                AI 将依次设计视觉系统、规划看板布局、生成可渲染代码
+              </p>
+            </div>
+
+            <PromptInput
+              value={prompt}
+              onChange={setPrompt}
+              onSubmit={handleSubmit}
+              isLoading={isRunning}
+            />
+
+            {/* 错误信息 */}
+            {state.errorMsg && (
+              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+                <strong>错误：</strong>
+                {state.errorMsg}
+              </div>
+            )}
+
+            {/* 快捷示例 */}
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              {[
+                {
+                  title: "电商销售仪表盘",
+                  prompt: "一个电商销售数据仪表盘，包含 GMV 趋势图、品类占比饼图、TOP10 商品表格、关键指标卡片",
+                },
+                {
+                  title: "用户增长分析",
+                  prompt: "用户增长分析面板，展示 DAU/WAU/MAU 趋势、留存率漏斗、渠道来源分布",
+                },
+                {
+                  title: "财务报表概览",
+                  prompt: "企业财务报表看板，包含收入利润趋势、成本结构分析、现金流量表",
+                },
+                {
+                  title: "运营监控大屏",
+                  prompt: "实时运营监控大屏，展示实时订单量、服务器负载、告警列表、SLA 指标",
+                },
+              ].map((example) => (
+                <button
+                  key={example.title}
+                  onClick={() => setPrompt(example.prompt)}
+                  className="text-left p-3 rounded-lg border border-border/50 hover:border-primary/30 hover:bg-muted/30 transition-all group"
+                >
+                  <div className="text-xs font-medium text-foreground group-hover:text-primary transition-colors">
+                    {example.title}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+                    {example.prompt}
+                  </div>
+                </button>
               ))}
             </div>
           </div>
-        ))}
-      </div>
+        )}
 
-      <div className="mt-4 rounded-xl border border-white/8 bg-black/18 p-3">
-        <div className="text-xs text-white/42">数据故事线</div>
-        <p className="mt-2 text-sm leading-6 text-white/72">{analysis.dataStory}</p>
-      </div>
+        {/* --- 预览模式 --- */}
+        {activeTab === "preview" && state.step !== "idle" && (
+          <div className="h-full flex flex-col">
+            <Toolbar
+              jsxCode={jsxResult?.code ?? ""}
+              onCopyCode={handleCopyCode}
+              onDownloadCode={handleDownloadCode}
+              onRegenerate={handleRegenerate}
+              isLoading={isRunning}
+              themeMode={themeMode}
+              onThemeChange={setThemeMode}
+            />
 
-      <div className="mt-4 grid gap-3">
-        {analysis.pages.map((page, index) => (
-          <PagePlanCard key={page.name} page={page} index={index} />
-        ))}
-      </div>
-    </section>
-  );
-}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 divide-x divide-border/50 overflow-hidden">
+              {/* 左侧：设计预览区 */}
+              <div className="overflow-auto p-4 space-y-4">
+                {/* VI 系统预览 */}
+                {(state.step === "designing" ||
+                  state.step === "designed" ||
+                  state.step === "generating" ||
+                  state.step === "done") && (
+                  <section id="vi-preview-section">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                      Step 1: 视觉系统
+                    </h3>
+                    <ViPreview design={viDesign} themeMode={themeMode} />
+                  </section>
+                )}
 
-function collectPageNodes(structure: BoardStructure, rootNodeId: string) {
-  const result: BoardStructure["nodeMap"][string][] = [];
-  const visit = (nodeId: string) => {
-    const node = structure.nodeMap[nodeId];
-    if (!node) return;
-    result.push(node);
-    if (node.type === "group") {
-      node.childrenIds.forEach(visit);
-    }
-  };
-  visit(rootNodeId);
-  return result;
-}
+                {/* 故事预览 */}
+                {(state.step === "designing" ||
+                  state.step === "designed" ||
+                  state.step === "generating" ||
+                  state.step === "done") && (
+                  <section id="story-preview-section" className="pt-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                      Step 2: 看板布局
+                    </h3>
+                    <StoryPreview
+                      story={story}
+                      compact={false}
+                      onBlockClick={setSelectedBlockId}
+                    />
+                  </section>
+                )}
 
-function StructurePreview({ structure }: { structure: BoardStructure }) {
-  const nodes = Object.values(structure.nodeMap);
-  const groups = nodes.filter((node) => node.type === "group");
-  const widgets = nodes.filter((node) => node.type === "widget");
-  const widgetCounts = widgets.reduce<Record<string, number>>((acc, node) => {
-    acc[node.widgetType] = (acc[node.widgetType] ?? 0) + 1;
-    return acc;
-  }, {});
-
-  return (
-    <section className="mt-5 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-      <div className="grid gap-3 sm:grid-cols-4">
-        {[
-          ["页面", structure.pages.length],
-          ["节点", nodes.length],
-          ["分组", groups.length],
-          ["组件", widgets.length],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-xl border border-white/8 bg-black/20 px-3 py-2">
-            <div className="text-xs text-white/42">{label}</div>
-            <div className="mt-1 text-xl font-semibold text-white">{value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {Object.entries(widgetCounts).map(([type, count]) => (
-          <span key={type} className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs text-white/72">
-            {type} × {count}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-4 grid gap-3">
-        {structure.pages.map((page) => {
-          const pageNodes = collectPageNodes(structure, page.rootNodeId);
-          return (
-            <article key={page.id} className="rounded-xl border border-white/8 bg-black/18 p-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-white">{page.name}</h3>
-                <code className="rounded-md bg-black/28 px-2 py-1 text-xs text-white/48">{page.rootNodeId}</code>
+                {/* 代码查看器 */}
+                {jsxResult?.code && (
+                  <section id="code-viewer-section" className="pt-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                      生成的 JSX 代码
+                    </h3>
+                    <pre className="rounded-lg bg-gray-950 text-gray-100 p-4 text-xs font-mono overflow-auto max-h-96 leading-relaxed">
+                      {jsxResult.code}
+                    </pre>
+                  </section>
+                )}
               </div>
-              <div className="mt-3 grid gap-2 md:grid-cols-2">
-                {pageNodes.slice(0, 10).map((node) => {
-                  if (node.type === "group") {
-                    return (
-                      <div key={node.id} className="rounded-lg border border-cyan-300/10 bg-cyan-300/[0.035] px-3 py-2">
-                        <div className="truncate text-xs font-medium text-cyan-100">{node.name}</div>
-                        <div className="mt-1 text-[11px] text-white/42">group · children {node.childrenIds.length}</div>
+
+              {/* 右侧：渲染预览区 */}
+              <div className="overflow-auto bg-muted/10 p-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 sticky top-0 bg-inherit py-1">
+                  🖥️ 实时渲染预览
+                </h3>
+                {jsxResult?.code ? (
+                  <div
+                    className="rounded-lg border border-border bg-background shadow-sm min-h-[400px]"
+                    style={{
+                      backgroundColor:
+                        themeMode === "dark" ? "#09090b" : "#ffffff",
+                    }}
+                  >
+                    <JsxRenderer
+                      code={jsxResult.code}
+                      onError={(error) => {
+                        console.error("[BoardStudio] Render error:", error);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-64 text-muted-foreground">
+                    {isRunning &&
+                    state.step === "generating" ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span className="text-sm">正在生成 JSX 代码…</span>
                       </div>
-                    );
-                  }
-                  const [x, y] = node.layoutStyle.position.map((value) => Math.round(value));
-                  return (
-                    <div key={node.id} className="rounded-lg border border-orange-300/10 bg-orange-300/[0.035] px-3 py-2">
-                      <div className="truncate text-xs font-medium text-orange-100">{node.name}</div>
-                      <div className="mt-1 text-[11px] text-white/42">
-                        {node.widgetType} · {Math.round(node.layoutStyle.width)}×{Math.round(node.layoutStyle.height)} · {x},{y}
-                      </div>
-                    </div>
-                  );
-                })}
+                    ) : (
+                      <span className="text-sm">
+                        完成 Step 3 后在此处预览渲染效果
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-              {pageNodes.length > 10 && (
-                <div className="mt-2 text-xs text-white/38">还有 {pageNodes.length - 10} 个节点已纳入页面结构。</div>
-              )}
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function VisualSystemPreview({ visualSystem }: { visualSystem: VisualSystemSpec }) {
-  const tokenRows = [
-    ["页面背景", visualSystem.tokens.pageBg],
-    ["面板", visualSystem.tokens.panelBg],
-    ["强调", visualSystem.tokens.accent],
-    ["正向", visualSystem.tokens.positive],
-    ["警示", visualSystem.tokens.warning],
-    ["负向", visualSystem.tokens.negative],
-  ] as const;
-
-  return (
-    <section className="mt-5 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-white/8 bg-black/18 p-3">
-          <div className="text-xs text-white/42">视觉主题</div>
-          <div className="mt-2 text-sm text-white/82">
-            {visualSystem.themeProfile.theme} · {visualSystem.themeProfile.tone} · {visualSystem.themeProfile.density}
-          </div>
-          <div className="mt-1 text-xs text-white/46">
-            {visualSystem.themeProfile.surfaceStyle} / {visualSystem.themeProfile.contrast}
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/8 bg-black/18 p-3">
-          <div className="text-xs text-white/42">组件规则</div>
-          <div className="mt-2 text-xs leading-6 text-white/70">
-            KPI {visualSystem.componentRules.kpiCard} · 图表 {visualSystem.componentRules.chartPanel} · 网格 {visualSystem.componentRules.chartGrid}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {tokenRows.map(([label, color]) => (
-          <div key={label} className="flex items-center gap-3 rounded-xl border border-white/8 bg-black/18 p-2">
-            <span className="h-8 w-8 rounded-lg border border-white/20" style={{ backgroundColor: color }} />
-            <div>
-              <div className="text-xs text-white/42">{label}</div>
-              <div className="font-mono text-xs text-white/72">{color}</div>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-4 flex overflow-hidden rounded-xl border border-white/10">
-        {visualSystem.tokens.chartPalette.map((color) => (
-          <div key={color} className="h-10 flex-1" style={{ backgroundColor: color }} title={color} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PipelineDataPreview({ state }: { state: PipelineState }) {
-  return (
-    <>
-      {state.analysis && <AnalysisPreview analysis={state.analysis} />}
-      {state.structure && <StructurePreview structure={state.structure} />}
-      {state.visualSystem && <VisualSystemPreview visualSystem={state.visualSystem} />}
-    </>
-  );
-}
-
-// ══════════════════════════════════════════════════════════
-// ─── Main Component ─────────────────────────────────────
-// ══════════════════════════════════════════════════════════
-
-export function BoardStudio() {
-  const { state, messages, isRunning, runPipeline, stop, clear, changePage } = usePipeline();
-  const hasPreview = state.step === "done" && !!state.visdoc && !isRunning;
-
-  if (hasPreview) {
-    return (
-      <div className="relative h-dvh min-h-0 w-full overflow-hidden bg-[#050816]">
-        <DashboardStage
-          board={state.visdoc ?? undefined}
-          isLoading={false}
-          activePageId={state.activePageId}
-          onPageChange={changePage}
-        />
-        <div className="absolute right-4 top-4 z-30">
-          <button
-            type="button"
-            onClick={clear}
-            className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-black/45 px-4 py-2 text-sm font-medium text-white/82 shadow-2xl backdrop-blur-md transition hover:border-white/22 hover:bg-black/60 hover:text-white"
-          >
-            <RefreshCw className="h-4 w-4" />
-            重新生成新看板
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex h-dvh min-h-0 w-full flex-col bg-[#070a12]">
-      <main className="min-h-0 flex-1 overflow-hidden">
-        <Conversation className="h-full">
-          <ConversationContent className="mx-auto flex min-h-full w-full max-w-4xl justify-start gap-5 px-4 pb-36 pt-8 md:px-6 md:pt-12">
-            {messages.map((message) => (
-              <Message key={message.id} from={message.role} className="max-w-full">
-                <MessageContent className="rounded-2xl bg-transparent text-[15px] leading-7 text-white/90 group-[.is-user]:max-w-[78%] group-[.is-user]:bg-white/10 group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-white group-[.is-assistant]:w-full group-[.is-assistant]:px-1">
-                  {(() => {
-                    const text = message.parts.map((p) => p.text).join("\n");
-                    return (
-                      <>
-                        <MessageResponse
-                          className="text-white/90 [&_*]:text-inherit"
-                          isAnimating={message.role === "assistant" && isRunning}
-                        >
-                          {text}
-                        </MessageResponse>
-                        {message.role === "assistant" && <PalettePreview text={text} />}
-                        {message.role === "assistant" && <PipelineDataPreview state={state} />}
-                      </>
-                    );
-                  })()}
-                </MessageContent>
-              </Message>
-            ))}
-          </ConversationContent>
-          <ConversationScrollButton className="bottom-32 border-white/10 bg-black/60 text-white hover:bg-black/80" />
-        </Conversation>
+        )}
       </main>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-[#070a12] via-[#070a12]/95 to-transparent px-4 pb-4 pt-10 md:px-6 md:pb-6">
-        <PromptInput
-          className="pointer-events-auto mx-auto max-w-3xl rounded-[1.5rem] border border-white/10 bg-[rgba(14,18,30,0.96)] p-2 text-white shadow-2xl backdrop-blur-xl"
-          onSubmit={({ text }, event) => {
-            event.preventDefault();
-            runPipeline(text);
-          }}
-        >
-          <PromptInputBody>
-            <PromptInputTextarea
-              className="border-none bg-transparent text-white placeholder:text-white/36"
-              placeholder="描述你想要的数据可视化看板..."
-              disabled={isRunning}
-            />
-          </PromptInputBody>
-          <PromptInputFooter>
-            <PromptInputTools>
-              {messages.length > 0 && (
-                <PromptInputButton
-                  type="button"
-                  variant="ghost"
-                  className="text-white/58 hover:bg-white/10 hover:text-white"
-                  onClick={clear}
-                >
-                  清空
-                </PromptInputButton>
-              )}
-            </PromptInputTools>
-            <div className="flex items-center gap-2">
-              {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin text-white/50" /> : <Wand2 className="h-4 w-4 text-white/50" />}
-              <PromptInputSubmit
-                status={isRunning ? "streaming" : "ready"}
-                onStop={stop}
-                className="bg-[#f97316] text-[#140a00] hover:bg-[#fb923c]"
-              />
-            </div>
-          </PromptInputFooter>
-        </PromptInput>
-      </div>
+      {/* ====== 底部状态栏 ====== */}
+      <footer className="shrink-0 px-4 py-1.5 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <span>
+            Step:{" "}
+            <code className="font-mono text-foreground">
+              {state.step}
+            </code>
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span>{state.statusText}</span>
+        </div>
+      </footer>
     </div>
   );
 }
+
+export default BoardStudio;
