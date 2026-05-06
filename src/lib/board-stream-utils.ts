@@ -10,9 +10,14 @@ const DEFAULT_MODEL = "deepseek-v4-flash";
 
 export function createDeepSeekModel() {
   const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) throw new Error("Missing DEEPSEEK_API_KEY");
+  console.log("[createDeepSeekModel] API Key exists:", !!apiKey);
+  if (!apiKey) {
+    console.error("[createDeepSeekModel] DEEPSEEK_API_KEY is not set in environment variables");
+    throw new Error("Missing DEEPSEEK_API_KEY - please set it in .env.local");
+  }
   const baseURL = process.env.DEEPSEEK_BASE_URL ?? DEFAULT_BASE_URL;
   const modelName = process.env.DEEPSEEK_MODEL ?? DEFAULT_MODEL;
+  console.log("[createDeepSeekModel] Using model:", modelName, "at", baseURL);
   return createOpenAICompatible({ name: "deepseek", apiKey, baseURL })(modelName);
 }
 
