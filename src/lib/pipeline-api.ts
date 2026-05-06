@@ -128,3 +128,34 @@ export async function callPipelineStep(
     throw new Error(`Failed to parse JSON: ${error instanceof Error ? error.message : String(error)}\n\nRaw response:\n${raw.substring(0, 1000)}...`);
   }
 }
+
+/** 调用 pipeline 步骤 API，返回纯文本（不尝试解析 JSON） */
+export async function callPipelineStepText(
+  url: string,
+  body: Record<string, unknown>,
+  onStreamText?: (text: string) => void,
+  signal?: AbortSignal,
+): Promise<string> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+
+  if (!res.ok) throw new Error(`API ${url} returned ${res.status}`);
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No readable stream");
+
+  const decoder = new TextDecoder();
+  let raw = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    raw += decoder.decode(value, { stream: true });
+    onStreamText?.(raw);
+  }
+
+  return raw;
+}

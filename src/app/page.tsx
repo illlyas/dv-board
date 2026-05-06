@@ -1,11 +1,268 @@
 "use client";
 
-import { BoardStudio } from "@/components/board-studio";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+
+interface Project {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  thumbnail?: string;
+}
+
+type ViewMode = "recent" | "my-designs";
 
 export default function Home() {
+  const router = useRouter();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [viewMode, setViewMode] = useState<ViewMode>("my-designs");
+
+  // 从 localStorage 加载项目列表
+  useEffect(() => {
+    const stored = localStorage.getItem("dv-projects");
+    if (stored) {
+      try {
+        setProjects(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse projects:", e);
+      }
+    }
+  }, []);
+
+  // 创建新项目（自动处理重名，加序号）
+  const handleCreateProject = () => {
+    const baseName = "未命名项目";
+    const existingNames = new Set(projects.map((p) => p.name));
+
+    let name = baseName;
+    let counter = 1;
+    while (existingNames.has(name)) {
+      name = `${baseName} ${counter}`;
+      counter++;
+    }
+
+    const newProject: Project = {
+      id: `project-${Date.now()}`,
+      name,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedProjects = [...projects, newProject];
+    setProjects(updatedProjects);
+    localStorage.setItem("dv-projects", JSON.stringify(updatedProjects));
+
+    router.push(`/project/${newProject.id}`);
+  };
+
+  // 打开项目
+  const handleOpenProject = (projectId: string) => {
+    router.push(`/project/${projectId}`);
+  };
+
+  // 删除项目（同时删除 .dv/ 目录下的文件）
+  const handleDeleteProject = async (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("确定要删除这个项目吗？此操作不可恢复。")) return;
+
+    const project = projects.find((p) => p.id === projectId);
+
+    const updatedProjects = projects.filter((p) => p.id !== projectId);
+    setProjects(updatedProjects);
+    localStorage.setItem("dv-projects", JSON.stringify(updatedProjects));
+
+    // 删除对应的 .dv/ 目录
+    if (project?.name) {
+      try {
+        await fetch("/api/files/delete-project", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ projectName: project.name }),
+        });
+      } catch (err) {
+        console.error("Failed to delete project files:", err);
+      }
+    }
+  };
+
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
-      <BoardStudio />
+    <div className="flex h-full flex-col bg-background text-foreground">
+      {/* 顶部导航栏 */}
+      <header className="border-b border-border/50 px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="font-bold text-sm leading-tight">Open Design</h1>
+              <p className="text-[10px] text-muted-foreground leading-tight">
+                AI 数据看板
+              </p>
+            </div>
+          </div>
+
+          {/* 视图切换 */}
+          <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode("my-designs")}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
+                viewMode === "my-designs"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              我的设计
+            </button>
+            <button
+              onClick={() => setViewMode("recent")}
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
+                viewMode === "recent"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              最近
+            </button>
+          </div>
+        </div>
+
+        {/* 新建按钮 */}
+        <Button onClick={handleCreateProject} size="sm" className="gap-1.5">
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          新建
+        </Button>
+      </header>
+
+      {/* 主内容区 */}
+      <main className="flex-1 overflow-auto">
+        <div className="p-8">
+          {projects.length === 0 ? (
+            // 空状态
+            <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+              <div className="text-center space-y-4 max-w-md">
+                <div className="w-20 h-20 mx-auto rounded-2xl bg-muted/30 flex items-center justify-center">
+                  <svg
+                    className="w-10 h-10 text-muted-foreground"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold">还没有项目</h3>
+                <p className="text-sm text-muted-foreground">
+                  点击右上角"新建"按钮开始创建你的第一个数据看板
+                </p>
+              </div>
+            </div>
+          ) : (
+            // 项目网格
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  onClick={() => handleOpenProject(project.id)}
+                  className="group cursor-pointer"
+                >
+                  {/* 缩略图卡片 */}
+                  <div className="relative aspect-[4/3] rounded-xl bg-muted/20 border border-border/50 overflow-hidden mb-3 hover:border-border transition-all">
+                    {project.thumbnail ? (
+                      <img
+                        src={project.thumbnail}
+                        alt={project.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <svg
+                          className="w-12 h-12 text-muted-foreground/30"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      </div>
+                    )}
+
+                    {/* 删除按钮 */}
+                    <button
+                      onClick={(e) => handleDeleteProject(project.id, e)}
+                      className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-destructive hover:border-destructive hover:text-destructive-foreground"
+                    >
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* 项目信息 */}
+                  <div className="px-1">
+                    <h3 className="font-medium text-sm mb-1 truncate group-hover:text-primary transition-colors">
+                      {project.name}
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>
+                        {new Date(project.updatedAt).toLocaleDateString(
+                          "zh-CN",
+                          {
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
+                      </span>
+                      <span>·</span>
+                      <span>已同步</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("dark", "h-dvh", "antialiased", displayFont.variable, bodyFont.variable, "font-sans", geist.variable)}
+      className={cn("h-dvh", "antialiased", displayFont.variable, bodyFont.variable, "font-sans", geist.variable)}
     >
       <body className="flex h-full flex-col overflow-hidden">
         <TooltipProvider>{children}</TooltipProvider>

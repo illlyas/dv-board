@@ -67,8 +67,12 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
     console.log("[JsxRenderer] Rendering code, length:", code.length);
 
     try {
-      // 移除 export default
-      let cleanCode = code.replace(/export\s+default\s+/g, "");
+      // 1. 移除所有 import 语句（new Function 不支持 ES module 语法）
+      let cleanCode = code.replace(/^\s*import\s+.*?['"][^'"]+['"]\s*;?\s*$/gm, "");
+
+      // 2. 移除 export default / export
+      cleanCode = cleanCode.replace(/export\s+default\s+/g, "");
+      cleanCode = cleanCode.replace(/export\s+/g, "");
       
       // 提取函数名
       const functionMatch = cleanCode.match(/function\s+(\w+)/);

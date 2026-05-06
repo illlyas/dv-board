@@ -83,19 +83,61 @@ export const dataAnalysisModelSchema = z.object({
 
 // ─── API 响应 Schema ──────────────────────────────────────
 
+// 阶段一响应 A：信息充足，无需表单
+export const sufficientResponseSchema = z.object({
+  type: z.literal("sufficient"),
+  extractedInfo: z.object({
+    business_objective: z.string().optional().default(""),
+    audience: z.string().optional().default(""),
+    metrics: z.array(z.string()).optional().default([]),
+    dimensions: z.array(z.string()).optional().default([]),
+    comparisons: z.array(z.string()).optional().default([]),
+    decision_points: z.array(z.string()).optional().default([]),
+    filters: z.array(z.string()).optional().default([]),
+    alert_rules: z.array(z.string()).optional().default([]),
+    update_frequency: z.string().optional().default(""),
+    page_count_hint: z.string().optional().default(""),
+    visual_tone: z.string().optional().default(""),
+    industry: z.string().optional().default(""),
+    analysis_type: z.string().optional().default(""),
+  }).optional(),
+});
+
+// 阶段一响应 B：信息不足，返回表单（只含缺失字段）
+export const formResponseSchema = z.object({
+  type: z.literal("form"),
+  extractedInfo: z.object({
+    business_objective: z.string().optional().default(""),
+    audience: z.string().optional().default(""),
+    metrics: z.array(z.string()).optional().default([]),
+    dimensions: z.array(z.string()).optional().default([]),
+    comparisons: z.array(z.string()).optional().default([]),
+    filters: z.array(z.string()).optional().default([]),
+    alert_rules: z.array(z.string()).optional().default([]),
+    update_frequency: z.string().optional().default(""),
+    page_count_hint: z.string().optional().default(""),
+    visual_tone: z.string().optional().default(""),
+    industry: z.string().optional().default(""),
+    analysis_type: z.string().optional().default(""),
+  }).optional(),
+  missingFields: z.array(z.string()).optional().default([]),
+  form: questionFormSchema,
+});
+
+// 阶段二响应：Markdown story（纯文本流）
+export const storyMarkdownResponseSchema = z.object({
+  type: z.literal("story"),
+  markdown: z.string(),
+});
+
+export const analyzeResponseSchema = z.discriminatedUnion("type", [
+  sufficientResponseSchema,
+  formResponseSchema,
+]);
+
 export const storyResponseSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("form"),
-    currentModel: dataAnalysisModelSchema.partial(),
-    missingFields: z.array(z.string()),
-    form: questionFormSchema,
-  }),
-  z.object({
-    type: z.literal("model"),
-    currentModel: dataAnalysisModelSchema,
-    missingFields: z.array(z.string()),
-    form: z.null(),
-  }),
+  formResponseSchema,
+  storyMarkdownResponseSchema,
 ]);
 
 // ─── 类型导出 ─────────────────────────────────────────────
@@ -108,16 +150,29 @@ export type Comparison = z.infer<typeof comparisonSchema>;
 export type DecisionPoint = z.infer<typeof decisionPointSchema>;
 export type AlertRule = z.infer<typeof alertRuleSchema>;
 export type DataAnalysisModel = z.infer<typeof dataAnalysisModelSchema>;
+export type SufficientResponse = z.infer<typeof sufficientResponseSchema>;
+export type FormResponse = z.infer<typeof formResponseSchema>;
+export type StoryMarkdownResponse = z.infer<typeof storyMarkdownResponseSchema>;
+export type AnalyzeResponse = z.infer<typeof analyzeResponseSchema>;
 export type StoryResponse = z.infer<typeof storyResponseSchema>;
 
 // ─── 工具函数 ─────────────────────────────────────────────
 
-export function isFormResponse(response: StoryResponse): response is Extract<StoryResponse, { type: "form" }> {
+export function isSufficientResponse(response: AnalyzeResponse): response is SufficientResponse {
+  return response.type === "sufficient";
+}
+
+export function isFormResponse(response: AnalyzeResponse): response is FormResponse {
   return response.type === "form";
 }
 
-export function isModelComplete(response: StoryResponse): response is Extract<StoryResponse, { type: "model" }> {
-  return response.type === "model";
+export function isStoryResponse(response: StoryResponse): response is StoryMarkdownResponse {
+  return response.type === "story";
+}
+
+/** @deprecated 旧多轮流程使用，保留兼容性 */
+export function isModelComplete(response: StoryResponse): boolean {
+  return response.type === "story";
 }
 
 // 标准化函数：将字符串转换为对象格式
