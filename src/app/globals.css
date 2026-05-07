@@ -159,3 +159,52 @@ button {
     @apply font-sans;
   }
 }
+
+/* ── Tab bar：隐藏横向滚动条但保留滚动功能 ── */
+.tab-bar-scroll {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+}
+.tab-bar-scroll::-webkit-scrollbar {
+  display: none;               /* Chrome/Safari */
+}
+
+/* ── 自定义滚动条：浅色背景（白/灰底） ── */
+.scrollbar-light {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+.scrollbar-light::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.scrollbar-light::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-light::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 9999px;
+}
+.scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* ── 深色看板预览容器内部：统一深色滚动条 ── */
+.bg-gray-950 * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+.bg-gray-950 *::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.bg-gray-950 *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.bg-gray-950 *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+.bg-gray-950 *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+}

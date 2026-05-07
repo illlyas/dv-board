@@ -63,3 +63,13 @@ export const STEP_ORDER: PipelineStep[] = [
   "done",
   "error",
 ];
+
+export type AgentTaskStatus = "pending" | "running" | "done" | "skipped" | "error";
+
+export interface AgentTask {
+  id: string;
+  skill: string;
+  description: string;
+  inputs: Record<string, unknown>;
+  status: AgentTaskStatus;
+}

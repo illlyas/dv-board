@@ -26,7 +26,7 @@ export function TabBar({ openTabs, activeTabId, onTabSelect, onTabClose }: TabBa
   ];
 
   return (
-    <div className="flex items-end gap-0 border-b border-gray-100 bg-gray-50 shrink-0 overflow-x-auto">
+    <div className="flex items-end gap-0 border-b border-gray-100 bg-gray-50 shrink-0 overflow-x-auto tab-bar-scroll">
       {allTabs.map((tab) => {
         const isActive = activeTabId === tab.id;
         const isJsx = tab.label.endsWith(".jsx");

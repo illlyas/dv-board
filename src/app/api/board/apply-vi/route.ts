@@ -370,11 +370,16 @@ color: "#1a1a1a", // 正确！
 export async function POST(request: Request) {
   const body = await request.json() as {
     projectId?: string;
+    wireframeFile?: string;
+    outputFile?: string;
   };
 
   if (!body.projectId) {
     return new Response("Missing projectId", { status: 400 });
   }
+
+  const wireframeFile = body.wireframeFile || "wireframe.jsx";
+  const outputFile = body.outputFile || "dashboard.jsx";
 
   try {
     console.log('[apply-vi] Starting VI application...');
@@ -385,9 +390,9 @@ export async function POST(request: Request) {
     let viSystemContent: string;
 
     try {
-      jsxCode = await readFile(join(basePath, '页面', 'wireframe.jsx'), 'utf-8');
+      jsxCode = await readFile(join(basePath, '页面', wireframeFile), 'utf-8');
     } catch {
-      return new Response("Wireframe JSX not found in project", { status: 400 });
+      return new Response(`Wireframe JSX not found: ${wireframeFile}`, { status: 400 });
     }
 
     try {

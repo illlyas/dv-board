@@ -18,6 +18,7 @@ interface ChatPanelProps {
   currentStep: PipelineStep;
   currentForm: QuestionFormData | null;
   onClear: () => void;
+  editingFileName?: string;
 }
 
 export function ChatPanel({
@@ -30,6 +31,7 @@ export function ChatPanel({
   currentStep,
   currentForm,
   onClear,
+  editingFileName,
 }: ChatPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -51,6 +53,12 @@ export function ChatPanel({
   return (
     <>
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0">
+        {editingFileName && (
+          <div className="flex items-center gap-2 px-3 py-2 mb-2 bg-blue-50 border border-blue-100 rounded-lg text-xs text-blue-600">
+            <span>✏️</span>
+            <span>仪表盘编辑模式 · 正在编辑 <code className="font-mono bg-blue-100 px-1 rounded">{editingFileName}</code></span>
+          </div>
+        )}
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-3 py-12">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl">

@@ -6,7 +6,7 @@
 import { useCallback, useRef, useState } from "react";
 import { callPipelineStep } from "@/lib/pipeline-api";
 import { analyzeResponseSchema, isSufficientResponse, isFormResponse } from "@/lib/board/data-analysis-model";
-import type { PipelineState, ChatMessage } from "@/types/pipeline.types";
+import type { PipelineState, ChatMessage, AgentTask } from "@/types/pipeline.types";
 import {
   createUserMessage,
   createAssistantMessage,
@@ -196,7 +196,7 @@ export function usePipeline() {
         setMessages((prev) => [
           ...prev,
           createAssistantMessage(
-            `品牌化看板生成完成！共 ${jsxCode.metadata.pageCount} 个页面，${jsxCode.metadata.estimatedComponents} 个组件。已应用 ${jsxCode.metadata.viSystemApplied || 'VI 系统'}。`,
+            `品牌化看板生成完成！共 ${jsxCode.metadata.pageCount} 个页面，${jsxCode.metadata.estimatedComponents} 个组件。`,
             { jsxCodeData: jsxCode }
           ),
         ]);
@@ -334,6 +334,7 @@ export function usePipeline() {
     state,
     messages,
     isRunning: state.isLoading,
+    tasks: [] as AgentTask[],
     runPipeline,
     submitFormAnswers,
     stop,

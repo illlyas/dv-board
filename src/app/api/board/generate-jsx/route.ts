@@ -198,7 +198,7 @@ export default function Dashboard() {
         borderBottom: "1px solid rgba(255,255,255,0.08)",
         backdropFilter: "blur(10px)",
       }}>
-        <h1 style={{
+        <h1 data-widget-key="title" data-widget-type="Title" style={{
           fontSize: 24,
           fontWeight: 700,
           color: "#ffffff",
@@ -338,6 +338,33 @@ export default function Dashboard() {
 - ❌ 不要在函数外部定义变量
 
 ========================
+【可编辑元素标记规范】
+========================
+所有非 Widget 的可编辑块级元素（标题、副标题、说明文字等）必须加 data-widget-key 和 data-widget-type 属性，以便编辑模式下可以被选中和修改：
+
+\`\`\`jsx
+// ✅ 正确：标题加标记
+<h1 data-widget-key="title" data-widget-type="Title" style={...}>
+  智慧医院运营总览
+</h1>
+
+// ✅ 正确：副标题加标记
+<p data-widget-key="subtitle" data-widget-type="Subtitle" style={...}>
+  实时数据监控平台
+</p>
+
+// ✅ 正确：页脚说明文字加标记
+<span data-widget-key="footer_note" data-widget-type="Text" style={...}>
+  数据更新时间：每5分钟
+</span>
+
+// ❌ 错误：裸 HTML 元素没有标记
+<h1 style={...}>智慧医院运营总览</h1>
+\`\`\`
+
+data-widget-key 命名规范：语义化、唯一，如 title、subtitle、page_title、footer_note 等。
+
+========================
 【输出格式】
 ========================
 输出合法 JSON，不要有 markdown 代码块：
@@ -408,11 +435,12 @@ ${boardStoryText}
 3. ⚠️ **必须定义 widgets 配置对象**：包含所有组件的配置
 4. ⚠️ **使用 JSX 语法**：清晰易读，不要用 React.createElement
 5. ⚠️ **dataKey 命名规范**：使用下划线分隔，语义化（如 inpatient_count, outpatient_trend）
-6. 根据页面结构文档生成对应的组件配置
-7. 每个组件配置要完整，包含 type 和 props
-8. 布局要使用 CSS Grid 和 Flexbox
-9. 添加适当的过渡动画和悬停效果
-10. 代码必须完整可执行，可以通过 new Function() 执行
+6. ⚠️ **非 Widget 的可编辑元素必须加标记**：所有标题（h1~h6）、说明文字等必须加 data-widget-key 和 data-widget-type 属性
+7. 根据页面结构文档生成对应的组件配置
+8. 每个组件配置要完整，包含 type 和 props
+9. 布局要使用 CSS Grid 和 Flexbox
+10. 添加适当的过渡动画和悬停效果
+11. 代码必须完整可执行，可以通过 new Function() 执行
 
 请生成美观、现代化、基于组件配置的数据大屏界面代码。`,
     });

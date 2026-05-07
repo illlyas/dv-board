@@ -1,13 +1,28 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Streamdown } from "streamdown";
 import { cjk } from "@streamdown/cjk";
 import type { FileItem } from "@/types/board-studio.types";
 import { ScaledBoardPreview } from "./preview";
+import { EditablePreview, type SelectedWidget } from "./editable-preview";
 import { readFile } from "@/lib/pipeline/file-operations";
 
-export function FileTabContent({ file }: { file: FileItem }) {
+interface FileTabContentProps {
+  file: FileItem;
+  isEditing?: boolean;
+  selectedWidgets?: SelectedWidget[];
+  onSelectionChange?: (widgets: SelectedWidget[]) => void;
+  onCodeLoad?: (code: string) => void;
+}
+
+export const FileTabContent = memo(function FileTabContent({
+  file,
+  isEditing = false,
+  selectedWidgets = [],
+  onSelectionChange,
+  onCodeLoad,
+}: FileTabContentProps) {
   const [content, setContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const isJsx = file.name.endsWith(".jsx");
@@ -17,13 +32,16 @@ export function FileTabContent({ file }: { file: FileItem }) {
     setIsLoading(true);
     
     readFile(file.path)
-      .then((data) => setContent(data))
+      .then((data) => {
+        setContent(data);
+        onCodeLoad?.(data);
+      })
       .catch((err) => {
         console.error("[FileTabContent] read error:", err);
         setContent("读取文件失败");
       })
       .finally(() => setIsLoading(false));
-  }, [file.path]);
+  }, [file.path, file.updatedAt, onCodeLoad]);
 
   if (isLoading) {
     return (
@@ -36,6 +54,15 @@ export function FileTabContent({ file }: { file: FileItem }) {
   if (content === null) return null;
 
   if (isJsx) {
+    if (isEditing && onSelectionChange) {
+      return (
+        <EditablePreview
+          code={content}
+          selectedWidgets={selectedWidgets}
+          onSelectionChange={onSelectionChange}
+        />
+      );
+    }
     return <ScaledBoardPreview code={content} />;
   }
 
@@ -46,4 +73,4 @@ export function FileTabContent({ file }: { file: FileItem }) {
       </div>
     </div>
   );
-}
+});

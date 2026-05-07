@@ -94,8 +94,20 @@ export const SANDBOX_INJECTIONS = [
  * 标准化 AI 输出的 JSX 代码数据
  * 
  * 处理缺失的字段，提供合理的默认值
+ * 兼容两种情况：
+ * 1. AI 返回了完整 JSON：{ code, metadata, description }
+ * 2. AI 直接返回了纯 JSX 代码字符串（未包在 JSON 里）
  */
 export function normalizeJSXCode(input: unknown): Record<string, unknown> {
+  // 兜底：AI 直接返回了纯 JSX 代码字符串
+  if (typeof input === "string" && input.trim()) {
+    const code = input.trim();
+    return {
+      code,
+      metadata: inferMetadataFromCode(code),
+    };
+  }
+
   if (!input || typeof input !== "object") {
     return {
       code: EMPTY_JSX_CODE.code,
@@ -110,59 +122,58 @@ export function normalizeJSXCode(input: unknown): Record<string, unknown> {
     ? raw.code 
     : EMPTY_JSX_CODE.code;
 
-  // 处理 metadata
-  const rawMetadata = raw.metadata && typeof raw.metadata === "object" 
-    ? raw.metadata as Record<string, unknown>
-    : {};
-
-  // 尝试从代码中推断页面数量
-  let pageCount = 1;
-  if (typeof rawMetadata.pageCount === "number" && rawMetadata.pageCount > 0) {
-    pageCount = Math.floor(rawMetadata.pageCount);
-  } else if (typeof code === "string") {
-    // 尝试从代码中查找 useState 的初始化来推断页面数
-    const stateMatch = code.match(/useState\s*\(\s*0\s*\)/);
-    if (stateMatch) {
-      // 查找可能的页面数组定义
-      const pagesMatch = code.match(/pages\s*=\s*\[([^\]]+)\]/);
-      if (pagesMatch) {
-        const pagesContent = pagesMatch[1];
-        // 粗略估计页面数（通过逗号分隔）
-        const commaCount = (pagesContent.match(/,/g) || []).length;
-        pageCount = Math.max(1, commaCount + 1);
-      }
-    }
-  }
-
-  const metadata = {
-    componentName: typeof rawMetadata.componentName === "string" && rawMetadata.componentName.trim()
-      ? rawMetadata.componentName
-      : "Dashboard",
-    pageCount,
-    canvasSize: rawMetadata.canvasSize && typeof rawMetadata.canvasSize === "object"
-      ? {
-          width: typeof (rawMetadata.canvasSize as Record<string, unknown>).width === "number"
-            ? (rawMetadata.canvasSize as Record<string, unknown>).width
-            : 1920,
-          height: typeof (rawMetadata.canvasSize as Record<string, unknown>).height === "number"
-            ? (rawMetadata.canvasSize as Record<string, unknown>).height
-            : 1080,
-        }
-      : { width: 1920, height: 1080 },
-    estimatedComponents: typeof rawMetadata.estimatedComponents === "number" && rawMetadata.estimatedComponents >= 0
-      ? Math.floor(rawMetadata.estimatedComponents)
-      : 0,
-    chartTypesUsed: Array.isArray(rawMetadata.chartTypesUsed)
-      ? rawMetadata.chartTypesUsed.filter((item): item is string => typeof item === "string")
-      : [],
-    iconsUsed: Array.isArray(rawMetadata.iconsUsed)
-      ? rawMetadata.iconsUsed.filter((item): item is string => typeof item === "string")
-      : [],
-  };
+  const metadata = inferMetadataFromCode(code, raw.metadata);
 
   return {
     code,
     metadata,
     description: typeof raw.description === "string" ? raw.description : undefined,
+  };
+}
+
+function inferMetadataFromCode(
+  code: string,
+  rawMetadata?: unknown
+): Record<string, unknown> {
+  const meta = rawMetadata && typeof rawMetadata === "object"
+    ? rawMetadata as Record<string, unknown>
+    : {};
+
+  // 尝试从代码中推断页面数量
+  let pageCount = 1;
+  if (typeof meta.pageCount === "number" && meta.pageCount > 0) {
+    pageCount = Math.floor(meta.pageCount);
+  } else {
+    const pagesMatch = code.match(/pages\s*=\s*\[([^\]]+)\]/);
+    if (pagesMatch) {
+      const commaCount = (pagesMatch[1].match(/,/g) || []).length;
+      pageCount = Math.max(1, commaCount + 1);
+    }
+  }
+
+  return {
+    componentName: typeof meta.componentName === "string" && meta.componentName.trim()
+      ? meta.componentName
+      : "Dashboard",
+    pageCount,
+    canvasSize: meta.canvasSize && typeof meta.canvasSize === "object"
+      ? {
+          width: typeof (meta.canvasSize as Record<string, unknown>).width === "number"
+            ? (meta.canvasSize as Record<string, unknown>).width
+            : 1920,
+          height: typeof (meta.canvasSize as Record<string, unknown>).height === "number"
+            ? (meta.canvasSize as Record<string, unknown>).height
+            : 1080,
+        }
+      : { width: 1920, height: 1080 },
+    estimatedComponents: typeof meta.estimatedComponents === "number" && meta.estimatedComponents >= 0
+      ? Math.floor(meta.estimatedComponents)
+      : 0,
+    chartTypesUsed: Array.isArray(meta.chartTypesUsed)
+      ? meta.chartTypesUsed.filter((item): item is string => typeof item === "string")
+      : [],
+    iconsUsed: Array.isArray(meta.iconsUsed)
+      ? meta.iconsUsed.filter((item): item is string => typeof item === "string")
+      : [],
   };
 }

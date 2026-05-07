@@ -110,22 +110,12 @@ export async function callPipelineStep(
     return { json, rawText: raw };
   } catch (error) {
     console.error('[pipeline-api] JSON parse error:', error);
-    console.error('[pipeline-api] Raw text (full):', raw);
-    console.error('[pipeline-api] Cleaned text (full):', cleaned);
+    console.error('[pipeline-api] Raw text (first 500 chars):', raw.substring(0, 500));
     
-    // 尝试找到错误位置附近的内容
-    if (error instanceof SyntaxError) {
-      const match = error.message.match(/position (\d+)/);
-      if (match) {
-        const pos = parseInt(match[1]);
-        const start = Math.max(0, pos - 100);
-        const end = Math.min(cleaned.length, pos + 100);
-        console.error('[pipeline-api] Context around error position:', cleaned.substring(start, end));
-        console.error('[pipeline-api] Error at character:', cleaned[pos], '(code:', cleaned.charCodeAt(pos), ')');
-      }
-    }
-    
-    throw new Error(`Failed to parse JSON: ${error instanceof Error ? error.message : String(error)}\n\nRaw response:\n${raw.substring(0, 1000)}...`);
+    // 兜底：如果 JSON 解析失败，可能是 AI 直接返回了纯文本（如纯 JSX 代码）
+    // 将原始文本作为字符串返回，让调用方的 normalize 函数处理
+    console.warn('[pipeline-api] Returning raw text as fallback');
+    return { json: raw.trim(), rawText: raw };
   }
 }
 

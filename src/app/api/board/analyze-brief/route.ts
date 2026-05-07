@@ -160,8 +160,12 @@ const SYSTEM_PROMPT = `你是一个数据可视化看板需求分析师。
 }`;
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as { brief?: string };
+  const body = (await request.json()) as {
+    brief?: string;
+    conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
+  };
   const brief = body?.brief?.trim();
+  const conversationHistory = body?.conversationHistory ?? [];
 
   if (!brief) {
     return new Response("Missing brief", { status: 400 });
@@ -173,9 +177,13 @@ export async function POST(request: Request) {
     const result = streamText({
       model,
       system: SYSTEM_PROMPT,
-      prompt: `请分析以下看板需求，判断信息是否充足，并按格式输出结果：
-
-用户需求：${brief}`,
+      messages: [
+        ...conversationHistory,
+        {
+          role: "user",
+          content: `请分析以下看板需求，判断信息是否充足，并按格式输出结果：\n\n用户需求：${brief}`,
+        },
+      ],
     });
 
     return toTextStreamResponse(result);

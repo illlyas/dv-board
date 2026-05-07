@@ -31,11 +31,19 @@ export function useTabManager() {
     [activeTabId]
   );
 
+  // 更新已打开 tab 的文件信息（用于文件内容变更后触发重新加载）
+  const updateTabFile = useCallback((file: FileItem) => {
+    setOpenTabs((prev) =>
+      prev.map((t) => (t.id === file.path ? { ...t, file } : t))
+    );
+  }, []);
+
   return {
     openTabs,
     activeTabId,
     setActiveTabId,
     handleFileOpen,
     handleTabClose,
+    updateTabFile,
   };
 }

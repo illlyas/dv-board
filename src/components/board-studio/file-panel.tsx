@@ -6,6 +6,8 @@ import { listProjectFiles } from "@/lib/pipeline/file-operations";
 import { TabBar, FILES_TAB_ID } from "./tab-bar";
 import { FileList } from "./file-list";
 import { FileTabContent } from "./file-content";
+import { DashboardToolbar } from "./dashboard-toolbar";
+import type { SelectedWidget } from "./editable-preview";
 
 interface FilePanelProps {
   projectName: string;
@@ -15,6 +17,12 @@ interface FilePanelProps {
   activeTabId: string;
   onTabSelect: (id: string) => void;
   onTabClose: (id: string) => void;
+  editingTabId?: string;
+  onStartEdit: (file: FileItem) => void;
+  onExitEdit: () => void;
+  selectedWidgets: SelectedWidget[];
+  onSelectionChange: (widgets: SelectedWidget[]) => void;
+  onCodeLoad?: (code: string) => void;
 }
 
 export function FilePanel({
@@ -25,6 +33,12 @@ export function FilePanel({
   activeTabId,
   onTabSelect,
   onTabClose,
+  editingTabId,
+  onStartEdit,
+  onExitEdit,
+  selectedWidgets,
+  onSelectionChange,
+  onCodeLoad,
 }: FilePanelProps) {
   const [files, setFiles] = useState<FilesResponse["categories"] | null>(null);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
@@ -46,6 +60,9 @@ export function FilePanel({
     fetchFiles();
   }, [fetchFiles, refreshTrigger]);
 
+  const activeTab = openTabs.find(t => t.id === activeTabId);
+  const isJsxTab = activeTab?.file.name.endsWith(".jsx") ?? false;
+
   return (
     <div className="flex flex-col h-full min-w-0">
       <TabBar
@@ -54,6 +71,15 @@ export function FilePanel({
         onTabSelect={onTabSelect}
         onTabClose={onTabClose}
       />
+
+      {isJsxTab && activeTab && (
+        <DashboardToolbar
+          file={activeTab.file}
+          isEditing={editingTabId === activeTabId}
+          onStartEdit={() => onStartEdit(activeTab.file)}
+          onExitEdit={onExitEdit}
+        />
+      )}
 
       <div className="flex-1 min-h-0 overflow-hidden bg-white">
         {/* 项目文件 tab */}
@@ -87,7 +113,13 @@ export function FilePanel({
         {/* 文件预览 tabs */}
         {openTabs.map((tab) => (
           <div key={tab.id} className={`h-full ${activeTabId === tab.id ? "" : "hidden"}`}>
-            <FileTabContent file={tab.file} />
+            <FileTabContent
+              file={tab.file}
+              isEditing={editingTabId === tab.id}
+              selectedWidgets={editingTabId === tab.id ? selectedWidgets : []}
+              onSelectionChange={editingTabId === tab.id ? onSelectionChange : undefined}
+              onCodeLoad={editingTabId === tab.id ? onCodeLoad : undefined}
+            />
           </div>
         ))}
       </div>

@@ -79,7 +79,8 @@ export async function executeVISystem(ctx: StepExecutorContext): Promise<string>
  */
 export async function executeJSXGeneration(
   pagesStory: string,
-  ctx: StepExecutorContext
+  ctx: StepExecutorContext,
+  filename = "wireframe.jsx"
 ): Promise<JSXCode> {
   const jsxResult = await callPipelineStep(
     "/api/board/generate-jsx",
@@ -93,7 +94,7 @@ export async function executeJSXGeneration(
 
   // 保存线框代码，供后端 apply-vi 直接读取
   if (ctx.projectName) {
-    await saveFile(ctx.projectName, "页面", "wireframe.jsx", jsxCode.code);
+    await saveFile(ctx.projectName, "页面", filename, jsxCode.code);
   }
 
   return jsxCode;
@@ -103,11 +104,13 @@ export async function executeJSXGeneration(
  * 执行 VI 系统应用步骤
  */
 export async function executeVIApplication(
-  ctx: StepExecutorContext
+  ctx: StepExecutorContext,
+  wireframeFile = "wireframe.jsx",
+  outputFile = "dashboard.jsx"
 ): Promise<JSXCode> {
   const viResult = await callPipelineStep(
     "/api/board/apply-vi",
-    { projectId: ctx.projectName },
+    { projectId: ctx.projectName, wireframeFile, outputFile },
     undefined,
     ctx.signal
   );
@@ -117,7 +120,7 @@ export async function executeVIApplication(
 
   // 保存最终的品牌化代码
   if (ctx.projectName) {
-    await saveFile(ctx.projectName, "页面", "dashboard.jsx", jsxCode.code);
+    await saveFile(ctx.projectName, "页面", outputFile, jsxCode.code);
   }
 
   return jsxCode;
