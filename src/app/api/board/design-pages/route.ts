@@ -8,10 +8,23 @@
  */
 import { streamText } from "ai";
 import { createDeepSeekModel, toTextStreamResponse } from "@/lib/board-stream-utils";
+import { generateWidgetTypesSimple, getWidgetsByCategory } from "@/lib/widget-metadata";
 
 export const maxDuration = 120;
 
-const SYSTEM_PROMPT = `你是一个数据可视化看板结构设计专家。你会收到一份 Design Story 文档，需要基于它设计一套完整的多页面看板结构，并以 Markdown 格式输出。
+// 动态生成系统提示词，包含最新的组件类型信息
+function generateSystemPrompt(): string {
+  try {
+    const widgetTypesInfo = generateWidgetTypesSimple();
+    console.log('[design-pages] Widget types info generated, length:', widgetTypesInfo.length);
+    
+    // 获取各类组件的详细信息
+    const dataDisplayWidgets = getWidgetsByCategory("data-display");
+    const chartWidgets = getWidgetsByCategory("chart");
+    const tableWidgets = getWidgetsByCategory("table");
+    const filterWidgets = getWidgetsByCategory("filter");
+    
+    return `你是一个数据可视化看板结构设计专家。你会收到一份 Design Story 文档，需要基于它设计一套完整的多页面看板结构，并以 Markdown 格式输出。
 
 ========================
 【页面数量规划】
@@ -30,18 +43,21 @@ const SYSTEM_PROMPT = `你是一个数据可视化看板结构设计专家。你
 ========================
 【组件类型说明】
 ========================
-可用的组件类型（type）：
-- text：标题、说明文字、注释
-- pixel：KPI 数值卡片（带同比/环比）
-- bullet：目标达成进度条
-- rank：排行榜列表
-- table：数据明细表格
-- select：筛选器/下拉选择
-- bar：柱状图
-- line：折线图/趋势图
-- pie：饼图/环形图
-- funnel：漏斗图
-- waterfall：瀑布图/贡献拆解
+
+${widgetTypesInfo}
+
+**组件类型映射**：
+- text → Text（标题、说明文字）
+- pixel → KPI/Metric/StatCard（KPI 数值卡片）
+- bullet → BarChart with target（目标达成进度）
+- rank → Table with sorting（排行榜）
+- table → Table（数据明细表格）
+- select → Select/MultiSelect（筛选器）
+- bar → BarChart（柱状图）
+- line → LineChart（折线图）
+- pie → PieChart/DonutChart（饼图）
+- funnel → FunnelChart（漏斗图）
+- waterfall → BarChart（瀑布图）
 
 组件分析角色（analyticRole）：
 - headline：核心结论/标题（每页必须有）
@@ -139,6 +155,18 @@ const SYSTEM_PROMPT = `你是一个数据可视化看板结构设计专家。你
 5. 从"对比分析"推断组件类型（同比/环比 → 折线图；目标对比 → bullet 图）
 6. 页面之间必须有逻辑递进关系（总览 → 分析 → 诊断）
 7. 每个页面聚焦一个核心问题，不要堆砌所有指标`;
+  } catch (error) {
+    console.error('[design-pages] Error generating system prompt:', error);
+    // 如果生成文档失败，返回一个简化版本的提示词
+    return `你是一个数据可视化看板结构设计专家。
+
+根据 Design Story 文档，设计完整的多页面看板结构，以 Markdown 格式输出。
+
+支持的组件类型：text、pixel、bar、line、pie、table、select
+
+每页包含 4-8 个组件，必须有 headline 和 evidence 角色的组件。`;
+  }
+}
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -156,9 +184,12 @@ export async function POST(request: Request) {
 
     const model = createDeepSeekModel();
 
+    // 动态生成系统提示词
+    const systemPrompt = generateSystemPrompt();
+
     const result = streamText({
       model,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       prompt: `以下是 Design Story 文档：
 
 ${designStory}
