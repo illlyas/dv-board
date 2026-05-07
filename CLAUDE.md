@@ -63,3 +63,6 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+## 5. 不用写总结性文档
+每次任务执行完毕不用编写任何解释或者说明性的文档，除非被要求这样去做

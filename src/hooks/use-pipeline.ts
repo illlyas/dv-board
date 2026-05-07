@@ -183,7 +183,7 @@ export function usePipeline() {
         ]);
 
         // Step 5: VI Application
-        const jsxCode = await executeVIApplication(wireframeJSX.code, viContent, ctx);
+        const jsxCode = await executeVIApplication(ctx);
 
         setState((s) => ({
           ...s,

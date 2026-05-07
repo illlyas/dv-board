@@ -91,8 +91,10 @@ export async function executeJSXGeneration(
   const normalizedJSX = normalizeJSXCode(jsxResult.json);
   const jsxCode = jsxCodeSchema.parse(normalizedJSX);
 
-  // 注意：这里不保存文件，因为还需要应用 VI 系统
-  // 保存操作移到 executeVIApplication 中
+  // 保存线框代码，供后端 apply-vi 直接读取
+  if (ctx.projectName) {
+    await saveFile(ctx.projectName, "页面", "wireframe.jsx", jsxCode.code);
+  }
 
   return jsxCode;
 }
@@ -101,17 +103,11 @@ export async function executeJSXGeneration(
  * 执行 VI 系统应用步骤
  */
 export async function executeVIApplication(
-  wireframeCode: string,
-  viContent: string,
   ctx: StepExecutorContext
 ): Promise<JSXCode> {
   const viResult = await callPipelineStep(
     "/api/board/apply-vi",
-    { 
-      jsxCode: wireframeCode,
-      viSystem: viContent,  // 传递 VI 系统内容
-      projectId: ctx.projectName 
-    },
+    { projectId: ctx.projectName },
     undefined,
     ctx.signal
   );

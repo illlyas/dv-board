@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import type { QuestionFormData } from "@/types/board-studio.types";
 
 interface FormRendererProps {
@@ -40,37 +38,6 @@ export function FormRenderer({ form, onSubmit, disabled }: FormRendererProps) {
             {q.label}
             {q.required && <span className="text-red-500 ml-1">*</span>}
           </label>
-
-          {q.type === "text" && (
-            <Input
-              value={(values[q.id] as string) ?? ""}
-              onChange={(e) => handleChange(q.id, e.target.value)}
-              placeholder={q.placeholder}
-              disabled={disabled}
-              className="bg-white"
-            />
-          )}
-
-          {q.type === "textarea" && (
-            <Textarea
-              value={(values[q.id] as string) ?? ""}
-              onChange={(e) => handleChange(q.id, e.target.value)}
-              placeholder={q.placeholder}
-              disabled={disabled}
-              className="bg-white min-h-20 resize-none"
-            />
-          )}
-
-          {q.type === "number" && (
-            <Input
-              type="number"
-              value={(values[q.id] as string) ?? ""}
-              onChange={(e) => handleChange(q.id, e.target.value)}
-              placeholder={q.placeholder}
-              disabled={disabled}
-              className="bg-white"
-            />
-          )}
 
           {q.type === "radio" && q.options && (
             <div className="space-y-1">

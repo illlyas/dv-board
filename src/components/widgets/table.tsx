@@ -78,13 +78,27 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
     return String(value) + (column.unit || "");
   };
 
+  // 默认颜色（深色模式）
+  const defaultColors = {
+    background: props.backgroundColor || "linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(139,92,246,0.03) 100%)",
+    titleColor: props.titleColor || "rgba(255,255,255,0.9)",
+    subtitleColor: props.subtitleColor || "rgba(255,255,255,0.5)",
+    borderColor: props.borderColor || "rgba(255,255,255,0.08)",
+    headerBg: props.headerBackgroundColor || "rgba(255,255,255,0.05)",
+    headerText: props.headerTextColor || "rgba(255,255,255,0.7)",
+    rowBg: props.rowBackgroundColor || "transparent",
+    rowText: props.rowTextColor || "rgba(255,255,255,0.8)",
+    stripedBg: props.stripedColor || "rgba(255,255,255,0.02)",
+    hoverBg: props.hoverBackgroundColor || "rgba(255,255,255,0.05)",
+  };
+
   return (
     <div style={{
       width: "100%",
       height: "100%",
-      background: "linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(139,92,246,0.03) 100%)",
+      background: defaultColors.background,
       backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.08)",
+      border: `1px solid ${defaultColors.borderColor}`,
       borderRadius: 16,
       padding: 20,
       display: "flex",
@@ -98,13 +112,13 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
           <div style={{
             fontSize: 16,
             fontWeight: 600,
-            color: "rgba(255,255,255,0.9)",
+            color: defaultColors.titleColor,
             marginBottom: 4,
           }}>{props.title}</div>
           {props.subtitle && (
             <div style={{
               fontSize: 12,
-              color: "rgba(255,255,255,0.5)",
+              color: defaultColors.subtitleColor,
             }}>{props.subtitle}</div>
           )}
         </div>
@@ -115,7 +129,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
         flex: 1,
         overflow: "auto",
         borderRadius: 8,
-        border: props.bordered ? "1px solid rgba(255,255,255,0.08)" : "none",
+        border: props.bordered ? `1px solid ${defaultColors.borderColor}` : "none",
       }}>
         {loading ? (
           <div style={{
@@ -147,14 +161,14 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
           }}>
             <thead>
               <tr style={{
-                background: "rgba(255,255,255,0.05)",
-                borderBottom: "1px solid rgba(255,255,255,0.1)",
+                background: defaultColors.headerBg,
+                borderBottom: `1px solid ${defaultColors.borderColor}`,
               }}>
                 {props.showIndex && (
                   <th style={{
                     padding: "12px 16px",
                     textAlign: "center",
-                    color: "rgba(255,255,255,0.7)",
+                    color: defaultColors.headerText,
                     fontWeight: 600,
                     width: 60,
                   }}>#</th>
@@ -166,7 +180,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                     style={{
                       padding: "12px 16px",
                       textAlign: column.align || "left",
-                      color: "rgba(255,255,255,0.7)",
+                      color: defaultColors.headerText,
                       fontWeight: 600,
                       width: column.width,
                       cursor: column.sortable ? "pointer" : "default",
@@ -174,7 +188,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                       position: column.fixed ? "sticky" : "relative",
                       left: column.fixed === "left" ? 0 : undefined,
                       right: column.fixed === "right" ? 0 : undefined,
-                      background: column.fixed ? "rgba(255,255,255,0.05)" : undefined,
+                      background: column.fixed ? defaultColors.headerBg : undefined,
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: column.align === "center" ? "center" : column.align === "right" ? "flex-end" : "flex-start" }}>
@@ -194,26 +208,26 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                 <tr
                   key={rowIndex}
                   style={{
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    borderBottom: `1px solid ${defaultColors.borderColor}`,
                     background: props.striped && rowIndex % 2 === 1 
-                      ? "rgba(255,255,255,0.02)" 
-                      : "transparent",
+                      ? defaultColors.stripedBg
+                      : defaultColors.rowBg,
                     transition: "background 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                    e.currentTarget.style.background = defaultColors.hoverBg;
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = props.striped && rowIndex % 2 === 1 
-                      ? "rgba(255,255,255,0.02)" 
-                      : "transparent";
+                      ? defaultColors.stripedBg
+                      : defaultColors.rowBg;
                   }}
                 >
                   {props.showIndex && (
                     <td style={{
                       padding: "12px 16px",
                       textAlign: "center",
-                      color: "rgba(255,255,255,0.5)",
+                      color: defaultColors.subtitleColor,
                     }}>
                       {(currentPage - 1) * pageSize + rowIndex + 1}
                     </td>
@@ -224,14 +238,14 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                       style={{
                         padding: "12px 16px",
                         textAlign: column.align || "left",
-                        color: "rgba(255,255,255,0.8)",
+                        color: defaultColors.rowText,
                         position: column.fixed ? "sticky" : "relative",
                         left: column.fixed === "left" ? 0 : undefined,
                         right: column.fixed === "right" ? 0 : undefined,
                         background: column.fixed 
                           ? (props.striped && rowIndex % 2 === 1 
-                            ? "rgba(255,255,255,0.02)" 
-                            : "rgba(255,255,255,0.01)")
+                            ? defaultColors.stripedBg
+                            : defaultColors.rowBg)
                           : undefined,
                       }}
                     >

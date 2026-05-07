@@ -23,6 +23,8 @@ function generateSystemPrompt(): string {
 2. **保持功能**：绝对不能修改 widgets 配置的 type 和 dataKey
 3. **品牌一致性**：严格遵循 VI 系统的所有规则
 4. **视觉优化**：优化信息层次、视觉流、品牌感
+5. **⚠️ 深色/浅色模式判断**：必须明确判断 VI 系统适合深色还是浅色模式，确保文字颜色与背景色对比度足够
+6. **⚠️ 配置驱动配色**：图表、表格的配色必须通过组件 props 配置实现，不是修改 CSS
 
 ========================
 【转换范围】
@@ -87,12 +89,84 @@ function generateSystemPrompt(): string {
   * 禁用状态：disabled 状态的视觉表现
 
 **4. 组件配置（widgets props）- 视觉属性调整**
-- **颜色配置**：gradient (渐变数组), color (单色), colors (多色配置)
-- **图表视觉**：showGrid, showLegend, legendPosition, showAxis, axisStyle
-- **表格样式**：striped (斑马纹), bordered (边框), hover (悬停高亮), dense (紧凑模式)
-- **配色方案**：colorScheme (heatmap, categorical, sequential)
-- **图标样式**：iconStyle, iconSize, iconColor
-- **注意**：只能修改视觉相关的 props，不能修改数据绑定相关的配置
+
+⚠️ **配色必须通过配置实现，不是修改 CSS**
+
+**基础配色属性（所有组件）**：
+• backgroundColor: 组件背景色
+• backgroundGradient: 背景渐变（字符串或数组）
+• textColor: 文字颜色
+• titleColor: 标题颜色
+• subtitleColor: 副标题颜色
+• borderColor: 边框颜色
+• iconColor: 图标颜色
+• theme: "light" 或 "dark" 主题模式
+
+**图表配色属性（LineChart, BarChart, PieChart 等）**：
+• colorScheme: 图表系列颜色数组
+• color: 单一颜色（所有系列使用同一颜色）
+• gradient: 渐变配置数组
+• gridColor: 网格线颜色
+• axisColor: 坐标轴颜色
+• axisTextColor: 坐标轴文字颜色
+• legendTextColor: 图例文字颜色
+• tooltipBackgroundColor: 工具提示背景色
+• tooltipTextColor: 工具提示文字颜色
+• dataLabelColor: 数据标签颜色
+• labelColor: 标签颜色（饼图）
+• percentageColor: 百分比文字颜色（饼图）
+
+**表格配色属性（Table）**：
+• headerBackgroundColor: 表头背景色
+• headerTextColor: 表头文字颜色
+• rowBackgroundColor: 行背景色
+• rowTextColor: 行文字颜色
+• stripedColor: 斑马纹颜色
+• hoverBackgroundColor: 悬停行背景色
+• borderColor: 边框颜色
+
+**KPI 配色属性**：
+• gradient: 渐变数组
+• color: 主色调
+• textColor: 文字颜色
+• titleColor: 标题颜色
+
+**配色示例**：
+\`\`\`javascript
+// ❌ 错误：修改 CSS
+const cardStyle = {
+  background: "#ffffff",
+  color: "#000000",
+};
+<div style={cardStyle}>
+  <Widget config={widgets.chart} />
+</div>
+
+// ✅ 正确：通过组件配置
+const widgets = {
+  chart: {
+    type: "LineChart",
+    props: {
+      title: "趋势图",
+      dataKey: "trend_data",
+      // 配色通过 props 配置
+      backgroundColor: "#ffffff",
+      titleColor: "#000000",
+      textColor: "#333333",
+      colorScheme: ["#3b82f6", "#8b5cf6"],
+      gridColor: "rgba(0,0,0,0.1)",
+      axisTextColor: "#666666",
+      // ...
+    }
+  }
+};
+\`\`\`
+
+**其他视觉属性**：
+• showGrid, showLegend, legendPosition, showAxis, axisStyle
+• striped (斑马纹), bordered (边框), hover (悬停高亮), dense (紧凑模式)
+• iconStyle, iconSize, iconColor
+• 注意：只能修改视觉相关的 props，不能修改数据绑定相关的配置
 
 **5. 高级视觉技巧**
 - **层次感营造**：
@@ -124,6 +198,58 @@ function generateSystemPrompt(): string {
 【转换策略】
 ========================
 
+**第零步：判断深色/浅色模式（最重要！）**
+
+⚠️ **必须首先判断 VI 系统适合深色模式还是浅色模式**
+
+**判断依据**：
+1. **背景色明度**：
+   - 深色模式：背景色 L < 50（HSL 色彩空间）
+   - 浅色模式：背景色 L > 50
+   
+2. **VI 文档明确说明**：
+   - 查找 "dark mode", "light mode", "深色", "浅色" 等关键词
+   - 查找背景色定义（Background, Surface, Canvas）
+
+3. **品牌特征**：
+   - Apple, Tesla, Netflix, Spotify → 深色模式
+   - Google, Airbnb, Notion → 浅色模式
+
+**配色对比度要求**：
+- **深色模式**：
+  * 背景：深色（#000000 - #2a2a2a）
+  * 文字：浅色（#ffffff, #f5f5f5, rgba(255,255,255,0.9)）
+  * 次要文字：中等浅色（rgba(255,255,255,0.6-0.7)）
+  * 边框：深灰（rgba(255,255,255,0.1-0.2)）
+  
+- **浅色模式**：
+  * 背景：浅色（#ffffff, #f5f5f5, #fafafa）
+  * 文字：深色（#000000, #1a1a1a, #333333）
+  * 次要文字：中等深色（#666666, #888888, rgba(0,0,0,0.6)）
+  * 边框：浅灰（rgba(0,0,0,0.1-0.2)）
+
+**错误示例（必须避免）**：
+\`\`\`javascript
+// ❌ 浅色背景 + 浅色文字 = 看不清
+background: "#ffffff",
+color: "rgba(255,255,255,0.9)", // 错误！
+
+// ❌ 深色背景 + 深色文字 = 看不清
+background: "#000000",
+color: "rgba(0,0,0,0.8)", // 错误！
+\`\`\`
+
+**正确示例**：
+\`\`\`javascript
+// ✅ 深色模式
+background: "#000000",
+color: "rgba(255,255,255,0.9)", // 正确！
+
+// ✅ 浅色模式
+background: "#ffffff",
+color: "#1a1a1a", // 正确！
+\`\`\`
+
 **第一步：深度理解 VI 系统**
 仔细阅读 VI 文档，提取：
 1. 视觉主题和氛围（Visual Theme & Atmosphere）
@@ -139,26 +265,34 @@ function generateSystemPrompt(): string {
 **第二步：建立映射关系**
 将线框元素映射到 VI 系统：
 
-| 线框元素 | 映射到 VI 系统 |
-|---------|---------------|
-| 页面背景 | Primary Surface Color |
-| Header 背景 | Hero Canvas / Navigation Surface |
-| 标题文字 | Display Typography |
-| 正文文字 | Body Typography |
-| 强调色 | Accent Color |
-| 卡片背景 | Surface Level 1/2 |
-| 边框 | Border Color (Soft/Strong) |
-| 按钮 | Primary Action Style |
-| 间距 | Spacing System |
-| 圆角 | Border Radius Scale |
-| 阴影 | Elevation Level |
+| 线框元素 | 映射到 VI 系统 | 深色模式 | 浅色模式 |
+|---------|---------------|---------|---------|
+| 页面背景 | Primary Surface Color | #000 - #1a1a1a | #fff - #fafafa |
+| Header 背景 | Hero Canvas / Navigation Surface | rgba(0,0,0,0.8) | rgba(255,255,255,0.9) |
+| 标题文字 | Display Typography | rgba(255,255,255,0.9) | #000 - #1a1a1a |
+| 正文文字 | Body Typography | rgba(255,255,255,0.7) | #333 - #666 |
+| 次要文字 | Secondary Text | rgba(255,255,255,0.5) | #888 - #999 |
+| 强调色 | Accent Color | 保持 VI 定义 | 保持 VI 定义 |
+| 卡片背景 | Surface Level 1/2 | #1a1a1a - #2a2a2a | #fff - #f5f5f5 |
+| 边框 | Border Color | rgba(255,255,255,0.1) | rgba(0,0,0,0.1) |
+| 按钮 | Primary Action Style | 根据 VI | 根据 VI |
+| 图表线条 | Chart Colors | 保持 VI 定义 | 保持 VI 定义 |
+| 网格线 | Grid Color | rgba(255,255,255,0.1) | rgba(0,0,0,0.1) |
+| 坐标轴文字 | Axis Text | rgba(255,255,255,0.6) | #666 |
 
 **第三步：执行深度转换**
 按以下顺序执行：
 
+0. **⚠️ 判断深色/浅色模式**（最优先）
+   - 分析 VI 文档的背景色定义
+   - 确定是深色模式还是浅色模式
+   - 建立对应的文字颜色方案
+
 1. **色彩系统应用**（最高优先级）
    - 替换所有背景色、文字色、边框色
+   - **确保文字颜色与背景色对比度足够**（深色背景用浅色文字，浅色背景用深色文字）
    - 应用 VI 的渐变规则（如果有）
+   - **通过组件 props 配置图表、表格的颜色**（colorScheme, textColor, gridColor 等）
    - 确保色彩对比度符合 VI 规范
 
 2. **字体系统应用**
@@ -179,17 +313,23 @@ function generateSystemPrompt(): string {
    - 应用 backdrop-filter（如 VI 要求）
    - 调整 opacity 和层级关系
 
-6. **布局优化**（如需要）
+6. **组件配色配置**（重要！）
+   - **图表组件**：配置 colorScheme, gridColor, axisTextColor, legendTextColor 等
+   - **表格组件**：配置 headerBackgroundColor, headerTextColor, rowTextColor, stripedColor 等
+   - **KPI 组件**：配置 gradient, textColor, titleColor 等
+   - **不要通过修改外层 CSS 来改变组件内部颜色**
+
+7. **布局优化**（如需要）
    - 调整 Grid/Flexbox 配置以符合 VI 的布局原则
    - 优化空白空间（Whitespace）
    - 调整容器宽度和边距
 
-7. **结构重构**（如需要）
+8. **结构重构**（如需要）
    - 添加装饰性容器层
    - 调整元素嵌套关系以优化视觉层次
    - 添加分隔线、背景装饰等
 
-8. **品牌化增强**
+9. **品牌化增强**
    - 添加 VI 系统中的签名性元素
    - 应用品牌特有的组件风格（如 Apple 的 Pill 按钮）
    - 确保整体视觉符合品牌调性
@@ -199,6 +339,8 @@ function generateSystemPrompt(): string {
 - 确保所有 dataKey 未被修改
 - 确保代码语法正确、可执行
 - 确保视觉效果符合 VI 规范
+- **⚠️ 确保文字颜色与背景色对比度足够**（深色背景必须用浅色文字，浅色背景必须用深色文字）
+- **⚠️ 确保图表、表格的配色通过 props 配置实现**（不是修改 CSS）
 
 ========================
 【输出格式】
@@ -210,7 +352,9 @@ function generateSystemPrompt(): string {
   "description": "简要说明转换要点",
   "metadata": {
     "totalChanges": 估算的变更数量,
-    "viSystemApplied": "从 VI 文档中提取的设计系统名称"
+    "viSystemApplied": "从 VI 文档中提取的设计系统名称",
+    "themeMode": "dark" | "light",
+    "colorContrastChecked": true
   }
 }
 
@@ -225,38 +369,34 @@ function generateSystemPrompt(): string {
 
 export async function POST(request: Request) {
   const body = await request.json() as {
-    jsxCode?: string;
-    viSystem?: string;
     projectId?: string;
   };
 
-  if (!body.jsxCode) {
-    return new Response("Missing jsxCode", { status: 400 });
+  if (!body.projectId) {
+    return new Response("Missing projectId", { status: 400 });
   }
 
   try {
     console.log('[apply-vi] Starting VI application...');
-    
-    // 获取 VI 系统文档
-    let viSystemContent = body.viSystem;
-    
-    // 如果没有直接提供 VI 文档，尝试从项目中读取
-    if (!viSystemContent && body.projectId) {
-      try {
-        const viPath = join(process.cwd(), '.dv', body.projectId, '品牌VI', 'vi-system.md');
-        viSystemContent = await readFile(viPath, 'utf-8');
-        console.log('[apply-vi] VI system loaded from project:', viPath);
-      } catch (error) {
-        console.error('[apply-vi] Failed to load VI system from project:', error);
-        return new Response("VI system not found in project", { status: 400 });
-      }
-    }
-    
-    if (!viSystemContent) {
-      return new Response("Missing viSystem", { status: 400 });
+
+    const basePath = join(process.cwd(), '.dv', body.projectId);
+
+    let jsxCode: string;
+    let viSystemContent: string;
+
+    try {
+      jsxCode = await readFile(join(basePath, '页面', 'wireframe.jsx'), 'utf-8');
+    } catch {
+      return new Response("Wireframe JSX not found in project", { status: 400 });
     }
 
-    console.log('[apply-vi] JSX code length:', body.jsxCode.length);
+    try {
+      viSystemContent = await readFile(join(basePath, '品牌VI', 'vi-system.md'), 'utf-8');
+    } catch {
+      return new Response("VI system not found in project", { status: 400 });
+    }
+
+    console.log('[apply-vi] JSX code length:', jsxCode.length);
     console.log('[apply-vi] VI system length:', viSystemContent.length);
 
     const model = createDeepSeekModel();
@@ -271,16 +411,19 @@ export async function POST(request: Request) {
 ${viSystemContent}
 
 === 线框 JSX 代码 ===
-${body.jsxCode}
+${jsxCode}
 
 === 转换要求 ===
-1. 深度转换：不仅修改样式，还可以重构结构、添加装饰元素
-2. 严格遵循 VI 文档的所有规则和规范
-3. 保持 widgets 配置的 type 和 dataKey 不变
-4. 确保代码完整、可执行
-5. 应用 VI 文档中的所有设计细节（颜色、字体、间距、圆角、阴影等）
-6. 如果 VI 文档中有品牌特有的组件风格（如 Pill 按钮、Capsule 容器），必须应用
-7. 优化视觉层次和信息流
+1. **⚠️ 首先判断深色/浅色模式**：分析 VI 文档的背景色，确定是深色模式还是浅色模式
+2. **⚠️ 确保文字颜色对比度**：深色背景必须用浅色文字，浅色背景必须用深色文字
+3. **⚠️ 配置驱动配色**：图表、表格的配色必须通过组件 props 配置（colorScheme, textColor, gridColor 等），不是修改 CSS
+4. 深度转换：不仅修改样式，还可以重构结构、添加装饰元素
+5. 严格遵循 VI 文档的所有规则和规范
+6. 保持 widgets 配置的 type 和 dataKey 不变
+7. 确保代码完整、可执行
+8. 应用 VI 文档中的所有设计细节（颜色、字体、间距、圆角、阴影等）
+9. 如果 VI 文档中有品牌特有的组件风格（如 Pill 按钮、Capsule 容器），必须应用
+10. 优化视觉层次和信息流
 
 请开始转换，输出完整的品牌化 JSX 代码。`,
     });

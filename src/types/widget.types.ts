@@ -111,6 +111,32 @@ export interface BaseWidgetProps {
   
   /** 是否显示阴影 */
   shadow?: boolean;
+  
+  // ============ 配色相关 ============
+  
+  /** 背景颜色 */
+  backgroundColor?: string;
+  
+  /** 背景渐变（优先级高于 backgroundColor） */
+  backgroundGradient?: string | [string, string];
+  
+  /** 文字颜色 */
+  textColor?: string;
+  
+  /** 标题颜色 */
+  titleColor?: string;
+  
+  /** 副标题颜色 */
+  subtitleColor?: string;
+  
+  /** 边框颜色 */
+  borderColor?: string;
+  
+  /** 图标颜色 */
+  iconColor?: string;
+  
+  /** 主题模式（影响默认颜色） */
+  theme?: "light" | "dark";
 }
 
 // ============================================================================
@@ -214,11 +240,35 @@ export interface ChartCommonProps extends BaseWidgetProps, DataBinding {
   /** 是否显示网格 */
   showGrid?: boolean;
   
+  /** 网格颜色 */
+  gridColor?: string;
+  
   /** 是否显示工具提示 */
   showTooltip?: boolean;
   
-  /** 颜色方案 */
+  /** 工具提示背景色 */
+  tooltipBackgroundColor?: string;
+  
+  /** 工具提示文字颜色 */
+  tooltipTextColor?: string;
+  
+  /** 颜色方案（图表系列颜色数组） */
   colorScheme?: string[];
+  
+  /** 单一颜色（所有系列使用同一颜色） */
+  color?: string;
+  
+  /** 渐变配置（应用到图表系列） */
+  gradient?: [string, string];
+  
+  /** 坐标轴颜色 */
+  axisColor?: string;
+  
+  /** 坐标轴文字颜色 */
+  axisTextColor?: string;
+  
+  /** 图例文字颜色 */
+  legendTextColor?: string;
   
   /** 是否平滑曲线 */
   smooth?: boolean;
@@ -228,6 +278,9 @@ export interface ChartCommonProps extends BaseWidgetProps, DataBinding {
   
   /** 是否显示数据标签 */
   showDataLabels?: boolean;
+  
+  /** 数据标签颜色 */
+  dataLabelColor?: string;
 }
 
 // ============================================================================
@@ -292,6 +345,9 @@ export interface PieChartProps extends BaseWidgetProps, DataBinding {
   /** 图例位置 */
   legendPosition?: "top" | "bottom" | "left" | "right";
   
+  /** 图例文字颜色 */
+  legendTextColor?: string;
+  
   /** 是否环形图 */
   donut?: boolean;
   
@@ -301,8 +357,14 @@ export interface PieChartProps extends BaseWidgetProps, DataBinding {
   /** 外半径 */
   outerRadius?: number;
   
-  /** 颜色方案 */
+  /** 颜色方案（扇区颜色数组） */
   colorScheme?: string[];
+  
+  /** 标签颜色 */
+  labelColor?: string;
+  
+  /** 百分比文字颜色 */
+  percentageColor?: string;
 }
 
 // ============================================================================
@@ -354,6 +416,9 @@ export interface TableProps extends BaseWidgetProps, DataBinding {
   /** 是否斑马纹 */
   striped?: boolean;
   
+  /** 斑马纹颜色 */
+  stripedColor?: string;
+  
   /** 是否可选择行 */
   selectable?: boolean;
   
@@ -362,6 +427,24 @@ export interface TableProps extends BaseWidgetProps, DataBinding {
   
   /** 表格大小 */
   size?: "small" | "medium" | "large";
+  
+  /** 表头背景色 */
+  headerBackgroundColor?: string;
+  
+  /** 表头文字颜色 */
+  headerTextColor?: string;
+  
+  /** 行背景色 */
+  rowBackgroundColor?: string;
+  
+  /** 行文字颜色 */
+  rowTextColor?: string;
+  
+  /** 悬停行背景色 */
+  hoverBackgroundColor?: string;
+  
+  /** 边框颜色 */
+  borderColor?: string;
 }
 
 // ============================================================================

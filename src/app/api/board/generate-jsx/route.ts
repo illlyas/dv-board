@@ -210,9 +210,11 @@ export default function Dashboard() {
       <main style={{
         flex: 1,
         display: "grid",
-        gridTemplateRows: "140px 1fr",
+        gridTemplateRows: "140px 400px", // 固定行高
         gap: 24,
         padding: 24,
+        overflowY: "auto",
+        overflowX: "hidden",
       }}>
         {/* KPI Cards */}
         <div style={{
@@ -226,13 +228,15 @@ export default function Dashboard() {
           <Widget config={widgets.kpi_satisfaction} />
         </div>
 
-        {/* Charts */}
+        {/* Charts - 固定高度容器 */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "2fr 1fr",
           gap: 24,
         }}>
-          <Widget config={widgets.chart_trend} />
+          <div style={{ height: "100%" }}>
+            <Widget config={widgets.chart_trend} />
+          </div>
           
           <div style={{
             display: "grid",
@@ -296,6 +300,34 @@ export default function Dashboard() {
 - 圆角：12px-16px
 - 标题栏：72px
 - 底部导航：48px
+
+**⚠️ 容器高度控制（重要）**：
+- 最外层容器必须固定高度：width: 1920, height: 1080
+- **每个包裹 Widget 的 div 必须设置固定高度**，防止内容撑大布局
+- Widget 组件（如 Table、Chart）会自动在内部实现滚动
+- 不要让 Widget 的父容器使用 height: "100%" 或 flex: 1 而不限制高度
+- 示例：
+  \`\`\`javascript
+  // ❌ 错误：没有固定高度，会被内容撑大
+  <div style={cardStyle}>
+    <Widget config={widgets.table} />
+  </div>
+  
+  // ✅ 正确：固定高度，内容在 Widget 内部滚动
+  <div style={{ ...cardStyle, height: 400 }}>
+    <Widget config={widgets.table} />
+  </div>
+  
+  // ✅ 正确：使用 Grid 布局时，行高固定
+  <div style={{
+    display: "grid",
+    gridTemplateRows: "140px 400px", // 固定行高
+    gap: 16,
+  }}>
+    <div style={cardStyle}><Widget config={widgets.kpi} /></div>
+    <div style={cardStyle}><Widget config={widgets.table} /></div>
+  </div>
+  \`\`\`
 
 ========================
 【禁止事项】

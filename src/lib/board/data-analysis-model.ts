@@ -9,7 +9,7 @@ import { z } from "zod";
 export const questionSchema = z.object({
   id: z.string(),
   label: z.string(),
-  type: z.enum(["radio", "checkbox", "text", "number", "select", "textarea"]),
+  type: z.enum(["radio", "checkbox", "select"]),
   options: z.array(z.union([z.string(), z.object({ label: z.string(), value: z.string() })])).nullable().optional(),
   required: z.boolean(),
   description: z.string(),
