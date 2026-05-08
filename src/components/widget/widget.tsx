@@ -37,12 +37,13 @@ export function Widget({
 }: WidgetProps) {
   const { type, props } = config;
 
-  // 获取数据
+  // 获取数据（将 widget type 一并传入，以便根据 type 生成正确形状的 mock 数据）
   const { data, loading, error, refresh } = useWidgetData({
     dataKey: props.dataKey,
     dataSource: props.dataSource,
     query: props.query,
     staticData: props.staticData,
+    widgetType: type,
     enabled: enableData,
   });
 

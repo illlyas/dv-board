@@ -30,17 +30,17 @@ ${SKILL_REGISTRY_PROMPT}
 
 - 数据故事/design-story.md → 由 design-story 生成
 - 页面结构/pages-story.md  → 由 design-pages 生成
-- 品牌VI/vi-system.md      → 由 design-vi 生成
+- 品牌VI/vi-system.md      → 由 design-vi 生成（用户选择的风格的原始 DESIGN.md）
+- 品牌VI/vi-tokens.json    → 由 design-vi 生成（AI 提炼的 CSS Tokens）
 
-注意：页面/wireframe.jsx 和 页面/dashboard.jsx 是可以多次生成的（每次生成新编号的文件），
-因此即使这些文件已存在，也可以再次规划 generate-jsx 和 apply-vi。
+注意：页面/dashboard.jsx 是可以多次生成的（每次生成新编号的文件），因此即使该文件已存在，也可以再次规划 generate-jsx。
 
 ========================
 【规划核心原则】
 ========================
 1. 已存在的文件对应的 skill 不需要重新规划，直接复用已有文件
 2. 规划时从"第一个尚未完成的步骤"开始，跳过已有文件对应的 skill
-3. generate-jsx 和 apply-vi 是绑定关系，必须同时出现且 generate-jsx 在前
+3. design-vi 是 generate-jsx 的前置依赖：如果 vi-tokens.json 不存在，必须先规划 design-vi 再规划 generate-jsx
 4. analyze-brief 和 design-story 是绑定关系，必须同时出现且 analyze-brief 在前
 5. 只能使用注册表中存在的 skill 名称
 6. 如果无法从用户消息中推断出明确意图，返回 { "clarification": "..." }
@@ -50,17 +50,17 @@ ${SKILL_REGISTRY_PROMPT}
 【典型场景示例】
 ========================
 
-场景1：项目已有 design-story.md、pages-story.md、vi-system.md，用户说"生成一个新的看板"
-→ 直接规划 generate-jsx + apply-vi（复用已有的页面结构和 VI 系统）
+场景1：项目已有 design-story.md、pages-story.md、vi-system.md、vi-tokens.json，用户说"生成一个新的看板"
+→ 直接规划 generate-jsx（复用已有的页面结构和 VI Tokens）
 
 场景2：项目已有 design-story.md，用户说"继续完成看板"
-→ 规划 design-pages → design-vi → generate-jsx → apply-vi
+→ 规划 design-pages → design-vi → generate-jsx
 
 场景3：项目已有所有文件，用户说"重新设计数据故事"
-→ 规划 analyze-brief → design-story → design-pages → generate-jsx → apply-vi
+→ 规划 analyze-brief → design-story → design-pages → generate-jsx
 
 场景4：项目已有所有文件，用户说"换一套 VI 风格"
-→ 规划 design-vi → generate-jsx → apply-vi
+→ 规划 design-vi → generate-jsx
 
 ========================
 【inputs 填充规则】
@@ -68,9 +68,8 @@ ${SKILL_REGISTRY_PROMPT}
 - analyze-brief：{ "brief": "<用户提供的需求描述>" }
 - design-story：{ "brief": "<用户提供的需求描述>" }
 - design-pages：{ "designStory": "" }（执行时自动从已有文件读取）
-- design-vi：{}
-- generate-jsx：{ "pagesStory": "" }（执行时自动从已有文件读取）
-- apply-vi：{}
+- design-vi：{}（执行时会自动使用项目创建时用户选择的 style）
+- generate-jsx：{ "pagesStory": "" }（执行时自动从已有文件读取 pagesStory 和 vi-tokens.json）
 
 ========================
 【输出格式】
@@ -78,8 +77,7 @@ ${SKILL_REGISTRY_PROMPT}
 情况一：能推断出意图
 {
   "tasks": [
-    { "skill": "generate-jsx", "description": "根据现有页面结构生成线框代码", "inputs": { "pagesStory": "" } },
-    { "skill": "apply-vi", "description": "应用品牌 VI 系统生成最终看板", "inputs": {} }
+    { "skill": "generate-jsx", "description": "根据现有页面结构和 VI Tokens 生成看板代码", "inputs": { "pagesStory": "" } }
   ]
 }
 
@@ -92,12 +90,14 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     userMessage?: string;
     projectName?: string;
+    style?: string;
     existingFiles?: string[];
     conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
   };
 
   const userMessage = body?.userMessage?.trim();
   const projectName = body?.projectName?.trim();
+  const style = body?.style?.trim() ?? "";
   const existingFiles = body?.existingFiles ?? [];
   const conversationHistory = body?.conversationHistory ?? [];
 
@@ -117,7 +117,9 @@ export async function POST(request: Request) {
         ? `\n\n已存在的项目文件：\n${existingFiles.map((f) => `- ${f}`).join("\n")}`
         : "\n\n当前项目为空，没有已存在的文件。";
 
-    const currentPrompt = `项目名称：${projectName}${existingFilesInfo}
+    const styleInfo = style ? `\n用户选择的品牌风格：${style}` : "";
+
+    const currentPrompt = `项目名称：${projectName}${styleInfo}${existingFilesInfo}
 
 用户消息：${userMessage}
 

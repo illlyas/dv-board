@@ -42,13 +42,29 @@ function BarChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
   // 是否横向
   const isHorizontal = props.direction === "horizontal";
 
+  // 默认色值均走 CSS 变量，在 light/dark 下自适应；允许 AI 通过 props 覆盖
+  const titleColor = props.titleColor || "var(--color-text-primary, rgba(17,24,39,0.9))";
+  const subtitleColor = props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.5))";
+  const axisColor = props.axisColor || "var(--color-border, rgba(17,24,39,0.3))";
+  const axisTextColor = props.axisTextColor || "var(--color-text-secondary, rgba(17,24,39,0.7))";
+  const gridColor = props.gridColor || "var(--color-grid, rgba(17,24,39,0.1))";
+  const legendTextColor = props.legendTextColor || "var(--color-text-secondary, rgba(17,24,39,0.7))";
+  const tooltipBg = props.tooltipBackgroundColor || "var(--color-surface, rgba(255,255,255,0.95))";
+  const tooltipText = props.tooltipTextColor || "var(--color-text-primary, #111827)";
+  const tooltipBorder = props.borderColor || "var(--color-border, rgba(17,24,39,0.15))";
+  const emptyText = props.textColor || "var(--color-text-muted, rgba(17,24,39,0.5))";
+  const containerBg = props.backgroundColor || "transparent";
+  const containerBorder = props.borderColor || "var(--color-border, rgba(17,24,39,0.08))";
+
+  // 数据防御
+  const chartData = Array.isArray(data) ? data : [];
+
   return (
     <div style={{
       width: "100%",
       height: "100%",
-      background: "linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(139,92,246,0.03) 100%)",
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.08)",
+      background: containerBg,
+      border: `1px solid ${containerBorder}`,
       borderRadius: 16,
       padding: 20,
       display: "flex",
@@ -63,13 +79,13 @@ function BarChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
           <div style={{
             fontSize: 16,
             fontWeight: 600,
-            color: "rgba(255,255,255,0.9)",
+            color: titleColor,
             marginBottom: 4,
           }}>{props.title}</div>
           {props.subtitle && (
             <div style={{
               fontSize: 12,
-              color: "rgba(255,255,255,0.5)",
+              color: subtitleColor,
             }}>{props.subtitle}</div>
           )}
         </div>
@@ -84,98 +100,100 @@ function BarChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "rgba(255,255,255,0.5)",
+            color: emptyText,
           }}>
             加载中...
           </div>
-        ) : !data || data.length === 0 ? (
+        ) : chartData.length === 0 ? (
           <div style={{
             width: "100%",
             height: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "rgba(255,255,255,0.5)",
+            color: emptyText,
           }}>
             暂无数据
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <RechartsBar
-              data={data}
+              data={chartData}
               layout={isHorizontal ? "horizontal" : "vertical"}
               margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
             >
               {props.showGrid && (
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
+                  stroke={gridColor}
                 />
               )}
-              
+
               {isHorizontal ? (
                 <>
                   <XAxis
                     type="number"
-                    stroke="rgba(255,255,255,0.5)"
-                    tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 12 }}
+                    stroke={axisColor}
+                    tick={{ fill: axisTextColor, fontSize: 12 }}
                   />
                   <YAxis
                     type="category"
                     dataKey={xAxisConfig.field}
-                    stroke="rgba(255,255,255,0.5)"
-                    tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 12 }}
+                    stroke={axisColor}
+                    tick={{ fill: axisTextColor, fontSize: 12 }}
                   />
                 </>
               ) : (
                 <>
                   <XAxis
                     dataKey={xAxisConfig.field}
-                    stroke="rgba(255,255,255,0.5)"
-                    tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 12 }}
+                    stroke={axisColor}
+                    tick={{ fill: axisTextColor, fontSize: 12 }}
                   />
                   <YAxis
-                    stroke="rgba(255,255,255,0.5)"
-                    tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 12 }}
+                    stroke={axisColor}
+                    tick={{ fill: axisTextColor, fontSize: 12 }}
                   />
                 </>
               )}
-              
+
               {props.showTooltip !== false && (
                 <Tooltip
                   contentStyle={{
-                    background: "rgba(0,0,0,0.8)",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    background: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
                     borderRadius: 8,
-                    color: "#fff",
+                    color: tooltipText,
                   }}
+                  labelStyle={{ color: tooltipText }}
+                  itemStyle={{ color: tooltipText }}
                 />
               )}
-              
+
               {props.showLegend && (
                 <Legend
                   wrapperStyle={{
                     paddingTop: 10,
                     fontSize: 12,
-                    color: "rgba(255,255,255,0.7)",
+                    color: legendTextColor,
                   }}
                 />
               )}
-              
+
               {/* 目标线 */}
               {props.showTarget && props.targetValue && (
                 <ReferenceLine
                   y={props.targetValue}
-                  stroke="#ef4444"
+                  stroke="var(--color-danger, #ef4444)"
                   strokeDasharray="3 3"
                   label={{
                     value: props.targetLabel || "目标",
-                    fill: "#ef4444",
+                    fill: "var(--color-danger, #ef4444)",
                     fontSize: 11,
                   }}
                 />
               )}
-              
+
               {yAxisConfigs.map((yAxis, index) => (
                 <Bar
                   key={yAxis.field}

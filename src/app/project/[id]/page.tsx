@@ -7,6 +7,7 @@ import { BoardStudio } from "@/components/board-studio";
 interface Project {
   id: string;
   name: string;
+  style: string;
   createdAt: string;
   updatedAt: string;
   thumbnail?: string;
@@ -155,7 +156,7 @@ export default function ProjectPage() {
 
       {/* 工作台主体 */}
       <div className="flex-1 min-h-0 flex">
-        <BoardStudio projectName={project.name} />
+        <BoardStudio projectName={project.name} style={project.style ?? ""} />
       </div>
     </div>
   );

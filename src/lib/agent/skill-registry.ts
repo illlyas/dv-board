@@ -22,17 +22,12 @@ export const SKILL_REGISTRY: SkillDefinition[] = [
   },
   {
     name: "design-vi",
-    description: "加载品牌 VI 系统，定义看板的视觉风格和设计规范",
-    outputFiles: ["品牌VI/vi-system.md"],
+    description: "根据用户选择的风格读取 DESIGN.md 并产出 CSS Tokens JSON，用于驱动看板的视觉效果",
+    outputFiles: ["品牌VI/vi-system.md", "品牌VI/vi-tokens.json"],
   },
   {
     name: "generate-jsx",
-    description: "根据页面结构生成线框 JSX 代码",
-    outputFiles: ["页面/wireframe.jsx"],
-  },
-  {
-    name: "apply-vi",
-    description: "将 VI 系统应用到线框代码，生成最终品牌化看板代码",
+    description: "根据页面结构和 vi-tokens.json 生成带品牌视觉的看板 JSX 代码（所有样式使用 var(--xxx) CSS 变量）",
     outputFiles: ["页面/dashboard.jsx"],
   },
 ];

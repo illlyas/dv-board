@@ -9,15 +9,15 @@ import {
   executePagesStory,
   executeVISystem,
   executeJSXGeneration,
-  executeVIApplication,
 } from "@/lib/pipeline/step-executors";
 import { readFile } from "@/lib/pipeline/file-operations";
-import type { ChatMessage } from "@/types/pipeline.types";
+import type { ChatMessage, ViTokens } from "@/types/pipeline.types";
 import type { QuestionForm } from "@/lib/board/data-analysis-model";
 
 export interface SkillExecutorContext {
   signal: AbortSignal;
   projectName: string;
+  style: string;
   existingFiles: string[];
   conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
   onProgress?: (partial: string) => void;
@@ -35,7 +35,7 @@ export type SkillExecutor = (
 
 /**
  * 计算下一个可用文件名。
- * 如果 "页面/wireframe.jsx" 已存在，返回 "wireframe-2.jsx"，以此类推。
+ * 如果 "页面/dashboard.jsx" 已存在，返回 "dashboard-2.jsx"，以此类推。
  */
 function nextAvailableFilename(category: string, baseName: string, existingFiles: string[]): string {
   const ext = baseName.includes(".") ? baseName.slice(baseName.lastIndexOf(".")) : "";
@@ -85,9 +85,16 @@ const designPages: SkillExecutor = async (inputs, ctx) => {
   return { type: "done", generatedFiles: ["页面结构/pages-story.md"] };
 };
 
-const designVI: SkillExecutor = async (_inputs, ctx) => {
-  await executeVISystem(ctx);
-  return { type: "done", generatedFiles: ["品牌VI/vi-system.md"] };
+const designVI: SkillExecutor = async (inputs, ctx) => {
+  const style = ((inputs.style as string | undefined) ?? ctx.style ?? "").trim();
+  if (!style) {
+    throw new Error("design-vi 缺少 style 参数（请在创建项目时选择一个风格）");
+  }
+  await executeVISystem(ctx, style);
+  return {
+    type: "done",
+    generatedFiles: ["品牌VI/vi-system.md", "品牌VI/vi-tokens.json"],
+  };
 };
 
 const generateJSX: SkillExecutor = async (inputs, ctx) => {
@@ -95,32 +102,29 @@ const generateJSX: SkillExecutor = async (inputs, ctx) => {
   if (!pagesStory) {
     pagesStory = await readFile(`.dv/${ctx.projectName}/页面结构/pages-story.md`);
   }
-  const filename = nextAvailableFilename("页面", "wireframe.jsx", ctx.existingFiles);
-  await executeJSXGeneration(pagesStory, ctx, filename);
-  return { type: "done", generatedFiles: [`页面/${filename}`] };
-};
 
-const applyVI: SkillExecutor = async (_inputs, ctx) => {
-  const dashboardFilename = nextAvailableFilename("页面", "dashboard.jsx", ctx.existingFiles);
-
-  // 找最新生成的 wireframe（编号最大的）
-  const wireframeFiles = ctx.existingFiles
-    .filter((f) => f.startsWith("页面/wireframe") && f.endsWith(".jsx"))
-    .map((f) => f.replace("页面/", ""));
-
-  let wireframeFilename = "wireframe.jsx";
-  if (wireframeFiles.length > 0) {
-    const numbered = wireframeFiles
-      .map((f) => {
-        const match = f.match(/wireframe-(\d+)\.jsx/);
-        return match ? { file: f, num: parseInt(match[1]) } : { file: f, num: 0 };
-      })
-      .sort((a, b) => b.num - a.num);
-    wireframeFilename = numbered[0].file;
+  // 读取 vi-tokens.json，没有则报错——此步骤强依赖 tokens
+  let tokens: ViTokens;
+  try {
+    const raw = await readFile(`.dv/${ctx.projectName}/品牌VI/vi-tokens.json`);
+    const parsed = JSON.parse(raw) as ViTokens;
+    tokens = {
+      mode: parsed.mode,
+      cssVariables: parsed.cssVariables ?? {},
+      chartPalette: parsed.chartPalette ?? [],
+      raw: parsed.raw ?? parsed,
+    };
+  } catch (err) {
+    throw new Error(
+      `无法读取 vi-tokens.json：请先执行 design-vi 生成 CSS Tokens。原始错误：${
+        err instanceof Error ? err.message : String(err)
+      }`
+    );
   }
 
-  await executeVIApplication(ctx, wireframeFilename, dashboardFilename);
-  return { type: "done", generatedFiles: [`页面/${dashboardFilename}`] };
+  const filename = nextAvailableFilename("页面", "dashboard.jsx", ctx.existingFiles);
+  await executeJSXGeneration(pagesStory, tokens, ctx, filename);
+  return { type: "done", generatedFiles: [`页面/${filename}`] };
 };
 
 export const SKILL_EXECUTORS: Record<string, SkillExecutor> = {
@@ -129,5 +133,4 @@ export const SKILL_EXECUTORS: Record<string, SkillExecutor> = {
   "design-pages": designPages,
   "design-vi": designVI,
   "generate-jsx": generateJSX,
-  "apply-vi": applyVI,
 };

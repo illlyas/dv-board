@@ -15,8 +15,8 @@ import {
 } from "@/lib/pipeline/message-utils";
 
 const INITIAL_STATE: PipelineState = {
-  step: "idle", brief: "", projectName: "", currentForm: null, extractedInfo: null,
-  designStory: null, pagesStory: null, viContent: null, jsxCode: null, isLoading: false,
+  step: "idle", brief: "", projectName: "", style: "", currentForm: null, extractedInfo: null,
+  designStory: null, pagesStory: null, viContent: null, viTokens: null, jsxCode: null, isLoading: false,
   statusText: "等待开始", errorMsg: null,
 };
 
@@ -54,6 +54,7 @@ export function useAgent() {
   const pausedContextRef = useRef<{
     remainingTasks: AgentTask[];
     projectName: string;
+    style: string;
     existingFiles: string[];
   } | null>(null);
 
@@ -84,11 +85,12 @@ export function useAgent() {
     async (
       agentTasks: AgentTask[],
       projectName: string,
+      style: string,
       existingFiles: string[],
       signal: AbortSignal,
       conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>
     ) => {
-      await runTasks(agentTasks, projectName, existingFiles, signal, {
+      await runTasks(agentTasks, projectName, style, existingFiles, signal, {
         onTaskStart: (id) => updateTask(id, "running"),
         onTaskDone: (id) => updateTask(id, "done"),
         onTaskSkipped: (id, reason) => {
@@ -109,7 +111,12 @@ export function useAgent() {
             createAssistantMessage("需要补充一些信息：", { formData: form }),
           ]);
           const idx = agentTasks.findIndex((t) => t.id === taskId);
-          pausedContextRef.current = { remainingTasks: agentTasks.slice(idx), projectName, existingFiles };
+          pausedContextRef.current = {
+            remainingTasks: agentTasks.slice(idx),
+            projectName,
+            style,
+            existingFiles,
+          };
           void extractedInfo;
         },
       }, conversationHistory);
@@ -136,7 +143,7 @@ export function useAgent() {
   }, []);
 
   const runPipeline = useCallback(
-    async (brief: string, projectName = "") => {
+    async (brief: string, projectName = "", style = "") => {
       if (isRunningRef.current) return;
       const trimmedBrief = brief.trim();
       if (!trimmedBrief) return;
@@ -153,7 +160,7 @@ export function useAgent() {
       });
       setTasks([]);
       setState((s) => ({
-        ...s, step: "collecting", brief: trimmedBrief, projectName,
+        ...s, step: "collecting", brief: trimmedBrief, projectName, style,
         isLoading: true, statusText: "正在规划任务...", currentForm: null, errorMsg: null,
       }));
 
@@ -165,7 +172,7 @@ export function useAgent() {
 
         const result = await callPipelineStep(
           "/api/board/agent-plan",
-          { userMessage: trimmedBrief, projectName, existingFiles, conversationHistory },
+          { userMessage: trimmedBrief, projectName, style, existingFiles, conversationHistory },
           undefined,
           ac.signal
         );
@@ -182,7 +189,7 @@ export function useAgent() {
           json.tasks as Array<{ skill: string; description: string; inputs: Record<string, unknown> }>
         );
         setTasks(agentTasks);
-        await execTasks(agentTasks, projectName, existingFiles, ac.signal, conversationHistory);
+        await execTasks(agentTasks, projectName, style, existingFiles, ac.signal, conversationHistory);
         markDone(ac.signal);
       } catch (err) {
         handleError(err);
@@ -199,7 +206,7 @@ export function useAgent() {
       if (!ctx) return;
       pausedContextRef.current = null;
 
-      const { remainingTasks, projectName, existingFiles } = ctx;
+      const { remainingTasks, projectName, style, existingFiles } = ctx;
       const summary = Object.entries(answers)
         .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join("、") : v}`)
         .join(" | ");
@@ -219,7 +226,7 @@ export function useAgent() {
       isRunningRef.current = true;
 
       try {
-        await execTasks(updatedTasks, projectName, existingFiles, ac.signal);
+        await execTasks(updatedTasks, projectName, style, existingFiles, ac.signal);
         markDone(ac.signal);
       } catch (err) {
         handleError(err);

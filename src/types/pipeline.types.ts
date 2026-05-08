@@ -8,19 +8,27 @@ export type PipelineStep =
   | "designing"
   | "vi"
   | "generating"
-  | "applying-vi"
   | "done"
   | "error";
+
+export interface ViTokens {
+  mode?: "light" | "dark";
+  cssVariables?: Record<string, string>;
+  chartPalette?: string[];
+  raw?: unknown;
+}
 
 export interface PipelineState {
   step: PipelineStep;
   brief: string;
   projectName: string;
+  style: string;
   currentForm: QuestionForm | null;
   extractedInfo: FormResponse["extractedInfo"] | SufficientResponse["extractedInfo"] | null;
   designStory: string | null;
   pagesStory: string | null;
   viContent: string | null;
+  viTokens: ViTokens | null;
   jsxCode: JSXCode | null;
   isLoading: boolean;
   statusText: string;
@@ -47,9 +55,8 @@ export const TASK_STEPS: TaskStepConfig[] = [
   { key: "collecting", label: "分析需求信息" },
   { key: "story", label: "生成数据故事" },
   { key: "designing", label: "设计页面结构" },
-  { key: "vi", label: "加载品牌 VI 系统" },
-  { key: "generating", label: "生成线框代码" },
-  { key: "applying-vi", label: "应用品牌视觉" },
+  { key: "vi", label: "提取品牌设计 Token" },
+  { key: "generating", label: "生成看板代码" },
 ];
 
 export const STEP_ORDER: PipelineStep[] = [
@@ -59,7 +66,6 @@ export const STEP_ORDER: PipelineStep[] = [
   "designing",
   "vi",
   "generating",
-  "applying-vi",
   "done",
   "error",
 ];

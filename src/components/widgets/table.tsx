@@ -78,18 +78,22 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
     return String(value) + (column.unit || "");
   };
 
-  // 默认颜色（深色模式）
+  // 默认色值全部走 CSS 变量，自动匹配 light / dark；AI 可通过 props 覆盖
   const defaultColors = {
-    background: props.backgroundColor || "linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(139,92,246,0.03) 100%)",
-    titleColor: props.titleColor || "rgba(255,255,255,0.9)",
-    subtitleColor: props.subtitleColor || "rgba(255,255,255,0.5)",
-    borderColor: props.borderColor || "rgba(255,255,255,0.08)",
-    headerBg: props.headerBackgroundColor || "rgba(255,255,255,0.05)",
-    headerText: props.headerTextColor || "rgba(255,255,255,0.7)",
+    background: props.backgroundColor || "var(--color-surface, transparent)",
+    titleColor: props.titleColor || "var(--color-text-primary, rgba(17,24,39,0.9))",
+    subtitleColor: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.5))",
+    borderColor: props.borderColor || "var(--color-border, rgba(17,24,39,0.1))",
+    headerBg: props.headerBackgroundColor || "var(--color-surface-2, rgba(17,24,39,0.04))",
+    headerText: props.headerTextColor || "var(--color-text-secondary, rgba(17,24,39,0.75))",
     rowBg: props.rowBackgroundColor || "transparent",
-    rowText: props.rowTextColor || "rgba(255,255,255,0.8)",
-    stripedBg: props.stripedColor || "rgba(255,255,255,0.02)",
-    hoverBg: props.hoverBackgroundColor || "rgba(255,255,255,0.05)",
+    rowText: props.rowTextColor || "var(--color-text-primary, rgba(17,24,39,0.85))",
+    stripedBg: props.stripedColor || "var(--color-surface-2, rgba(17,24,39,0.03))",
+    hoverBg: props.hoverBackgroundColor || "var(--color-surface-hover, rgba(59,130,246,0.06))",
+    emptyText: "var(--color-text-muted, rgba(17,24,39,0.5))",
+    paginationText: "var(--color-text-secondary, rgba(17,24,39,0.7))",
+    paginationBtnBg: "var(--color-surface-2, rgba(17,24,39,0.04))",
+    paginationBtnBorder: "var(--color-border, rgba(17,24,39,0.12))",
   };
 
   return (
@@ -138,7 +142,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "rgba(255,255,255,0.5)",
+            color: defaultColors.emptyText,
           }}>
             加载中...
           </div>
@@ -149,7 +153,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "rgba(255,255,255,0.5)",
+            color: defaultColors.emptyText,
           }}>
             暂无数据
           </div>
@@ -267,7 +271,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
           alignItems: "center",
           justifyContent: "space-between",
           fontSize: 12,
-          color: "rgba(255,255,255,0.6)",
+          color: defaultColors.paginationText,
         }}>
           <div>
             共 {sortedData.length} 条数据
@@ -278,10 +282,10 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
               disabled={currentPage === 1}
               style={{
                 padding: "4px 12px",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: defaultColors.paginationBtnBg,
+                border: `1px solid ${defaultColors.paginationBtnBorder}`,
                 borderRadius: 4,
-                color: "rgba(255,255,255,0.7)",
+                color: defaultColors.paginationText,
                 cursor: currentPage === 1 ? "not-allowed" : "pointer",
                 opacity: currentPage === 1 ? 0.5 : 1,
               }}
@@ -296,10 +300,10 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
               disabled={currentPage === totalPages}
               style={{
                 padding: "4px 12px",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: defaultColors.paginationBtnBg,
+                border: `1px solid ${defaultColors.paginationBtnBorder}`,
                 borderRadius: 4,
-                color: "rgba(255,255,255,0.7)",
+                color: defaultColors.paginationText,
                 cursor: currentPage === totalPages ? "not-allowed" : "pointer",
                 opacity: currentPage === totalPages ? 0.5 : 1,
               }}

@@ -16,9 +16,10 @@ import type { PipelineStep } from "@/types/pipeline.types";
 
 interface BoardStudioProps {
   projectName?: string;
+  style?: string;
 }
 
-export function BoardStudio({ projectName = "" }: BoardStudioProps) {
+export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) {
   const [isAgentMode, setIsAgentMode] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -70,8 +71,8 @@ export function BoardStudio({ projectName = "" }: BoardStudioProps) {
     const trimmed = input.trim();
     if (!trimmed || isRunning || isAgentMode === null) return;
     setInput("");
-    runPipeline(trimmed, projectName);
-  }, [input, isRunning, isAgentMode, runPipeline, projectName]);
+    runPipeline(trimmed, projectName, style);
+  }, [input, isRunning, isAgentMode, runPipeline, projectName, style]);
 
   const handleStartEdit = useCallback((file: FileItem) => {
     dashboardEditor.startEditing(file);

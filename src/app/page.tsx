@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { CreateProjectDialog, type CreateProjectPayload } from "@/components/create-project-dialog";
 
 interface Project {
   id: string;
   name: string;
+  style: string;
   createdAt: string;
   updatedAt: string;
   thumbnail?: string;
@@ -18,34 +20,43 @@ export default function Home() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>("my-designs");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // 从 localStorage 加载项目列表
   useEffect(() => {
     const stored = localStorage.getItem("dv-projects");
     if (stored) {
       try {
-        setProjects(JSON.parse(stored));
+        const parsed = JSON.parse(stored) as Project[];
+        // 向后兼容：老数据可能没有 style 字段
+        setProjects(parsed.map((p) => ({ ...p, style: p.style ?? "" })));
       } catch (e) {
         console.error("Failed to parse projects:", e);
       }
     }
   }, []);
 
-  // 创建新项目（自动处理重名，加序号）
-  const handleCreateProject = () => {
-    const baseName = "未命名项目";
-    const existingNames = new Set(projects.map((p) => p.name));
-
-    let name = baseName;
+  // 计算一个唯一的默认项目名（如果重名则加序号）
+  const computeUniqueName = (base: string): string => {
+    const existing = new Set(projects.map((p) => p.name));
+    if (!existing.has(base)) return base;
     let counter = 1;
-    while (existingNames.has(name)) {
-      name = `${baseName} ${counter}`;
-      counter++;
-    }
+    while (existing.has(`${base} ${counter}`)) counter++;
+    return `${base} ${counter}`;
+  };
 
+  // 打开新建对话框
+  const handleOpenCreateDialog = () => {
+    setDialogOpen(true);
+  };
+
+  // 确认新建项目
+  const handleCreateProject = ({ name, style }: CreateProjectPayload) => {
+    const finalName = computeUniqueName(name);
     const newProject: Project = {
       id: `project-${Date.now()}`,
-      name,
+      name: finalName,
+      style,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -53,6 +64,7 @@ export default function Home() {
     const updatedProjects = [...projects, newProject];
     setProjects(updatedProjects);
     localStorage.setItem("dv-projects", JSON.stringify(updatedProjects));
+    setDialogOpen(false);
 
     router.push(`/project/${newProject.id}`);
   };
@@ -136,7 +148,7 @@ export default function Home() {
         </div>
 
         {/* 新建按钮 */}
-        <Button onClick={handleCreateProject} size="sm" className="gap-1.5">
+        <Button onClick={handleOpenCreateDialog} size="sm" className="gap-1.5">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -263,6 +275,14 @@ export default function Home() {
           )}
         </div>
       </main>
+
+      {/* 新建项目对话框 */}
+      <CreateProjectDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        defaultName={computeUniqueName("未命名项目")}
+        onSubmit={handleCreateProject}
+      />
     </div>
   );
 }

@@ -50,9 +50,9 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
       height: "100%",
       background: props.gradient 
         ? `linear-gradient(135deg, ${props.gradient[0]} 0%, ${props.gradient[1]} 100%)`
-        : "linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(139,92,246,0.08) 100%)",
+        : "linear-gradient(135deg, var(--kpi-bg-from, #1e293b) 0%, var(--kpi-bg-to, #334155) 100%)",
       backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255,255,255,0.1)",
+      border: "1px solid var(--color-border-strong, rgba(255,255,255,0.1))",
       borderRadius: 16,
       padding: 20,
       display: "flex",
@@ -90,14 +90,14 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
             <div style={{
               fontSize: 13,
               fontWeight: 500,
-              color: "rgba(255,255,255,0.7)",
+              color: "var(--kpi-text-secondary, rgba(255,255,255,0.7))",
               marginBottom: 4,
             }}>{props.title}</div>
           )}
           {props.subtitle && (
             <div style={{
               fontSize: 11,
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--kpi-text-muted, rgba(255,255,255,0.5))",
             }}>{props.subtitle}</div>
           )}
         </div>
@@ -119,7 +119,7 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
           <div style={{
             fontSize: 32,
             fontWeight: 700,
-            color: "rgba(255,255,255,0.3)",
+            color: "var(--kpi-text-muted, rgba(255,255,255,0.3))",
           }}>--</div>
         ) : (
           <div style={{
@@ -131,20 +131,20 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
               <span style={{
                 fontSize: 16,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.7)",
+                color: "var(--kpi-text-secondary, rgba(255,255,255,0.7))",
               }}>{props.prefix}</span>
             )}
             <span style={{
               fontSize: 32,
               fontWeight: 700,
-              color: props.color || "#ffffff",
+              color: props.color || "var(--kpi-text-primary, #ffffff)",
               lineHeight: 1,
             }}>{formatValue(value)}</span>
             {props.unit && (
               <span style={{
                 fontSize: 14,
                 fontWeight: 500,
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--kpi-text-secondary, rgba(255,255,255,0.6))",
                 marginLeft: 4,
               }}>{props.unit}</span>
             )}
@@ -152,7 +152,7 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
               <span style={{
                 fontSize: 16,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.7)",
+                color: "var(--kpi-text-secondary, rgba(255,255,255,0.7))",
               }}>{props.suffix}</span>
             )}
           </div>
@@ -187,7 +187,7 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
         {props.comparison && (
           <div style={{
             fontSize: 11,
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--kpi-text-muted, rgba(255,255,255,0.5))",
           }}>
             {props.comparison.label}: {data?.comparison?.value ?? props.comparison.value}
           </div>

@@ -36,8 +36,8 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
         flexDirection: "column",
         gap: 4,
         padding: "8px 16px",
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.1)",
+        background: props.backgroundColor || "var(--color-surface-2, rgba(17,24,39,0.04))",
+        border: `1px solid ${props.borderColor || "var(--color-border, rgba(17,24,39,0.12))"}`,
         borderRadius: 8,
         fontSize: 13,
         minWidth: 200,
@@ -45,7 +45,7 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
       }}>
         {props.label && (
           <span style={{
-            color: "rgba(255,255,255,0.6)",
+            color: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.6))",
             fontSize: 12,
             marginBottom: 4,
           }}>{props.label}</span>
@@ -67,7 +67,7 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
                   cursor: "pointer",
                   padding: "4px 8px",
                   borderRadius: 4,
-                  background: isSelected ? "rgba(59,130,246,0.2)" : "transparent",
+                  background: isSelected ? "color-mix(in srgb, var(--color-primary, #3b82f6) 18%, transparent)" : "transparent",
                   transition: "background 0.2s",
                 }}
               >
@@ -76,10 +76,10 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
                   checked={isSelected}
                   onChange={() => handleChange(String(value))}
                   style={{
-                    accentColor: "#3b82f6",
+                    accentColor: "var(--color-primary, #3b82f6)",
                   }}
                 />
-                <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13 }}>
+                <span style={{ color: props.textColor || "var(--color-text-primary, rgba(17,24,39,0.85))", fontSize: 13 }}>
                   {label}
                 </span>
               </label>
@@ -97,16 +97,16 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
       alignItems: "center",
       gap: 8,
       padding: "8px 16px",
-      background: "rgba(255,255,255,0.05)",
-      border: "1px solid rgba(255,255,255,0.1)",
+      background: props.backgroundColor || "var(--color-surface-2, rgba(17,24,39,0.04))",
+      border: `1px solid ${props.borderColor || "var(--color-border, rgba(17,24,39,0.12))"}`,
       borderRadius: 8,
       fontSize: 13,
-      color: "rgba(255,255,255,0.8)",
+      color: props.textColor || "var(--color-text-primary, rgba(17,24,39,0.85))",
       ...props.style,
     }}>
       {props.label && (
         <span style={{
-          color: "rgba(255,255,255,0.6)",
+          color: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.6))",
           fontSize: 12,
         }}>{props.label}:</span>
       )}
@@ -117,14 +117,14 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
         style={{
           background: "transparent",
           border: "none",
-          color: "rgba(255,255,255,0.9)",
+          color: props.textColor || "var(--color-text-primary, rgba(17,24,39,0.9))",
           fontSize: 13,
           cursor: "pointer",
           outline: "none",
           minWidth: 120,
         }}
       >
-        <option value="" style={{ background: "#1a1f3a" }}>
+        <option value="">
           {props.placeholder || "请选择"}
         </option>
         {options.map((option: any) => {
@@ -135,7 +135,6 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
             <option
               key={value}
               value={value}
-              style={{ background: "#1a1f3a" }}
             >
               {label}
             </option>
@@ -143,7 +142,7 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
         })}
       </select>
       
-      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>🔽</span>
+      <span style={{ fontSize: 12, color: "var(--color-text-muted, rgba(17,24,39,0.4))" }}>▾</span>
     </div>
   );
 }

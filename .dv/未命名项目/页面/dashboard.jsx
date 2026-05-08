@@ -1,724 +1,695 @@
 export default function Dashboard() {
   const [currentPage, setCurrentPage] = React.useState(0);
+  const chartColors = ["#F5F5F5","#D4D4D4","#A3A3A3","#737373","#525252","#292929"];
 
-  // ===== VI System Colors (Apple-inspired Light Mode) =====
-  const colors = {
-    background: "#f5f5f7",
-    surface: "#ffffff",
-    textPrimary: "#1d1d1f",
-    textSecondary: "#6e6e73",
-    textTertiary: "#86868b",
-    border: "#d2d2d7",
-    borderStrong: "#86868b",
-    actionBlue: "#0071e3",
-    linkBlue: "#0066cc",
-    brightBlue: "#2997ff",
-    darkGray: "#424245",
-    chartColors: ["#0071e3", "#86868b", "#2997ff", "#1d1d1f", "#424245", "#d2d2d7"],
-    kpiGradient: ["#0071e3", "#2997ff"],
-    whiteTransparent: "rgba(255,255,255,0.9)",
+  const cardStyle = {
+    background: "var(--color-surface)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-lg)",
+    boxShadow: "var(--shadow-md)",
+    padding: "var(--space-4)",
+    boxSizing: "border-box",
   };
 
-  const typography = {
-    displayFont: "SF Pro Display, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif",
-    textFont: "SF Pro Text, SF Pro Icons, Helvetica Neue, Helvetica, Arial, sans-serif",
-  };
-
-  // ===== Widgets with Apple Branded Visual Props =====
   const widgets = {
-    // ===== P1 总览驾驶舱 ===== //
-    kpi_outpatient: {
+    kpi_total_production: {
       type: "KPI",
       props: {
-        title: "门诊量",
-        subtitle: "今日累计",
-        icon: "🏥",
-        dataKey: "outpatient_today",
-        unit: "人次",
+        title: "总产量",
+        dataKey: "total_production",
+        unit: "件",
         trend: true,
+        trendDirection: "up",
+        trendValue: "+5.2%",
+        icon: "🏭",
+      },
+    },
+    kpi_yield_rate: {
+      type: "KPI",
+      props: {
+        title: "良品率",
+        dataKey: "yield_rate",
+        unit: "%",
+        trend: true,
+        trendDirection: "down",
+        trendValue: "-0.3%",
+        icon: "✅",
+      },
+    },
+    kpi_oee: {
+      type: "KPI",
+      props: {
+        title: "OEE",
+        dataKey: "oee",
+        unit: "%",
+        trend: true,
+        trendDirection: "up",
+        trendValue: "+2.1%",
+        icon: "⚙️",
+      },
+    },
+    kpi_energy: {
+      type: "KPI",
+      props: {
+        title: "今日能耗",
+        dataKey: "energy_consumption",
+        unit: "kWh",
+        trend: true,
+        trendDirection: "up",
+        trendValue: "+1.8%",
+        icon: "⚡",
         comparison: { type: "yoy", label: "同比" },
-        gradient: ["#0071e3", "#2997ff"],
-        textColor: "#ffffff",
-        titleColor: "rgba(255,255,255,0.85)",
-        subtitleColor: "rgba(255,255,255,0.65)",
-        backgroundColor: "transparent",
       },
     },
-    kpi_bed_usage: {
-      type: "KPI",
+    donut_oee_target: {
+      type: "DonutChart",
       props: {
-        title: "病床使用率",
-        subtitle: "当前在院",
-        icon: "🛏️",
-        dataKey: "bed_usage_rate",
-        unit: "%",
-        trend: true,
-        comparison: { type: "target", label: "目标85%" },
-        gradient: ["#86868b", "#1d1d1f"],
-        textColor: "#ffffff",
-        titleColor: "rgba(255,255,255,0.85)",
-        subtitleColor: "rgba(255,255,255,0.65)",
-        backgroundColor: "transparent",
+        title: "OEE目标达成",
+        dataKey: "oee_target",
+        nameField: "type",
+        valueField: "value",
+        showPercentage: true,
+        showLegend: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
       },
     },
-    kpi_surgery_success: {
-      type: "KPI",
-      props: {
-        title: "手术成功率",
-        subtitle: "月度",
-        icon: "🔬",
-        dataKey: "surgery_success_rate",
-        unit: "%",
-        trend: true,
-        comparison: { type: "mom", label: "环比" },
-        gradient: ["#2997ff", "#0071e3"],
-        textColor: "#ffffff",
-        titleColor: "rgba(255,255,255,0.85)",
-        subtitleColor: "rgba(255,255,255,0.65)",
-        backgroundColor: "transparent",
-      },
-    },
-    kpi_ai_accuracy: {
-      type: "KPI",
-      props: {
-        title: "AI辅助诊断准确率",
-        subtitle: "今日",
-        icon: "🤖",
-        dataKey: "ai_diagnosis_accuracy",
-        unit: "%",
-        trend: true,
-        comparison: { type: "target", label: "目标98%" },
-        gradient: ["#424245", "#6e6e73"],
-        textColor: "#ffffff",
-        titleColor: "rgba(255,255,255,0.85)",
-        subtitleColor: "rgba(255,255,255,0.65)",
-        backgroundColor: "transparent",
-      },
-    },
-    kpi_iot_coverage: {
-      type: "KPI",
-      props: {
-        title: "物联网设备覆盖率",
-        subtitle: "全院",
-        icon: "📡",
-        dataKey: "iot_coverage",
-        unit: "%",
-        trend: true,
-        comparison: { type: "target", label: "目标90%" },
-        gradient: ["#d2d2d7", "#86868b"],
-        textColor: "#1d1d1f",
-        titleColor: "rgba(0,0,0,0.75)",
-        subtitleColor: "rgba(0,0,0,0.55)",
-        backgroundColor: "transparent",
-      },
-    },
-    chart_trend: {
+    line_production_trend: {
       type: "LineChart",
       props: {
-        title: "门诊量 & 住院人数趋势",
-        subtitle: "近30天",
-        dataKey: "outpatient_inpatient_trend",
+        title: "产量趋势",
+        dataKey: "production_trend",
         xAxis: { field: "date", label: "日期" },
         yAxis: [
-          { field: "outpatient", label: "门诊量", color: "#0071e3" },
-          { field: "inpatient", label: "住院人数", color: "#86868b" },
+          { field: "actual", label: "实际产量", color: "#F5F5F5" },
+          { field: "plan", label: "计划产量", color: "#737373" },
         ],
         showLegend: true,
         showGrid: true,
         smooth: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        subtitleColor: colors.textSecondary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        legendTextColor: colors.textPrimary,
-        colorScheme: ["#0071e3", "#86868b"],
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
       },
     },
-    chart_revenue_cost: {
-      type: "BarChart",
-      props: {
-        title: "各科室收入与成本对比",
-        dataKey: "department_revenue_cost",
-        xAxis: { field: "department", label: "科室" },
-        yAxis: [
-          { field: "revenue", label: "收入(万元)", color: "#2997ff" },
-          { field: "cost", label: "成本(万元)", color: "#1d1d1f" },
-        ],
-        showLegend: true,
-        showGrid: true,
-        direction: "vertical",
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        subtitleColor: colors.textSecondary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        legendTextColor: colors.textPrimary,
-        colorScheme: ["#2997ff", "#1d1d1f"],
-      },
-    },
-
-    // ===== P2 技术与质量详情 ===== //
-    chart_ai_trend: {
-      type: "LineChart",
-      props: {
-        title: "AI诊断准确率趋势",
-        subtitle: "近12周",
-        dataKey: "ai_accuracy_trend",
-        xAxis: { field: "week", label: "周" },
-        yAxis: [
-          { field: "whole_hospital", label: "全院", color: "#0071e3" },
-          { field: "internal", label: "内科", color: "#86868b" },
-          { field: "surgery", label: "外科", color: "#2997ff" },
-        ],
-        showLegend: true,
-        showGrid: true,
-        smooth: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        subtitleColor: colors.textSecondary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        legendTextColor: colors.textPrimary,
-        colorScheme: ["#0071e3", "#86868b", "#2997ff"],
-      },
-    },
-    chart_iot_department: {
-      type: "BarChart",
-      props: {
-        title: "各科室物联网覆盖率",
-        dataKey: "department_iot_coverage",
-        xAxis: { field: "department", label: "科室" },
-        yAxis: { field: "coverage", label: "覆盖率", unit: "%" },
-        showTarget: true,
-        targetValue: 90,
-        targetLabel: "目标90%",
-        showGrid: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        colorScheme: ["#0071e3"],
-      },
-    },
-    chart_surgery_department: {
-      type: "BarChart",
-      props: {
-        title: "各科室手术成功率",
-        dataKey: "department_surgery_success",
-        xAxis: { field: "department", label: "科室" },
-        yAxis: { field: "rate", label: "成功率", unit: "%" },
-        showTarget: true,
-        targetValue: 95,
-        targetLabel: "目标95%",
-        showGrid: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        colorScheme: ["#0071e3"],
-      },
-    },
-    table_research: {
+    table_alerts: {
       type: "Table",
       props: {
-        title: "科研论文/专利数量排名",
-        dataKey: "research_ranking",
+        title: "当前预警列表",
+        dataKey: "alerts",
         columns: [
-          { field: "department", label: "科室", width: 120 },
-          { field: "papers", label: "论文数", width: 100, sortable: true },
-          { field: "patents", label: "专利数", width: 100, sortable: true },
-          { field: "score", label: "综合得分", width: 100, sortable: true },
-        ],
-        pagination: true,
-        pageSize: 8,
-        showIndex: true,
-        striped: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        headerBackgroundColor: "#f5f5f7",
-        headerTextColor: colors.textPrimary,
-        rowTextColor: colors.textPrimary,
-        stripedColor: "#fafafc",
-        borderColor: colors.border,
-      },
-    },
-    select_department: {
-      type: "Select",
-      props: {
-        label: "科室",
-        placeholder: "全部科室",
-        multiple: false,
-        options: [
-          { label: "内科", value: "internal" },
-          { label: "外科", value: "surgery" },
-          { label: "妇产科", value: "obs" },
-          { label: "儿科", value: "pediatrics" },
-          { label: "急诊科", value: "emergency" },
-        ],
-        backgroundColor: colors.surface,
-        textColor: colors.textPrimary,
-        borderColor: colors.border,
-        placeholderColor: colors.textSecondary,
-        theme: "light",
-      },
-    },
-    multi_tech: {
-      type: "MultiSelect",
-      props: {
-        label: "技术类别",
-        placeholder: "全部技术",
-        options: [
-          { label: "AI诊断", value: "ai" },
-          { label: "物联网", value: "iot" },
-          { label: "手术机器人", value: "surgery_robot" },
-        ],
-        backgroundColor: colors.surface,
-        textColor: colors.textPrimary,
-        borderColor: colors.border,
-        placeholderColor: colors.textSecondary,
-        theme: "light",
-      },
-    },
-
-    // ===== P3 运营诊断与决策 ===== //
-    table_anomaly: {
-      type: "Table",
-      props: {
-        title: "异常指标列表",
-        dataKey: "anomaly_indicators",
-        columns: [
-          { field: "name", label: "指标名", width: 140 },
-          { field: "current", label: "当前值", width: 100 },
-          { field: "threshold", label: "阈值", width: 100 },
-          { field: "status", label: "预警", width: 80 },
-          { field: "change", label: "环比变化", width: 100, sortable: true },
+          { field: "level", label: "等级", width: 60 },
+          { field: "time", label: "触发时间", width: 120 },
+          { field: "object", label: "对象", width: 100 },
+          { field: "description", label: "描述", width: 200 },
+          { field: "action", label: "建议行动", width: 150 },
         ],
         pagination: true,
         pageSize: 5,
         showIndex: true,
         striped: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        headerBackgroundColor: "#f5f5f7",
-        headerTextColor: colors.textPrimary,
-        rowTextColor: colors.textPrimary,
-        stripedColor: "#fafafc",
-        borderColor: colors.border,
       },
     },
-    chart_bed_alert: {
+    filter_date_range: {
+      type: "DateRangePicker",
+      props: {
+        label: "日期范围",
+        defaultValue: "today",
+        presets: [
+          { label: "今天", value: "today" },
+          { label: "近7天", value: "last_7_days" },
+          { label: "近30天", value: "last_30_days" },
+        ],
+      },
+    },
+    filter_workshop: {
+      type: "Select",
+      props: {
+        label: "车间/区域",
+        placeholder: "全部",
+        options: [
+          { label: "冲压车间", value: "1" },
+          { label: "焊接车间", value: "2" },
+          { label: "总装车间", value: "3" },
+        ],
+      },
+    },
+    filter_batch: {
+      type: "Select",
+      props: {
+        label: "批次号",
+        placeholder: "全部",
+        options: [
+          { label: "B2024001", value: "B1" },
+          { label: "B2024002", value: "B2" },
+        ],
+      },
+    },
+    bar_oee_by_line: {
       type: "BarChart",
       props: {
-        title: "各科室床位使用率预警",
-        dataKey: "department_bed_usage",
-        xAxis: { field: "department", label: "科室" },
-        yAxis: { field: "usage_rate", label: "使用率", unit: "%" },
+        title: "产线OEE对比",
+        dataKey: "oee_by_line",
+        xAxis: { field: "line", label: "产线" },
+        yAxis: { field: "oee", label: "OEE", unit: "%" },
         showTarget: true,
-        targetValue: 98,
-        targetLabel: "超限警戒",
+        targetValue: 85,
         showGrid: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        colorScheme: ["#0071e3"],
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
       },
     },
-    chart_complaint: {
+    bar_fault_rate_rank: {
+      type: "BarChart",
+      props: {
+        title: "设备故障率排名(Top10)",
+        dataKey: "fault_rate_rank",
+        xAxis: { field: "device", label: "设备" },
+        yAxis: { field: "fault_rate", label: "故障率", unit: "%" },
+        showGrid: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
+      },
+    },
+    line_oee_trend: {
+      type: "LineChart",
+      props: {
+        title: "选定设备OEE趋势(近24h)",
+        dataKey: "device_oee_trend",
+        xAxis: { field: "time", label: "时间" },
+        yAxis: [{ field: "oee", label: "OEE", color: "#F5F5F5" }],
+        showLegend: true,
+        showGrid: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
+      },
+    },
+    table_device_events: {
+      type: "Table",
+      props: {
+        title: "设备事件明细(当前班次)",
+        dataKey: "device_events",
+        columns: [
+          { field: "time", label: "时间", width: 80 },
+          { field: "type", label: "类型", width: 80 },
+          { field: "duration", label: "时长(分钟)", width: 90 },
+          { field: "status", label: "状态", width: 70 },
+        ],
+        pagination: true,
+        pageSize: 8,
+        showIndex: true,
+      },
+    },
+    line_yield_trend: {
+      type: "LineChart",
+      props: {
+        title: "良品率趋势(近7天)",
+        dataKey: "yield_trend",
+        xAxis: { field: "date", label: "日期" },
+        yAxis: [{ field: "yield", label: "良品率", color: "#F5F5F5" }],
+        showLegend: true,
+        showGrid: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
+      },
+    },
+    bar_defect_pareto: {
+      type: "BarChart",
+      props: {
+        title: "缺陷分类帕累托图",
+        dataKey: "defect_pareto",
+        xAxis: { field: "process", label: "工序" },
+        yAxis: { field: "count", label: "缺陷数量" },
+        showGrid: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
+      },
+    },
+    table_batch_trace: {
+      type: "Table",
+      props: {
+        title: "批次追溯明细",
+        dataKey: "batch_trace",
+        columns: [
+          { field: "batch", label: "批次号", width: 100 },
+          { field: "process", label: "工序", width: 80 },
+          { field: "time", label: "时间", width: 120 },
+          { field: "operator", label: "操作员", width: 70 },
+          { field: "result", label: "质检结果", width: 70 },
+        ],
+        pagination: true,
+        pageSize: 8,
+        showIndex: true,
+      },
+    },
+    donut_defect_by_model: {
       type: "DonutChart",
       props: {
-        title: "投诉原因分布",
-        dataKey: "complaint_reasons",
-        nameField: "reason",
+        title: "缺陷产品型号分布",
+        dataKey: "defect_by_model",
+        nameField: "model",
         valueField: "count",
         showPercentage: true,
         showLegend: true,
-        legendPosition: "right",
-        donut: true,
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        labelColor: colors.textPrimary,
-        percentageColor: colors.textSecondary,
-        legendTextColor: colors.textPrimary,
-        colorScheme: ["#0071e3", "#86868b", "#2997ff", "#1d1d1f", "#424245", "#d2d2d7"],
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
       },
     },
-    chart_cost_structure: {
+    line_energy_trend: {
+      type: "LineChart",
+      props: {
+        title: "电能耗趋势(当日)",
+        dataKey: "energy_trend",
+        xAxis: { field: "time", label: "时间" },
+        yAxis: [
+          { field: "actual", label: "实际电耗", color: "#F5F5F5" },
+          { field: "limit", label: "计划上限", color: "#737373" },
+        ],
+        showLegend: true,
+        showGrid: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
+      },
+    },
+    bar_unit_energy: {
       type: "BarChart",
       props: {
-        title: "医疗成本结构分析",
-        dataKey: "cost_structure",
-        xAxis: { field: "category", label: "成本类别" },
-        yAxis: { field: "amount", label: "金额(万元)" },
-        showLegend: true,
-        direction: "horizontal",
-        backgroundColor: "transparent",
-        textColor: colors.textPrimary,
-        titleColor: colors.textPrimary,
-        subtitleColor: colors.textSecondary,
-        gridColor: "rgba(0,0,0,0.06)",
-        axisTextColor: colors.textSecondary,
-        legendTextColor: colors.textPrimary,
-        colorScheme: ["#0071e3"],
+        title: "单位产品能耗对比",
+        dataKey: "unit_energy",
+        xAxis: { field: "workshop", label: "车间" },
+        yAxis: { field: "energy", label: "单位能耗", unit: "kWh/件" },
+        showTarget: true,
+        targetValue: 5,
+        showGrid: true,
+        colorScheme: chartColors,
+        backgroundColor: "var(--color-surface)",
+        gridColor: "var(--color-grid)",
+        axisColor: "var(--color-border)",
+        axisTextColor: "var(--color-text-secondary)",
+        legendTextColor: "var(--color-text-secondary)",
+        titleColor: "var(--color-text-primary)",
+        textColor: "var(--color-text-secondary)",
       },
     },
-    date_picker: {
-      type: "DateRangePicker",
+    table_energy_saving: {
+      type: "Table",
       props: {
-        label: "时间范围",
-        defaultValue: "last_30_days",
-        presets: [
-          { label: "今天", value: "today" },
-          { label: "最近7天", value: "last_7_days" },
-          { label: "最近30天", value: "last_30_days" },
-          { label: "本月", value: "this_month" },
+        title: "节能模式触发历史",
+        dataKey: "energy_saving_events",
+        columns: [
+          { field: "time", label: "时间", width: 120 },
+          { field: "type", label: "类型", width: 70 },
+          { field: "saving", label: "节能量(kWh)", width: 100 },
         ],
-        backgroundColor: colors.surface,
-        textColor: colors.textPrimary,
-        borderColor: colors.border,
-        placeholderColor: colors.textSecondary,
-        theme: "light",
+        pagination: true,
+        pageSize: 8,
+        showIndex: true,
       },
     },
-    multi_department: {
-      type: "MultiSelect",
+    kpi_water_gas: {
+      type: "KPI",
       props: {
-        label: "科室",
-        placeholder: "全部科室",
-        options: [
-          { label: "内科", value: "internal" },
-          { label: "外科", value: "surgery" },
-          { label: "妇产科", value: "obs" },
-          { label: "儿科", value: "pediatrics" },
-          { label: "急诊科", value: "emergency" },
-        ],
-        backgroundColor: colors.surface,
-        textColor: colors.textPrimary,
-        borderColor: colors.border,
-        placeholderColor: colors.textSecondary,
-        theme: "light",
+        title: "水/气能耗摘要",
+        dataKey: "water_gas_summary",
+        prefix: "水:",
+        suffix: "吨 / 气: m³",
+        icon: "💧",
       },
     },
   };
 
-  // ===== Reusable Card Style =====
-  const cardStyle = {
-    background: colors.surface,
-    borderRadius: 16,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    padding: 16,
-    height: "100%",
-    overflow: "hidden",
-  };
+  const pageDefs = [
+    { key: "overview", title: "全局总览" },
+    { key: "equipment", title: "产线/设备" },
+    { key: "quality", title: "质量追溯" },
+    { key: "energy", title: "能耗诊断" },
+  ];
 
-  const headerStyle = {
-    height: 72,
-    padding: "0 32px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottom: `1px solid ${colors.border}`,
-    background: colors.whiteTransparent,
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-  };
+  const tabButton = (i, label) => (
+    <button
+      key={i}
+      type="button"
+      onClick={() => setCurrentPage(i)}
+      data-widget-key={`tab_${i}`}
+      data-widget-type="Text"
+      style={{
+        height: 44,
+        padding: "0 var(--space-5)",
+        borderRadius: "var(--radius-md)",
+        border: currentPage === i ? "none" : "1px solid var(--color-border)",
+        background: currentPage === i ? "var(--color-primary)" : "var(--color-surface-2)",
+        color: currentPage === i ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--font-size-sm)",
+        fontWeight: "var(--font-weight-semibold)",
+        cursor: "pointer",
+      }}
+    >
+      {label}
+    </button>
+  );
 
-  const footerStyle = {
-    height: 48,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    borderTop: `1px solid ${colors.border}`,
-    background: colors.whiteTransparent,
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-  };
-
-  // ===== Page 1: 总览驾驶舱 ===== //
-  const Page1 = () => (
-    <div style={{
-      width: 1920,
-      height: 1080,
-      display: "flex",
-      flexDirection: "column",
-      background: colors.background,
-      fontFamily: typography.textFont,
-      color: colors.textPrimary,
-      overflow: "hidden",
-    }}>
-      <header style={headerStyle}>
-        <h1 style={{
-          fontSize: 24,
-          fontWeight: 600,
-          color: colors.textPrimary,
-          margin: 0,
-          fontFamily: typography.displayFont,
-          letterSpacing: "0.216px",
-        }}>
-          智慧医院先进技术全景看板 · 总览驾驶舱
-        </h1>
-        <div style={{ display: "flex", gap: 12 }}>
-          <Widget config={widgets.date_picker} />
-        </div>
-      </header>
-
-      <main style={{
-        flex: 1,
-        display: "grid",
-        gridTemplateRows: "auto 1fr",
-        gap: 24,
-        padding: 24,
-        overflowY: "auto",
-        overflowX: "hidden",
-      }}>
-        {/* KPI Cards */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          gap: 16,
-        }}>
-          <Widget config={widgets.kpi_outpatient} />
-          <Widget config={widgets.kpi_bed_usage} />
-          <Widget config={widgets.kpi_surgery_success} />
-          <Widget config={widgets.kpi_ai_accuracy} />
-          <Widget config={widgets.kpi_iot_coverage} />
-        </div>
-
-        {/* Charts */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1.5fr 1fr",
-          gap: 24,
-          height: "100%",
-        }}>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_trend} />
-          </div>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_revenue_cost} />
-          </div>
-        </div>
-      </main>
-
-      <footer style={footerStyle}>
-        {[0, 1, 2].map(i => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            style={{
-              width: currentPage === i ? 32 : 8,
-              height: 8,
-              borderRadius: "50%",
-              border: "none",
-              cursor: "pointer",
-              background: currentPage === i ? colors.actionBlue : colors.border,
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              padding: 0,
-            }}
-          />
-        ))}
-      </footer>
+  const FiltersRow = ({ filters }) => (
+    <div
+      style={{
+        display: "flex",
+        gap: "var(--space-3)",
+        alignItems: "center",
+        height: 48,
+        minHeight: 0,
+        overflow: "hidden",
+        padding: "0 var(--space-2)",
+      }}
+    >
+      {filters.map((fKey, idx) => (
+        <Widget key={idx} config={widgets[fKey]} />
+      ))}
     </div>
   );
 
-  // ===== Page 2: 技术与质量详情 ===== //
-  const Page2 = () => (
-    <div style={{
-      width: 1920,
-      height: 1080,
-      display: "flex",
-      flexDirection: "column",
-      background: colors.background,
-      fontFamily: typography.textFont,
-      color: colors.textPrimary,
-      overflow: "hidden",
-    }}>
-      <header style={headerStyle}>
-        <h1 style={{
-          fontSize: 24,
-          fontWeight: 600,
-          color: colors.textPrimary,
-          margin: 0,
-          fontFamily: typography.displayFont,
-          letterSpacing: "0.216px",
-        }}>
-          技术与质量详情
-        </h1>
-        <div style={{ display: "flex", gap: 12 }}>
-          <Widget config={widgets.select_department} />
-          <Widget config={widgets.multi_tech} />
+  const Page1 = () => {
+    const filters = ["filter_date_range", "filter_workshop"];
+    return (
+      <main
+        style={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
+          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateRows: "48px 140px 480px 180px",
+          gap: "var(--space-4)",
+          padding: "var(--space-4)",
+        }}
+      >
+        <FiltersRow filters={filters} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+            gap: "var(--space-3)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <Widget config={widgets.kpi_total_production} />
+          <Widget config={widgets.kpi_yield_rate} />
+          <Widget config={widgets.kpi_oee} />
+          <Widget config={widgets.kpi_energy} />
         </div>
-      </header>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.donut_oee_target} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.line_production_trend} />
+          </div>
+        </div>
+        <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+          <Widget config={widgets.table_alerts} />
+        </div>
+      </main>
+    );
+  };
 
-      <main style={{
-        flex: 1,
-        display: "grid",
-        gridTemplateRows: "1fr 1fr 1fr",
-        gap: 16,
-        padding: 24,
+  const Page2 = () => {
+    const filters = ["filter_date_range", "filter_workshop"];
+    return (
+      <main
+        style={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
+          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateRows: "48px 420px 420px",
+          gap: "var(--space-4)",
+          padding: "var(--space-4)",
+        }}
+      >
+        <FiltersRow filters={filters} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.bar_oee_by_line} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.bar_fault_rate_rank} />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.line_oee_trend} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.table_device_events} />
+          </div>
+        </div>
+      </main>
+    );
+  };
+
+  const Page3 = () => {
+    const filters = ["filter_date_range", "filter_batch"];
+    return (
+      <main
+        style={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
+          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateRows: "48px 400px 400px",
+          gap: "var(--space-4)",
+          padding: "var(--space-4)",
+        }}
+      >
+        <FiltersRow filters={filters} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.5fr minmax(0, 1fr)",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.line_yield_trend} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.bar_defect_pareto} />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.table_batch_trace} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.donut_defect_by_model} />
+          </div>
+        </div>
+      </main>
+    );
+  };
+
+  const Page4 = () => {
+    const filters = ["filter_date_range", "filter_workshop"];
+    return (
+      <main
+        style={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
+          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateRows: "48px 400px 400px",
+          gap: "var(--space-4)",
+          padding: "var(--space-4)",
+        }}
+      >
+        <FiltersRow filters={filters} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.line_energy_trend} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.bar_unit_energy} />
+          </div>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "var(--space-4)",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.table_energy_saving} />
+          </div>
+          <div style={{ ...cardStyle, minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+            <Widget config={widgets.kpi_water_gas} />
+          </div>
+        </div>
+      </main>
+    );
+  };
+
+  const pageRenders = [
+    <Page1 key="p1" />,
+    <Page2 key="p2" />,
+    <Page3 key="p3" />,
+    <Page4 key="p4" />,
+  ];
+
+  return (
+    <div
+      style={{
+        width: 1920,
+        height: 1080,
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--color-bg)",
+        color: "var(--color-text-primary)",
+        fontFamily: "var(--font-body)",
         overflow: "hidden",
-      }}>
-        {/* 第一行：两个图表 */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 24,
-          height: "100%",
-        }}>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_ai_trend} />
-          </div>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_iot_department} />
-          </div>
-        </div>
-        {/* 第二行：手术成功率和表格 */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 24,
-          height: "100%",
-        }}>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_surgery_department} />
-          </div>
-          <div style={cardStyle}>
-            <Widget config={widgets.table_research} />
-          </div>
-        </div>
-        {/* 第三行：下钻区域 */}
-        <div style={{
+        boxSizing: "border-box",
+      }}
+    >
+      <header
+        style={{
+          height: 72,
+          padding: "0 var(--space-6)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          color: colors.textSecondary,
-          fontFamily: typography.textFont,
-          fontSize: 14,
-        }}>
-          下钻区域（可添加病种分析等）
-        </div>
-      </main>
-
-      <footer style={footerStyle}>
-        {[0, 1, 2].map(i => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            style={{
-              width: currentPage === i ? 32 : 8,
-              height: 8,
-              borderRadius: "50%",
-              border: "none",
-              cursor: "pointer",
-              background: currentPage === i ? colors.actionBlue : colors.border,
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              padding: 0,
-            }}
-          />
-        ))}
-      </footer>
-    </div>
-  );
-
-  // ===== Page 3: 运营诊断与决策 ===== //
-  const Page3 = () => (
-    <div style={{
-      width: 1920,
-      height: 1080,
-      display: "flex",
-      flexDirection: "column",
-      background: colors.background,
-      fontFamily: typography.textFont,
-      color: colors.textPrimary,
-      overflow: "hidden",
-    }}>
-      <header style={headerStyle}>
-        <h1 style={{
-          fontSize: 24,
-          fontWeight: 600,
-          color: colors.textPrimary,
-          margin: 0,
-          fontFamily: typography.displayFont,
-          letterSpacing: "0.216px",
-        }}>
-          运营诊断与决策
+          justifyContent: "space-between",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        <h1
+          data-widget-key="page_title"
+          data-widget-type="Title"
+          style={{
+            fontSize: "var(--font-size-2xl)",
+            fontWeight: "var(--font-weight-bold)",
+            fontFamily: "var(--font-display)",
+            color: "var(--color-text-primary)",
+            margin: 0,
+          }}
+        >
+          智慧工厂生产运营看板
         </h1>
-        <div style={{ display: "flex", gap: 12 }}>
-          <Widget config={widgets.date_picker} />
-          <Widget config={widgets.multi_department} />
+        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+          {pageDefs.map((p, i) => tabButton(i, p.title))}
         </div>
       </header>
-
-      <main style={{
-        flex: 1,
-        display: "grid",
-        gridTemplateRows: "1fr 1fr",
-        gap: 24,
-        padding: 24,
-        overflow: "hidden",
-      }}>
-        {/* 第一行：异常指标表和床位预警 */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 0.8fr",
-          gap: 24,
-          height: "100%",
-        }}>
-          <div style={cardStyle}>
-            <Widget config={widgets.table_anomaly} />
-          </div>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_bed_alert} />
-          </div>
-        </div>
-        {/* 第二行：投诉分布和成本结构 */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 24,
-          height: "100%",
-        }}>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_complaint} />
-          </div>
-          <div style={cardStyle}>
-            <Widget config={widgets.chart_cost_structure} />
-          </div>
-        </div>
-      </main>
-
-      <footer style={footerStyle}>
-        {[0, 1, 2].map(i => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            style={{
-              width: currentPage === i ? 32 : 8,
-              height: 8,
-              borderRadius: "50%",
-              border: "none",
-              cursor: "pointer",
-              background: currentPage === i ? colors.actionBlue : colors.border,
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              padding: 0,
-            }}
-          />
-        ))}
-      </footer>
+      {pageRenders[currentPage]}
     </div>
   );
-
-  const pages = [<Page1 key="page1" />, <Page2 key="page2" />, <Page3 key="page3" />];
-  return pages[currentPage];
 }

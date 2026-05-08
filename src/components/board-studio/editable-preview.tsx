@@ -15,13 +15,14 @@ interface EditablePreviewProps {
   code: string;
   selectedWidgets: SelectedWidget[];
   onSelectionChange: (widgets: SelectedWidget[]) => void;
+  cssVariables?: Record<string, string>;
 }
 
 const StableRenderer = memo(function StableRenderer({ code }: { code: string }) {
   return <JsxRenderer code={code} />;
 });
 
-export function EditablePreview({ code, selectedWidgets, onSelectionChange }: EditablePreviewProps) {
+export function EditablePreview({ code, selectedWidgets, onSelectionChange, cssVariables }: EditablePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -172,6 +173,7 @@ export function EditablePreview({ code, selectedWidgets, onSelectionChange }: Ed
       <div
         ref={canvasRef}
         style={{
+          ...(cssVariables as React.CSSProperties | undefined),
           width: CANVAS_W,
           height: CANVAS_H,
           transform: `scale(${scale})`,

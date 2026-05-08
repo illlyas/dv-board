@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import type { FileItem, FilesResponse, OpenTab } from "@/types/board-studio.types";
-import { listProjectFiles } from "@/lib/pipeline/file-operations";
+import { listProjectFiles, readFile } from "@/lib/pipeline/file-operations";
 import { TabBar, FILES_TAB_ID } from "./tab-bar";
 import { FileList } from "./file-list";
 import { FileTabContent } from "./file-content";
@@ -42,6 +42,7 @@ export function FilePanel({
 }: FilePanelProps) {
   const [files, setFiles] = useState<FilesResponse["categories"] | null>(null);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [cssVariables, setCssVariables] = useState<Record<string, string> | undefined>(undefined);
 
   const fetchFiles = useCallback(async () => {
     if (!projectName) return;
@@ -56,9 +57,52 @@ export function FilePanel({
     }
   }, [projectName]);
 
+  // 加载 vi-tokens.json 中的 cssVariables 供预览画布注入
+  // 额外提取 mode（赋给 colorScheme，深/浅模式完全由 token 决定不可切换）
+  // 以及 chartPalette（注入为 --chart-1..N 变量，便于演示组件复用）
+  const fetchTokens = useCallback(async () => {
+    if (!projectName) {
+      setCssVariables(undefined);
+      return;
+    }
+    try {
+      const raw = await readFile(`.dv/${projectName}/品牌VI/vi-tokens.json`);
+      const parsed = JSON.parse(raw) as {
+        mode?: "light" | "dark";
+        cssVariables?: Record<string, string>;
+        chartPalette?: string[];
+      };
+      const vars: Record<string, string> = {};
+      if (parsed.cssVariables) {
+        for (const [k, v] of Object.entries(parsed.cssVariables)) {
+          if (typeof v === "string" && v.trim()) {
+            const key = k.startsWith("--") ? k : `--${k}`;
+            vars[key] = v;
+          }
+        }
+      }
+      if (Array.isArray(parsed.chartPalette)) {
+        parsed.chartPalette.forEach((c, i) => {
+          if (typeof c === "string" && c.trim()) {
+            vars[`--chart-${i + 1}`] = c;
+          }
+        });
+      }
+      // mode 作为 color-scheme 注入（影响 UA 组件、滚动条等默认色），不提供切换入口
+      if (parsed.mode === "dark" || parsed.mode === "light") {
+        (vars as Record<string, string>).colorScheme = parsed.mode;
+      }
+      setCssVariables(Object.keys(vars).length ? vars : undefined);
+    } catch {
+      // 没有 vi-tokens.json 时静默失败
+      setCssVariables(undefined);
+    }
+  }, [projectName]);
+
   useEffect(() => {
     fetchFiles();
-  }, [fetchFiles, refreshTrigger]);
+    fetchTokens();
+  }, [fetchFiles, fetchTokens, refreshTrigger]);
 
   const activeTab = openTabs.find(t => t.id === activeTabId);
   const isJsxTab = activeTab?.file.name.endsWith(".jsx") ?? false;
@@ -119,6 +163,7 @@ export function FilePanel({
               selectedWidgets={editingTabId === tab.id ? selectedWidgets : []}
               onSelectionChange={editingTabId === tab.id ? onSelectionChange : undefined}
               onCodeLoad={editingTabId === tab.id ? onCodeLoad : undefined}
+              cssVariables={cssVariables}
             />
           </div>
         ))}

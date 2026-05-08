@@ -20,18 +20,19 @@ import {
   executePagesStory,
   executeVISystem,
   executeJSXGeneration,
-  executeVIApplication,
 } from "@/lib/pipeline/step-executors";
 
 const INITIAL_STATE: PipelineState = {
   step: "idle",
   brief: "",
   projectName: "",
+  style: "",
   currentForm: null,
   extractedInfo: null,
   designStory: null,
   pagesStory: null,
   viContent: null,
+  viTokens: null,
   jsxCode: null,
   isLoading: false,
   statusText: "等待开始",
@@ -77,7 +78,8 @@ export function usePipeline() {
       brief: string,
       answers: Record<string, unknown> | undefined,
       ac: AbortController,
-      projectName: string
+      projectName: string,
+      style: string
     ) => {
       try {
         const ctx = { signal: ac.signal, projectName };
@@ -137,60 +139,49 @@ export function usePipeline() {
           step: "vi",
           pagesStory,
           isLoading: true,
-          statusText: "正在加载 VI 系统...",
+          statusText: "正在提取品牌设计 Token...",
         }));
 
-        // Step 3: VI System
+        // Step 3: VI System —— 基于用户选择的 style 产出 CSS Tokens
         const viMsgId = crypto.randomUUID();
         setMessages((prev) => [...prev, createStreamingMessage(viMsgId, "")]);
 
-        const viContent = await executeVISystem({
-          ...ctx,
-          onProgress: (partial) => {
-            setMessages((prev) =>
-              prev.map((m) => (m.id === viMsgId ? updateStreamingMessage(m, partial) : m))
-            );
+        const { tokens, rawMd } = await executeVISystem(
+          {
+            ...ctx,
+            onProgress: (partial) => {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === viMsgId ? updateStreamingMessage(m, partial) : m))
+              );
+            },
           },
-        });
+          style
+        );
 
         setMessages((prev) =>
-          prev.map((m) => (m.id === viMsgId ? finalizeStreamingMessage(m, viContent) : m))
+          prev.map((m) => (m.id === viMsgId ? finalizeStreamingMessage(m, rawMd) : m))
         );
 
         setState((s) => ({
           ...s,
           step: "generating",
-          viContent,
+          viContent: rawMd,
+          viTokens: tokens,
           isLoading: true,
-          statusText: "正在生成 JSX 线框图代码...",
+          statusText: "正在生成带品牌视觉的看板代码...",
         }));
 
-        setMessages((prev) => [...prev, createSystemMessage("正在生成页面线框图代码...")]);
+        setMessages((prev) => [...prev, createSystemMessage("正在生成带品牌视觉的看板代码...")]);
 
-        // Step 4: JSX Generation (Wireframe)
-        const wireframeJSX = await executeJSXGeneration(pagesStory, ctx);
-
-        setState((s) => ({
-          ...s,
-          step: "applying-vi",
-          isLoading: true,
-          statusText: "正在应用 VI 系统...",
-        }));
-
-        setMessages((prev) => [
-          ...prev,
-          createSystemMessage("线框图生成完成，正在应用品牌视觉系统..."),
-        ]);
-
-        // Step 5: VI Application
-        const jsxCode = await executeVIApplication(ctx);
+        // Step 4: JSX Generation —— 吃 tokens 直接产出最终 dashboard.jsx
+        const jsxCode = await executeJSXGeneration(pagesStory, tokens, ctx, "dashboard.jsx");
 
         setState((s) => ({
           ...s,
           step: "done",
           jsxCode,
           isLoading: false,
-          statusText: "✅ 品牌化代码生成完成",
+          statusText: "✅ 品牌化看板生成完成",
         }));
 
         setMessages((prev) => [
@@ -209,7 +200,7 @@ export function usePipeline() {
 
   // ── Step 1a：分析需求 ──
   const runPipeline = useCallback(
-    async (brief: string, projectName = "") => {
+    async (brief: string, projectName = "", style = "") => {
       if (isRunningRef.current) return;
       const trimmedBrief = brief.trim();
       if (!trimmedBrief) return;
@@ -225,6 +216,7 @@ export function usePipeline() {
         step: "collecting",
         brief: trimmedBrief,
         projectName,
+        style,
         isLoading: true,
         statusText: "正在分析需求...",
         currentForm: null,
@@ -232,6 +224,7 @@ export function usePipeline() {
         designStory: null,
         pagesStory: null,
         viContent: null,
+        viTokens: null,
       }));
 
       try {
@@ -258,7 +251,7 @@ export function usePipeline() {
             createAssistantMessage("需求信息已充足，正在直接生成 Design Story..."),
           ]);
 
-          await generateFullPipeline(trimmedBrief, undefined, ac, projectName);
+          await generateFullPipeline(trimmedBrief, undefined, ac, projectName, style);
         } else if (isFormResponse(parsed)) {
           const missingCount = parsed.missingFields?.length ?? parsed.form.questions.length;
           setState((s) => ({
@@ -310,10 +303,10 @@ export function usePipeline() {
         currentForm: null,
       }));
 
-      await generateFullPipeline(state.brief, answers, ac, state.projectName);
+      await generateFullPipeline(state.brief, answers, ac, state.projectName, state.style);
       isRunningRef.current = false;
     },
-    [state.brief, state.projectName, generateFullPipeline]
+    [state.brief, state.projectName, state.style, generateFullPipeline]
   );
 
   // ── 中止 ──

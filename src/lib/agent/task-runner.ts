@@ -14,6 +14,7 @@ export interface TaskRunnerCallbacks {
 export async function runTasks(
   tasks: AgentTask[],
   projectName: string,
+  style: string,
   existingFiles: string[],
   signal: AbortSignal,
   callbacks: TaskRunnerCallbacks,
@@ -39,6 +40,7 @@ export async function runTasks(
       const ctx = {
         signal,
         projectName,
+        style,
         existingFiles: currentFiles,
         conversationHistory,
         onProgress: (partial: string) => {
@@ -63,7 +65,7 @@ export async function runTasks(
 
       callbacks.onTaskDone(task.id);
 
-      // 更新 currentFiles，供后续 task（如 apply-vi）找到刚生成的 wireframe 文件
+      // 更新 currentFiles，供后续 task 找到刚生成的文件
       if (result.generatedFiles) {
         result.generatedFiles.forEach((f) => {
           if (!currentFiles.includes(f)) currentFiles.push(f);

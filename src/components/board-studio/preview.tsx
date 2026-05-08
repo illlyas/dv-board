@@ -6,7 +6,13 @@ import { JsxRenderer } from "@/components/jsx-renderer";
 const CANVAS_W = 1920;
 const CANVAS_H = 1080;
 
-export function ScaledBoardPreview({ code }: { code: string }) {
+export function ScaledBoardPreview({
+  code,
+  cssVariables,
+}: {
+  code: string;
+  cssVariables?: Record<string, string>;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -32,6 +38,7 @@ export function ScaledBoardPreview({ code }: { code: string }) {
     >
       <div
         style={{
+          ...(cssVariables as React.CSSProperties | undefined),
           width: CANVAS_W,
           height: CANVAS_H,
           transform: `scale(${scale})`,
