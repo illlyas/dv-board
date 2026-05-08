@@ -1,0 +1,93 @@
+import type { SvgMarkupBuilderArgs } from "@/lib/rasterized-svg/svg-markup-types";
+
+function esc(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+/** 供 {@link HeroTitleBackdrop} 栅格化：几何与 `.assets/title/组合 41.svg` 一致 */
+export function buildHeroTitleSvgMarkup({ idPrefix, color }: SvgMarkupBuilderArgs): string {
+  const p = idPrefix;
+  const primary = esc(color("--color-primary", "#3b82f6"));
+  const accent = esc(color("--color-accent", "#06b6d4"));
+  const chartHi = esc(color("--chart-3", "#22d3ee"));
+  const chartAlt = esc(color("--chart-2", "#38bdf8"));
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1921 96" width="1921" height="96" fill="none">
+<path opacity="0.502232" fill-rule="evenodd" clip-rule="evenodd" d="M151.947 96H960.576H961.423H1770.05H1820.92C1821.69 96 1822.17 95.1753 1821.79 94.5086L1768.76 0.508608C1768.58 0.1944 1768.25 0 1767.89 0H961.423H960.576H154.109C153.749 0 153.416 0.1944 153.239 0.508608L100.208 94.5086C99.8309 95.1753 100.313 96 101.078 96H151.947Z" fill="url(#${p}-g0)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M698.932 0C699.677 0 700.16 0.78624 699.824 1.45142L652.273 95.4514C652.103 95.7878 651.758 96 651.381 96H510L557.929 0.551232C558.099 0.213312 558.445 0 558.823 0H698.932Z" fill="url(#${p}-g1)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M759.932 0C760.677 0 761.16 0.78624 760.824 1.45142L713.273 95.4514C713.103 95.7878 712.758 96 712.381 96H571L618.929 0.551232C619.099 0.213312 619.445 0 619.823 0H759.932Z" fill="url(#${p}-g2)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M556.932 0C557.677 0 558.16 0.786432 557.824 1.45162L510.248 95.4516C510.078 95.7879 509.733 96 509.356 96H19.1977H1.99981C1.44783 96 1 95.5523 1 95V68.3773L16.4991 56.151H121.54L152.86 0.509472C153.038 0.194784 153.371 0 153.732 0H556.932Z" fill="url(#${p}-g3)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M532 0L490.486 77H113V74.2824H488.615L529.004 0H532Z" fill="url(#${p}-g4)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M323.05 70L329.61 58H310.56L304 70H323.05ZM359.689 58L353.129 70H334.079L340.639 58H359.689ZM382.205 70L388.766 58H369.716L363.155 70H382.205ZM418.845 58L412.284 70H393.234L399.795 58H418.845ZM441.361 70L447.921 58H428.871L422.311 70H441.361ZM471.439 70L478 58H458.95L452.389 70H471.439Z" fill="url(#${p}-g5)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M0 58.7912L14.6631 48H126V48.8889H15.0672L0.347508 60L0 58.7912Z" fill="url(#${p}-g6)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1222.07 0C1221.32 0 1220.84 0.78624 1221.18 1.45142L1268.73 95.4514C1268.9 95.7878 1269.24 96 1269.62 96L1411 96L1363.07 0.551232C1362.9 0.213312 1362.56 0 1362.18 0L1222.07 0Z" fill="url(#${p}-g7)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1161.07 0C1160.32 0 1159.84 0.78624 1160.18 1.45142L1207.73 95.4514C1207.9 95.7878 1208.24 96 1208.62 96L1350 96L1302.07 0.551232C1301.9 0.213312 1301.56 0 1301.18 0L1161.07 0Z" fill="url(#${p}-g8)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1364.07 0C1363.32 0 1362.84 0.786432 1363.18 1.45162L1410.75 95.4516C1410.92 95.7879 1411.27 96 1411.64 96L1901.8 96H1919C1919.55 96 1920 95.5523 1920 95V68.3773L1904.5 56.151L1799.46 56.151L1768.14 0.509472C1767.96 0.194784 1767.63 0 1767.27 0L1364.07 0Z" fill="url(#${p}-g9)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1389 19L1430.51 96L1808 96V93.2824L1432.38 93.2824L1392 19H1389Z" fill="url(#${p}-g10)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1597.95 38L1591.39 26L1610.44 26L1617 38L1597.95 38ZM1561.31 26L1567.87 38L1586.92 38L1580.36 26L1561.31 26ZM1538.79 38L1532.23 26L1551.28 26L1557.84 38L1538.79 38ZM1502.16 26L1508.72 38L1527.77 38L1521.21 26L1502.16 26ZM1479.64 38L1473.08 26L1492.13 26L1498.69 38L1479.64 38ZM1449.56 38L1443 26L1462.05 26L1468.61 38L1449.56 38Z" fill="url(#${p}-g11)"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1921 46.7912L1906.34 36L1795 36V36.8889L1905.93 36.8889L1920.65 48L1921 46.7912Z" fill="url(#${p}-g12)"/>
+<defs>
+<linearGradient id="${p}-g0" x1="1821.92" y1="0" x2="100.077" y2="0" gradientUnits="userSpaceOnUse">
+<stop stop-color="${primary}" stop-opacity="0.208"/>
+<stop offset="0.500537" stop-color="${accent}" stop-opacity="0.725"/>
+<stop offset="1" stop-color="${primary}" stop-opacity="0.208"/>
+</linearGradient>
+<linearGradient id="${p}-g1" x1="673.721" y1="14.428" x2="540.832" y2="14.428" gradientUnits="userSpaceOnUse">
+<stop stop-color="${accent}" stop-opacity="0.38"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g2" x1="734.721" y1="14.428" x2="601.832" y2="14.428" gradientUnits="userSpaceOnUse">
+<stop stop-color="${accent}" stop-opacity="0.38"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g3" x1="558" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse">
+<stop stop-color="${primary}" stop-opacity="0.208"/>
+<stop offset="0.75983" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.208"/>
+</linearGradient>
+<linearGradient id="${p}-g4" x1="532" y1="0.000156045" x2="113" y2="0.000156045" gradientUnits="userSpaceOnUse">
+<stop stop-color="${chartHi}"/>
+<stop offset="1" stop-color="${chartHi}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g5" x1="453.934" y1="59.8035" x2="332.236" y2="59.8035" gradientUnits="userSpaceOnUse">
+<stop stop-color="${accent}" stop-opacity="0.643"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g6" x1="126" y1="48" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+<stop stop-color="${chartAlt}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${chartHi}"/>
+</linearGradient>
+<linearGradient id="${p}-g7" x1="1247.28" y1="14.428" x2="1380.17" y2="14.428" gradientUnits="userSpaceOnUse">
+<stop stop-color="${accent}" stop-opacity="0.38"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g8" x1="1186.28" y1="14.428" x2="1319.17" y2="14.428" gradientUnits="userSpaceOnUse">
+<stop stop-color="${accent}" stop-opacity="0.38"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g9" x1="1363" y1="0" x2="1920" y2="0" gradientUnits="userSpaceOnUse">
+<stop stop-color="${primary}" stop-opacity="0.208"/>
+<stop offset="0.75983" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.208"/>
+</linearGradient>
+<linearGradient id="${p}-g10" x1="1389" y1="19.0002" x2="1808" y2="19.0002" gradientUnits="userSpaceOnUse">
+<stop stop-color="${chartHi}"/>
+<stop offset="1" stop-color="${chartHi}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g11" x1="1467.07" y1="27.8035" x2="1588.76" y2="27.8035" gradientUnits="userSpaceOnUse">
+<stop stop-color="${accent}" stop-opacity="0.643"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${accent}" stop-opacity="0.01"/>
+</linearGradient>
+<linearGradient id="${p}-g12" x1="1795" y1="36" x2="1921" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="${chartAlt}" stop-opacity="0.01"/>
+<stop offset="1" stop-color="${chartHi}"/>
+</linearGradient>
+</defs>
+</svg>`;
+}

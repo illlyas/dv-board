@@ -90,6 +90,9 @@ export interface BaseWidgetProps {
   
   /** 副标题 */
   subtitle?: string;
+
+  /** 是否在标题区背后叠加大屏标题条装饰 SVG（如 VI 演示看板） */
+  titleBackdrop?: boolean;
   
   /** 描述 */
   description?: string;
@@ -371,6 +374,9 @@ export interface PieChartProps extends BaseWidgetProps, DataBinding {
 // 表格配置
 // ============================================================================
 
+/** 表格单元格展示类型（除 text 外需在 Table 组件内实现对应渲染） */
+export type TableCellType = "text" | "tag" | "progress";
+
 export interface TableColumn {
   /** 字段名 */
   field: string;
@@ -398,6 +404,18 @@ export interface TableColumn {
   
   /** 自定义渲染 */
   render?: string;
+
+  /** 单元格展示类型，默认 text */
+  cellType?: TableCellType;
+
+  /** cellType 为 tag 时：单元格原始值到语义变体的映射（未命中为 default） */
+  tagVariantMap?: Record<string, "default" | "success" | "warning" | "danger" | "info">;
+
+  /** cellType 为 progress 时：满刻度值，默认 100 */
+  progressMax?: number;
+
+  /** cellType 为 progress 时：是否在条旁显示数值/百分比文案 */
+  progressShowLabel?: boolean;
 }
 
 export interface TableProps extends BaseWidgetProps, DataBinding {

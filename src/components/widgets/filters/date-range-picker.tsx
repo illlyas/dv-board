@@ -27,6 +27,7 @@ function DateRangePickerWidget({ config }: WidgetComponentProps<{ type: "DateRan
   return (
     <div style={{
       display: "inline-flex",
+      flexWrap: "nowrap",
       alignItems: "center",
       gap: 8,
       padding: "8px 16px",
@@ -35,12 +36,15 @@ function DateRangePickerWidget({ config }: WidgetComponentProps<{ type: "DateRan
       borderRadius: 8,
       fontSize: 13,
       color: props.textColor || "var(--color-text-primary, rgba(17,24,39,0.85))",
+      flexShrink: 0,
       ...props.style,
     }}>
       {props.label && (
         <span style={{
           color: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.6))",
           fontSize: 12,
+          whiteSpace: "nowrap",
+          flexShrink: 0,
         }}>{props.label}:</span>
       )}
       
@@ -54,6 +58,8 @@ function DateRangePickerWidget({ config }: WidgetComponentProps<{ type: "DateRan
           fontSize: 13,
           cursor: "pointer",
           outline: "none",
+          flex: "1 1 auto",
+          minWidth: 0,
         }}
       >
         <option value="">
@@ -68,8 +74,6 @@ function DateRangePickerWidget({ config }: WidgetComponentProps<{ type: "DateRan
           </option>
         ))}
       </select>
-      
-      <span style={{ fontSize: 12, color: "var(--color-text-muted, rgba(17,24,39,0.5))" }}>📅</span>
     </div>
   );
 }

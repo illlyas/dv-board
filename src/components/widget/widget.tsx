@@ -67,7 +67,11 @@ export function Widget({
 
   // 渲染真实组件
   return (
-    <div data-widget-key={props.dataKey} data-widget-type={type} style={{ width: "100%", height: "100%" }}>
+    <div
+      data-widget-key={props.dataKey}
+      data-widget-type={type}
+      style={{ width: "100%", height: "100%", minHeight: 0 }}
+    >
       <Component
         config={config}
         data={data}

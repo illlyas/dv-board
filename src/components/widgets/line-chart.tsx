@@ -5,6 +5,7 @@ import { LineChart as RechartsLine, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
 import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { LineChartProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
+import { ChartLabelBackdrop } from "@/components/dv-assets";
 
 /**
  * 折线图组件
@@ -37,10 +38,18 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
   }, [props.xAxis]);
 
   // 颜色方案
-  const colors = props.colorScheme || ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b"];
+  const colors = props.colorScheme || [
+    "var(--chart-1, #3b82f6)",
+    "var(--chart-2, #8b5cf6)",
+    "var(--chart-3, #06b6d4)",
+    "var(--chart-4, #10b981)",
+    "var(--chart-5, #f59e0b)",
+    "var(--chart-6, #ec4899)",
+  ];
 
   // 默认色值均走 CSS 变量，在 light/dark 下自适应；允许 AI 通过 props 覆盖
-  const titleColor = props.titleColor || "var(--color-text-primary, rgba(17,24,39,0.9))";
+  const titleColor =
+    props.titleColor ?? (props.titleBackdrop ? "#0f172a" : "var(--color-text-primary, rgba(17,24,39,0.9))");
   const subtitleColor = props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.5))";
   const axisColor = props.axisColor || "var(--color-border, rgba(17,24,39,0.3))";
   const axisTextColor = props.axisTextColor || "var(--color-text-secondary, rgba(17,24,39,0.7))";
@@ -60,6 +69,7 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
     <div style={{
       width: "100%",
       height: "100%",
+      minHeight: 0,
       background: containerBg,
       border: `1px solid ${containerBorder}`,
       borderRadius: 16,
@@ -70,21 +80,54 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
     }}>
       {/* 标题 */}
       {props.title && (
-        <div style={{
-          marginBottom: 16,
-        }}>
-          <div style={{
-            fontSize: 16,
-            fontWeight: 600,
-            color: titleColor,
-            marginBottom: 4,
-          }}>{props.title}</div>
-          {props.subtitle && (
-            <div style={{
-              fontSize: 12,
-              color: subtitleColor,
-            }}>{props.subtitle}</div>
+        <div
+          style={{
+            marginBottom: 16,
+            ...(props.titleBackdrop
+              ? {
+                  position: "relative",
+                  padding: "10px 12px 12px",
+                  overflow: "hidden",
+                }
+              : {}),
+          }}
+        >
+          {props.titleBackdrop && (
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 0,
+                pointerEvents: "none",
+              }}
+            >
+              <ChartLabelBackdrop style={{ width: "100%", height: "100%", display: "block" }} />
+            </div>
           )}
+          <div style={props.titleBackdrop ? { position: "relative", zIndex: 1 } : undefined}>
+            <div
+              style={{
+                fontSize: props.titleBackdrop ? 20 : 16,
+                fontWeight: props.titleBackdrop ? 700 : 600,
+                lineHeight: props.titleBackdrop ? 1.3 : undefined,
+                color: titleColor,
+                marginBottom: props.subtitle ? 4 : 0,
+              }}
+            >
+              {props.title}
+            </div>
+            {props.subtitle && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: subtitleColor,
+                }}
+              >
+                {props.subtitle}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

@@ -48,6 +48,7 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
             color: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.6))",
             fontSize: 12,
             marginBottom: 4,
+            whiteSpace: "nowrap",
           }}>{props.label}</span>
         )}
         
@@ -94,6 +95,7 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
   return (
     <div style={{
       display: "inline-flex",
+      flexWrap: "nowrap",
       alignItems: "center",
       gap: 8,
       padding: "8px 16px",
@@ -102,12 +104,15 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
       borderRadius: 8,
       fontSize: 13,
       color: props.textColor || "var(--color-text-primary, rgba(17,24,39,0.85))",
+      flexShrink: 0,
       ...props.style,
     }}>
       {props.label && (
         <span style={{
           color: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.6))",
           fontSize: 12,
+          whiteSpace: "nowrap",
+          flexShrink: 0,
         }}>{props.label}:</span>
       )}
       
@@ -122,6 +127,7 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
           cursor: "pointer",
           outline: "none",
           minWidth: 120,
+          flex: "1 1 auto",
         }}
       >
         <option value="">
@@ -141,8 +147,6 @@ function SelectWidget({ config, data }: WidgetComponentProps<{ type: "Select"; p
           );
         })}
       </select>
-      
-      <span style={{ fontSize: 12, color: "var(--color-text-muted, rgba(17,24,39,0.4))" }}>▾</span>
     </div>
   );
 }

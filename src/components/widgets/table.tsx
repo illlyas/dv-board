@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { TableProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
+import { ChartLabelBackdrop } from "@/components/dv-assets";
 
 /**
  * 表格组件
@@ -81,7 +82,8 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
   // 默认色值全部走 CSS 变量，自动匹配 light / dark；AI 可通过 props 覆盖
   const defaultColors = {
     background: props.backgroundColor || "var(--color-surface, transparent)",
-    titleColor: props.titleColor || "var(--color-text-primary, rgba(17,24,39,0.9))",
+    titleColor:
+      props.titleColor ?? (props.titleBackdrop ? "#0f172a" : "var(--color-text-primary, rgba(17,24,39,0.9))"),
     subtitleColor: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.5))",
     borderColor: props.borderColor || "var(--color-border, rgba(17,24,39,0.1))",
     headerBg: props.headerBackgroundColor || "var(--color-surface-2, rgba(17,24,39,0.04))",
@@ -96,10 +98,142 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
     paginationBtnBorder: "var(--color-border, rgba(17,24,39,0.12))",
   };
 
+  const tagVariantStyles: Record<
+    string,
+    { bg: string; color: string; border: string }
+  > = {
+    default: {
+      bg: "color-mix(in srgb, var(--color-text-primary, #111827) 8%, transparent)",
+      color: "var(--color-text-secondary, rgba(17,24,39,0.75))",
+      border: "1px solid var(--color-border, rgba(17,24,39,0.12))",
+    },
+    success: {
+      bg: "color-mix(in srgb, var(--color-success, #16a34a) 18%, transparent)",
+      color: "var(--color-success, #16a34a)",
+      border: "1px solid color-mix(in srgb, var(--color-success, #16a34a) 35%, transparent)",
+    },
+    warning: {
+      bg: "color-mix(in srgb, var(--color-warning, #d97706) 18%, transparent)",
+      color: "var(--color-warning, #b45309)",
+      border: "1px solid color-mix(in srgb, var(--color-warning, #d97706) 35%, transparent)",
+    },
+    danger: {
+      bg: "color-mix(in srgb, var(--color-destructive, #dc2626) 16%, transparent)",
+      color: "var(--color-destructive, #dc2626)",
+      border: "1px solid color-mix(in srgb, var(--color-destructive, #dc2626) 32%, transparent)",
+    },
+    info: {
+      bg: "color-mix(in srgb, var(--color-primary, #3b82f6) 16%, transparent)",
+      color: "var(--color-primary, #2563eb)",
+      border: "1px solid color-mix(in srgb, var(--color-primary, #3b82f6) 32%, transparent)",
+    },
+  };
+
+  const renderCell = (row: any, column: (typeof props.columns)[number]) => {
+    const value = row[column.field];
+    const cellType = column.cellType ?? "text";
+
+    if (cellType === "tag") {
+      if (value === null || value === undefined) {
+        return <span style={{ color: defaultColors.emptyText }}>-</span>;
+      }
+      const key = String(value);
+      const variant = column.tagVariantMap?.[key] ?? "default";
+      const s = tagVariantStyles[variant] ?? tagVariantStyles.default;
+      return (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            maxWidth: "100%",
+            padding: "2px 10px",
+            borderRadius: 9999,
+            fontSize: props.size === "small" ? 11 : 12,
+            fontWeight: 600,
+            lineHeight: 1.35,
+            whiteSpace: "nowrap",
+            background: s.bg,
+            color: s.color,
+            border: s.border,
+            boxSizing: "border-box",
+          }}
+        >
+          {key}
+        </span>
+      );
+    }
+
+    if (cellType === "progress") {
+      const max = column.progressMax ?? 100;
+      const n = Number(value);
+      const safe = Number.isFinite(n) ? Math.min(Math.max(n, 0), max) : 0;
+      const pct = max > 0 ? (safe / max) * 100 : 0;
+      const show = column.progressShowLabel !== false;
+      const barColor =
+        pct >= 85
+          ? "var(--chart-1, #3b82f6)"
+          : pct >= 50
+            ? "var(--chart-2, #8b5cf6)"
+            : "var(--chart-3, #06b6d4)";
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: column.align === "right" ? "flex-end" : column.align === "center" ? "center" : "flex-start",
+            gap: 10,
+            minWidth: 72,
+            width: "100%",
+          }}
+        >
+          <div
+            style={{
+              flex: 1,
+              minWidth: 48,
+              maxWidth: 140,
+              height: 8,
+              borderRadius: 9999,
+              background: "color-mix(in srgb, var(--color-text-primary, #111827) 8%, transparent)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${pct}%`,
+                height: "100%",
+                borderRadius: 9999,
+                background: barColor,
+                transition: "width 0.25s ease",
+              }}
+            />
+          </div>
+          {show && (
+            <span
+              style={{
+                flexShrink: 0,
+                fontSize: props.size === "small" ? 11 : 12,
+                fontVariantNumeric: "tabular-nums",
+                color: defaultColors.rowText,
+                opacity: 0.9,
+              }}
+            >
+              {column.format === "percentage" || column.unit === "%"
+                ? `${safe.toFixed(0)}%`
+                : `${safe}${column.unit || ""}`}
+            </span>
+          )}
+        </div>
+      );
+    }
+
+    return formatValue(value, column);
+  };
+
   return (
     <div style={{
       width: "100%",
       height: "100%",
+      minHeight: 0,
       background: defaultColors.background,
       backdropFilter: "blur(10px)",
       border: `1px solid ${defaultColors.borderColor}`,
@@ -112,25 +246,61 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
     }}>
       {/* 标题 */}
       {props.title && (
-        <div style={{ marginBottom: 16 }}>
-          <div style={{
-            fontSize: 16,
-            fontWeight: 600,
-            color: defaultColors.titleColor,
-            marginBottom: 4,
-          }}>{props.title}</div>
-          {props.subtitle && (
-            <div style={{
-              fontSize: 12,
-              color: defaultColors.subtitleColor,
-            }}>{props.subtitle}</div>
+        <div
+          style={{
+            marginBottom: 16,
+            ...(props.titleBackdrop
+              ? {
+                  position: "relative",
+                  padding: "10px 12px 12px",
+                  overflow: "hidden",
+                }
+              : {}),
+          }}
+        >
+          {props.titleBackdrop && (
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 0,
+                pointerEvents: "none",
+              }}
+            >
+              <ChartLabelBackdrop style={{ width: "100%", height: "100%", display: "block" }} />
+            </div>
           )}
+          <div style={props.titleBackdrop ? { position: "relative", zIndex: 1 } : undefined}>
+            <div
+              style={{
+                fontSize: props.titleBackdrop ? 20 : 16,
+                fontWeight: props.titleBackdrop ? 700 : 600,
+                lineHeight: props.titleBackdrop ? 1.3 : undefined,
+                color: defaultColors.titleColor,
+                marginBottom: props.subtitle ? 4 : 0,
+              }}
+            >
+              {props.title}
+            </div>
+            {props.subtitle && (
+              <div
+                style={{
+                  fontSize: 12,
+                  color: defaultColors.subtitleColor,
+                }}
+              >
+                {props.subtitle}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* 表格容器 */}
       <div style={{
         flex: 1,
+        minHeight: 0,
         overflow: "auto",
         borderRadius: 8,
         border: props.bordered ? `1px solid ${defaultColors.borderColor}` : "none",
@@ -253,7 +423,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                           : undefined,
                       }}
                     >
-                      {formatValue(row[column.field], column)}
+                      {renderCell(row, column)}
                     </td>
                   ))}
                 </tr>

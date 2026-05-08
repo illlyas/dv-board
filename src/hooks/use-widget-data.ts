@@ -52,20 +52,22 @@ export function useWidgetData<T = any>(
     refreshInterval,
   } = options;
 
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T | null>(() =>
+    staticData !== undefined ? (staticData as T) : null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchData = useCallback(async () => {
-    if (!enabled) return;
-
-    // 如果有静态数据，直接使用
+    // 静态数据优先：不受 enabled 影响（避免 enableData={false} 时永远不注入）
     if (staticData !== undefined) {
-      setData(staticData);
+      setData(staticData as T);
       setLoading(false);
       setError(null);
       return;
     }
+
+    if (!enabled) return;
 
     setLoading(true);
     setError(null);
