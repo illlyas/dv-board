@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { BoardHeroBackdrop, ChartLabelBackdrop } from "@/components/dv-assets";
+import { BoardFooterBackdrop, BoardHeroBackdrop, BoardPageBackdrop, ChartLabelBackdrop } from "@/components/dv-assets";
 import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
 import type { VisualAssetItem, VisualAssetsBlock } from "@/lib/visual-assets/types";
-import { ITEM_KEY_CHART_TITLE_GLOBAL, ITEM_KEY_HERO_MAIN } from "@/lib/visual-assets/types";
+import {
+  ITEM_KEY_CHART_TITLE_GLOBAL,
+  ITEM_KEY_FOOTER_MAIN,
+  ITEM_KEY_HERO_MAIN,
+  ITEM_KEY_PAGE_MAIN,
+} from "@/lib/visual-assets/types";
 import { createDefaultVisualAssetsBlock } from "@/lib/visual-assets/defaults";
 import type { VisualAssetRoleDefinition } from "@/lib/visual-assets/registry-static";
 
@@ -94,12 +99,17 @@ export function VisualAssetsPanel({
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as {
         suggestedVisualAssets: VisualAssetsBlock;
-        detected: { heroImplementationIds: string[]; chartTitleBackdropUsed: boolean };
+        detected: {
+          heroImplementationIds: string[];
+          footerImplementationIds: string[];
+          pageImplementationIds: string[];
+          chartTitleBackdropUsed: boolean;
+        };
         dashboardPath: string;
       };
       setDraft(cloneBlock(data.suggestedVisualAssets));
       setScanNote(
-        `已根据 ${data.dashboardPath} 合并：主标题 id ${JSON.stringify(data.detected.heroImplementationIds)}；图表 titleBackdrop: ${data.detected.chartTitleBackdropUsed ? "有" : "无"}。请确认后点保存。`
+        `已根据 ${data.dashboardPath} 合并：主标题 id ${JSON.stringify(data.detected.heroImplementationIds)}；整页底 id ${JSON.stringify(data.detected.pageImplementationIds)}；底栏 id ${JSON.stringify(data.detected.footerImplementationIds)}；图表 titleBackdrop: ${data.detected.chartTitleBackdropUsed ? "有" : "无"}。请确认后点保存。`
       );
     } catch (e) {
       console.error("[VisualAssetsPanel] scan", e);
@@ -116,6 +126,10 @@ export function VisualAssetsPanel({
 
   const heroPreviewId =
     draft.items.find((i) => i.itemKey === ITEM_KEY_HERO_MAIN)?.implementationId ?? "hero-default";
+  const footerPreviewId =
+    draft.items.find((i) => i.itemKey === ITEM_KEY_FOOTER_MAIN)?.implementationId ?? "footer-default";
+  const pagePreviewId =
+    draft.items.find((i) => i.itemKey === ITEM_KEY_PAGE_MAIN)?.implementationId ?? "page-default";
 
   const grouped = useMemo(() => {
     const map = new Map<string, VisualAssetItem[]>();
@@ -136,6 +150,17 @@ export function VisualAssetsPanel({
       >
         <p className="text-xs text-gray-400 shrink-0">预览（未保存的草稿也会反映在此）</p>
         <VisualAssetsProvider block={draft}>
+          <div className="rounded-lg border border-gray-700 overflow-hidden shrink-0 bg-gray-900 max-w-md">
+            <div className="text-[10px] text-gray-500 px-2 py-1 border-b border-gray-800">整页画布（1920×1080 纹理预览）</div>
+            <div className="relative aspect-video w-full max-h-40 overflow-hidden">
+              <div className="absolute inset-0 z-0 pointer-events-none">
+                <BoardPageBackdrop id={pagePreviewId} style={{ width: "100%", height: "100%", display: "block" }} />
+              </div>
+              <div className="relative z-10 flex items-center justify-center h-full min-h-[72px]">
+                <span className="text-[10px] text-gray-500 px-2">弱纹理叠于 var(--color-bg) 上</span>
+              </div>
+            </div>
+          </div>
           <div className="rounded-lg border border-gray-700 overflow-hidden shrink-0 bg-gray-900">
             <div className="text-[10px] text-gray-500 px-2 py-1 border-b border-gray-800">主标题区（约 96px）</div>
             <div className="relative h-24 overflow-hidden">
@@ -144,6 +169,18 @@ export function VisualAssetsPanel({
               </div>
               <div className="relative z-10 flex items-center justify-center h-full">
                 <span className="text-sm font-semibold text-gray-100 drop-shadow">示例主标题</span>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-700 overflow-hidden shrink-0 bg-gray-900">
+            <div className="text-[10px] text-gray-500 px-2 py-1 border-b border-gray-800">底栏分页条（约 56px）</div>
+            <div className="relative h-14 overflow-hidden">
+              <div className="absolute inset-0 z-0 pointer-events-none">
+                <BoardFooterBackdrop id={footerPreviewId} style={{ width: "100%", height: "100%", display: "block" }} />
+              </div>
+              <div className="relative z-10 flex items-center justify-center gap-2 h-full">
+                <span className="text-[10px] px-2 py-1 rounded-md bg-blue-600 text-white">页签 A</span>
+                <span className="text-[10px] px-2 py-1 rounded-md border border-gray-600 text-gray-400">页签 B</span>
               </div>
             </div>
           </div>

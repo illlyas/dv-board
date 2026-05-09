@@ -21,6 +21,7 @@ import {
   executeVISystem,
   executeJSXGeneration,
 } from "@/lib/pipeline/step-executors";
+import { readFile } from "@/lib/pipeline/file-operations";
 
 const INITIAL_STATE: PipelineState = {
   step: "idle",
@@ -84,6 +85,22 @@ export function usePipeline() {
       try {
         const ctx = { signal: ac.signal, projectName };
 
+        /** 与 Agent 模式一致：若磁盘上已有 story/pages，则走增量合并而非从零覆盖 */
+        let snapshotStory = "";
+        let snapshotPages = "";
+        if (projectName.trim()) {
+          try {
+            snapshotStory = await readFile(`.dv/${projectName}/数据故事/design-story.md`);
+          } catch {
+            /* 新项目 */
+          }
+          try {
+            snapshotPages = await readFile(`.dv/${projectName}/页面结构/pages-story.md`);
+          } catch {
+            /* */
+          }
+        }
+
         // Step 1b: Design Story
         const storyMsgId = crypto.randomUUID();
         setMessages((prev) => [...prev, createStreamingMessage(storyMsgId, "")]);
@@ -95,6 +112,8 @@ export function usePipeline() {
               prev.map((m) => (m.id === storyMsgId ? updateStreamingMessage(m, partial) : m))
             );
           },
+        }, {
+          existingStory: snapshotStory.trim() ? snapshotStory : undefined,
         });
 
         setMessages((prev) =>
@@ -124,6 +143,8 @@ export function usePipeline() {
               prev.map((m) => (m.id === pagesMsgId ? updateStreamingMessage(m, partial) : m))
             );
           },
+        }, {
+          existingPages: snapshotPages.trim() ? snapshotPages : undefined,
         });
 
         setMessages((prev) =>

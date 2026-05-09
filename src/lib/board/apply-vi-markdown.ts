@@ -6,6 +6,7 @@ import path from "path";
 import { writeFile } from "fs/promises";
 import { createDeepSeekModel } from "@/lib/board-stream-utils";
 import { DESIGN_VI_SYSTEM_PROMPT } from "@/lib/board/design-vi-system-prompt";
+import { applyDvChartPlotBgToViTokensPayload } from "@/lib/board/vi-tokens-dv-chart-plot-bg";
 
 function safeProjectRoot(projectName: string): string {
   const base = path.resolve(process.cwd(), ".dv");
@@ -45,6 +46,7 @@ ${designMd}
 export async function applyViMarkdownToProject(projectName: string, markdown: string): Promise<void> {
   const root = safeProjectRoot(projectName);
   const json = await generateViTokensJsonFromMarkdown(markdown);
+  const tokensOut = applyDvChartPlotBgToViTokensPayload(json);
   await writeFile(path.join(root, "品牌VI", "vi-system.md"), markdown, "utf-8");
-  await writeFile(path.join(root, "品牌VI", "vi-tokens.json"), JSON.stringify(json, null, 2), "utf-8");
+  await writeFile(path.join(root, "品牌VI", "vi-tokens.json"), JSON.stringify(tokensOut, null, 2), "utf-8");
 }

@@ -7,7 +7,7 @@ import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { LineChartProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
 import { ChartLabelBackdrop } from "@/components/dv-assets";
-import { DV_CHART } from "@/lib/dv-chart-tokens";
+import { DV_CHART, DV_CHART_TITLE } from "@/lib/dv-chart-tokens";
 import { mergeEChartsOption } from "@/lib/echarts-option-merge";
 import { resolveCssForCanvas } from "@/lib/resolve-chart-css";
 import { resolveCartesianTheme } from "@/components/widgets/echarts-theme-resolve";
@@ -44,7 +44,8 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
   const chartData = Array.isArray(data) ? data : [];
 
   const titleColorRaw =
-    props.titleColor ?? (props.titleBackdrop ? "#0f172a" : "var(--color-text-primary, rgba(17,24,39,0.9))");
+    props.titleColor ??
+    (props.titleBackdrop ? DV_CHART_TITLE.colorBackdrop : "var(--color-text-primary, rgba(17,24,39,0.9))");
   const subtitleColorRaw = props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.5))";
   const emptyTextRaw = props.textColor || "var(--color-text-muted, rgba(17,24,39,0.5))";
   const containerBg = props.backgroundColor || "transparent";
@@ -181,11 +182,11 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
       {props.title && (
         <div
           style={{
-            marginBottom: 16,
+            marginBottom: DV_CHART_TITLE.blockMarginBottom,
             ...(props.titleBackdrop
               ? {
                   position: "relative",
-                  padding: "10px 12px 12px",
+                  padding: DV_CHART_TITLE.backdropPadding,
                   overflow: "hidden",
                 }
               : {}),
@@ -199,17 +200,32 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
           <div style={props.titleBackdrop ? { position: "relative", zIndex: 1 } : undefined}>
             <div
               style={{
-                fontSize: props.titleBackdrop ? 20 : 16,
-                fontWeight: props.titleBackdrop ? 700 : 600,
-                lineHeight: props.titleBackdrop ? 1.3 : undefined,
+                ...(props.titleBackdrop
+                  ? {
+                      fontSize: DV_CHART_TITLE.fontSize,
+                      fontWeight: DV_CHART_TITLE.fontWeight,
+                      lineHeight: DV_CHART_TITLE.lineHeight,
+                      fontFamily: DV_CHART_TITLE.fontFamily,
+                    }
+                  : {
+                      fontSize: DV_CHART_TITLE.fontSizeCompact,
+                      fontWeight: DV_CHART_TITLE.fontWeightCompact,
+                      fontFamily: DV_CHART_TITLE.fontFamily,
+                    }),
                 color: theme ? titleResolved.title : titleColorRaw,
-                marginBottom: props.subtitle ? 4 : 0,
+                marginBottom: props.subtitle ? DV_CHART_TITLE.gapAfterTitle : 0,
               }}
             >
               {props.title}
             </div>
             {props.subtitle && (
-              <div style={{ fontSize: 12, color: theme ? titleResolved.subtitle : subtitleColorRaw }}>
+              <div
+                style={{
+                  fontSize: DV_CHART_TITLE.subtitleFontSize,
+                  fontFamily: DV_CHART_TITLE.fontFamily,
+                  color: theme ? titleResolved.subtitle : subtitleColorRaw,
+                }}
+              >
                 {props.subtitle}
               </div>
             )}

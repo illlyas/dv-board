@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { BoardPresetIcon } from "@/components/dv-assets";
 import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { KPIProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
@@ -101,13 +102,22 @@ function KPICard({ config, data, loading }: WidgetComponentProps<{ type: "KPI"; 
             }}>{props.subtitle}</div>
           )}
         </div>
-        
-        {props.icon && (
-          <div style={{
-            fontSize: 24,
-            opacity: 0.6,
-          }}>{props.icon}</div>
-        )}
+
+        {props.presetIconId ? (
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              flexShrink: 0,
+              opacity: 0.92,
+            }}
+            aria-hidden
+          >
+            <BoardPresetIcon id={props.presetIconId} style={{ width: "100%", height: "100%", display: "block" }} />
+          </div>
+        ) : props.icon ? (
+          <div style={{ fontSize: 24, opacity: 0.6 }}>{props.icon}</div>
+        ) : null}
       </div>
 
       {/* 中部：数值 */}

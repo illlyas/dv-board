@@ -23,3 +23,18 @@ export const DV_CHART = {
   referenceStroke: "var(--dv-chart-reference-stroke)",
   labelLine: "var(--dv-chart-label-line)",
 } as const;
+
+/** 图表/表格 Widget 标题区排版（与 src/styles/dv-chart-tokens.css 一致） */
+export const DV_CHART_TITLE = {
+  colorBackdrop: "var(--dv-chart-title-color-backdrop)",
+  blockMarginBottom: "var(--dv-chart-title-block-margin-bottom)",
+  backdropPadding: "var(--dv-chart-title-backdrop-padding)",
+  fontSize: "var(--dv-chart-title-font-size)",
+  fontSizeCompact: "var(--dv-chart-title-font-size-compact)",
+  fontWeight: "var(--dv-chart-title-font-weight)",
+  fontWeightCompact: "var(--dv-chart-title-font-weight-compact)",
+  lineHeight: "var(--dv-chart-title-line-height)",
+  fontFamily: "var(--dv-chart-title-font-family)",
+  gapAfterTitle: "var(--dv-chart-title-gap-after-title)",
+  subtitleFontSize: "var(--dv-chart-title-subtitle-font-size)",
+} as const;

@@ -6,6 +6,7 @@ import { callPipelineStep, callPipelineStepText } from "@/lib/pipeline-api";
 import { jsxCodeSchema, normalizeJSXCode } from "@/lib/board/jsx-output";
 import type { JSXCode } from "@/lib/board/jsx-output";
 import type { ViTokens } from "@/types/pipeline.types";
+import { applyDvChartPlotBgToViTokensPayload, mergeDvChartPlotBg } from "@/lib/board/vi-tokens-dv-chart-plot-bg";
 import { readFile, saveFile } from "./file-operations";
 
 export interface StepExecutorContext {
@@ -20,14 +21,14 @@ export interface StepExecutorContext {
 export async function executeDesignStory(
   brief: string,
   answers: Record<string, unknown> | undefined,
-  ctx: StepExecutorContext
+  ctx: StepExecutorContext,
+  opts?: { existingStory?: string }
 ): Promise<string> {
-  const designStory = await callPipelineStepText(
-    "/api/board/design-story",
-    { brief, ...(answers ? { answers } : {}) },
-    ctx.onProgress,
-    ctx.signal
-  );
+  const body: Record<string, unknown> = { brief, ...(answers ? { answers } : {}) };
+  const ex = opts?.existingStory?.trim();
+  if (ex) body.existingStory = ex;
+
+  const designStory = await callPipelineStepText("/api/board/design-story", body, ctx.onProgress, ctx.signal);
 
   if (ctx.projectName) {
     await saveFile(ctx.projectName, "数据故事", "design-story.md", designStory);
@@ -41,14 +42,14 @@ export async function executeDesignStory(
  */
 export async function executePagesStory(
   designStory: string,
-  ctx: StepExecutorContext
+  ctx: StepExecutorContext,
+  opts?: { existingPages?: string }
 ): Promise<string> {
-  const pagesStory = await callPipelineStepText(
-    "/api/board/design-pages",
-    { designStory },
-    ctx.onProgress,
-    ctx.signal
-  );
+  const body: Record<string, unknown> = { designStory };
+  const ex = opts?.existingPages?.trim();
+  if (ex) body.existingPages = ex;
+
+  const pagesStory = await callPipelineStepText("/api/board/design-pages", body, ctx.onProgress, ctx.signal);
 
   if (ctx.projectName) {
     await saveFile(ctx.projectName, "页面结构", "pages-story.md", pagesStory);
@@ -62,7 +63,7 @@ export async function executePagesStory(
  */
 function normalizeViTokens(input: unknown): ViTokens {
   if (!input || typeof input !== "object") {
-    return { cssVariables: {}, chartPalette: [], raw: input };
+    return { cssVariables: mergeDvChartPlotBg({}), chartPalette: [], raw: input };
   }
   const obj = input as Record<string, unknown>;
 
@@ -84,7 +85,7 @@ function normalizeViTokens(input: unknown): ViTokens {
 
   return {
     mode,
-    cssVariables,
+    cssVariables: mergeDvChartPlotBg(cssVariables),
     chartPalette,
     raw: obj.raw ?? obj,
   };
@@ -133,10 +134,10 @@ export async function executeVISystem(
   const tokens = normalizeViTokens(json);
 
   if (ctx.projectName) {
-    // 存原始 JSON 字符串（保留 AI 原文，便于后续调试 / 渲染）
+    const jsonForDisk = applyDvChartPlotBgToViTokensPayload(json);
     const pretty = (() => {
       try {
-        return JSON.stringify(json, null, 2);
+        return JSON.stringify(jsonForDisk, null, 2);
       } catch {
         return rawText;
       }
@@ -177,18 +178,48 @@ export async function executeViTokensFromMarkdown(
 /**
  * 执行 JSX 代码生成步骤（吃 tokens，直接产出最终带视觉的看板代码）
  */
+const JSX_CTX_TRUNC = 9000;
+const VI_CTX_TRUNC = 6000;
+
 export async function executeJSXGeneration(
   pagesStory: string,
   tokens: ViTokens,
   ctx: StepExecutorContext,
   filename = "dashboard.jsx"
 ): Promise<JSXCode> {
-  const jsxResult = await callPipelineStep(
-    "/api/board/generate-jsx",
-    { boardStory: pagesStory, tokens },
-    undefined,
-    ctx.signal
-  );
+  let existingDashboard = "";
+  let viSystemExcerpt = "";
+  if (ctx.projectName) {
+    try {
+      existingDashboard = await readFile(`.dv/${ctx.projectName}/页面/${filename}`);
+    } catch {
+      /* 新建项目可能尚无 dashboard */
+    }
+    try {
+      viSystemExcerpt = await readFile(`.dv/${ctx.projectName}/品牌VI/vi-system.md`);
+    } catch {
+      /* 可选 */
+    }
+  }
+
+  const payload: Record<string, unknown> = {
+    boardStory: pagesStory,
+    tokens,
+  };
+  if (existingDashboard.trim()) {
+    payload.existingDashboard =
+      existingDashboard.length <= JSX_CTX_TRUNC
+        ? existingDashboard
+        : `${existingDashboard.slice(0, JSX_CTX_TRUNC)}\n\n...[truncated ${existingDashboard.length - JSX_CTX_TRUNC} chars]`;
+  }
+  if (viSystemExcerpt.trim()) {
+    payload.viSystemExcerpt =
+      viSystemExcerpt.length <= VI_CTX_TRUNC
+        ? viSystemExcerpt
+        : `${viSystemExcerpt.slice(0, VI_CTX_TRUNC)}\n\n...[truncated ${viSystemExcerpt.length - VI_CTX_TRUNC} chars]`;
+  }
+
+  const jsxResult = await callPipelineStep("/api/board/generate-jsx", payload, undefined, ctx.signal);
 
   const normalizedJSX = normalizeJSXCode(jsxResult.json);
   const jsxCode = jsxCodeSchema.parse(normalizedJSX);

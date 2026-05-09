@@ -5,10 +5,10 @@
  */
 
 :root {
-  /* 绘图区底色（Cartesian 坐标系背景） */
+  /* 绘图区底色（Cartesian 坐标系背景）：主文本色 15% 叠透明 ≈ 0.15 不透明度语义 */
   --dv-chart-plot-bg: color-mix(
-    in oklab,
-    var(--color-text-primary, var(--foreground)) 4%,
+    in srgb,
+    var(--color-text-primary, var(--foreground)) 15%,
     transparent
   );
 
@@ -62,4 +62,17 @@
   --dv-chart-panel-padding: 0;
   --dv-chart-panel-border: none;
   --dv-chart-panel-radius: 0;
+
+  /* 图表/表格标题区（含矢量底纹）；可被 VI cssVariables 覆盖 */
+  --dv-chart-title-color-backdrop: var(--color-text-primary, var(--foreground));
+  --dv-chart-title-font-size: var(--font-size-lg, 1.25rem);
+  --dv-chart-title-font-size-compact: var(--font-size-md, 1rem);
+  --dv-chart-title-font-weight: var(--font-weight-bold, 700);
+  --dv-chart-title-font-weight-compact: var(--font-weight-semibold, 600);
+  --dv-chart-title-line-height: var(--line-height-tight, 1.25);
+  --dv-chart-title-font-family: var(--font-display, var(--font-body, system-ui, sans-serif));
+  --dv-chart-title-gap-after-title: var(--space-1, 4px);
+  --dv-chart-title-subtitle-font-size: var(--font-size-xs, 0.75rem);
+  --dv-chart-title-block-margin-bottom: var(--space-4, 16px);
+  --dv-chart-title-backdrop-padding: var(--space-2, 8px) var(--space-3, 12px) var(--space-3, 12px);
 }

@@ -19,5 +19,24 @@ export {
   BOARD_HERO_BACKDROP_IDS,
   type BoardHeroBackdropId,
 } from "./board/board-hero-backdrop";
+export {
+  BoardFooterBackdrop,
+  type BoardFooterBackdropProps,
+  BOARD_FOOTER_BACKDROP_IDS,
+  type BoardFooterBackdropId,
+} from "./board/board-footer-backdrop";
+export {
+  BoardPageBackdrop,
+  type BoardPageBackdropProps,
+  BOARD_PAGE_BACKDROP_IDS,
+  type BoardPageBackdropId,
+} from "./board/board-page-backdrop";
+export {
+  BoardPresetIcon,
+  type BoardPresetIconProps,
+  BOARD_PRESET_ICON_IDS,
+  type BoardPresetIconId,
+} from "./board/board-preset-icon";
 export { buildHeroTitleSvgMarkup } from "./titles/hero-title-backdrop-markup";
 export { buildChartLabelSvgMarkup } from "./titles/chart-label-backdrop-markup";
+export { buildFooterBarSvgMarkup } from "./titles/footer-bar-backdrop-markup";

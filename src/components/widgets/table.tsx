@@ -5,6 +5,7 @@ import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { TableProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
 import { ChartLabelBackdrop } from "@/components/dv-assets";
+import { DV_CHART_TITLE } from "@/lib/dv-chart-tokens";
 
 /**
  * 表格组件
@@ -83,7 +84,8 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
   const defaultColors = {
     background: props.backgroundColor || "var(--color-surface, transparent)",
     titleColor:
-      props.titleColor ?? (props.titleBackdrop ? "#0f172a" : "var(--color-text-primary, rgba(17,24,39,0.9))"),
+      props.titleColor ??
+      (props.titleBackdrop ? DV_CHART_TITLE.colorBackdrop : "var(--color-text-primary, rgba(17,24,39,0.9))"),
     subtitleColor: props.subtitleColor || "var(--color-text-muted, rgba(17,24,39,0.5))",
     borderColor: props.borderColor || "var(--color-border, rgba(17,24,39,0.1))",
     headerBg: props.headerBackgroundColor || "var(--color-surface-2, rgba(17,24,39,0.04))",
@@ -248,11 +250,11 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
       {props.title && (
         <div
           style={{
-            marginBottom: 16,
+            marginBottom: DV_CHART_TITLE.blockMarginBottom,
             ...(props.titleBackdrop
               ? {
                   position: "relative",
-                  padding: "10px 12px 12px",
+                  padding: DV_CHART_TITLE.backdropPadding,
                   overflow: "hidden",
                 }
               : {}),
@@ -274,11 +276,20 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
           <div style={props.titleBackdrop ? { position: "relative", zIndex: 1 } : undefined}>
             <div
               style={{
-                fontSize: props.titleBackdrop ? 20 : 16,
-                fontWeight: props.titleBackdrop ? 700 : 600,
-                lineHeight: props.titleBackdrop ? 1.3 : undefined,
+                ...(props.titleBackdrop
+                  ? {
+                      fontSize: DV_CHART_TITLE.fontSize,
+                      fontWeight: DV_CHART_TITLE.fontWeight,
+                      lineHeight: DV_CHART_TITLE.lineHeight,
+                      fontFamily: DV_CHART_TITLE.fontFamily,
+                    }
+                  : {
+                      fontSize: DV_CHART_TITLE.fontSizeCompact,
+                      fontWeight: DV_CHART_TITLE.fontWeightCompact,
+                      fontFamily: DV_CHART_TITLE.fontFamily,
+                    }),
                 color: defaultColors.titleColor,
-                marginBottom: props.subtitle ? 4 : 0,
+                marginBottom: props.subtitle ? DV_CHART_TITLE.gapAfterTitle : 0,
               }}
             >
               {props.title}
@@ -286,7 +297,8 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
             {props.subtitle && (
               <div
                 style={{
-                  fontSize: 12,
+                  fontSize: DV_CHART_TITLE.subtitleFontSize,
+                  fontFamily: DV_CHART_TITLE.fontFamily,
                   color: defaultColors.subtitleColor,
                 }}
               >

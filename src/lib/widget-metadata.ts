@@ -46,12 +46,13 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "data-display",
     useCases: ["展示核心指标", "显示实时数据", "对比同环比"],
     requiredProps: ["title", "dataKey"],
-    optionalProps: ["subtitle", "icon", "unit", "trend", "comparison", "format", "gradient"],
+    optionalProps: ["subtitle", "icon", "presetIconId", "unit", "trend", "comparison", "format", "gradient"],
     example: `{
   type: "KPI",
   props: {
     title: "住院人数",
     subtitle: "当前在院",
+    presetIconId: "preset-icon-3",
     icon: "🏥",
     dataKey: "inpatient_count",
     unit: "人",
@@ -69,7 +70,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "data-display",
     useCases: ["展示指标数据"],
     requiredProps: ["title", "dataKey"],
-    optionalProps: ["subtitle", "icon", "unit"],
+    optionalProps: ["subtitle", "icon", "presetIconId", "unit"],
     example: "同 KPI",
   },
   
@@ -80,7 +81,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "data-display",
     useCases: ["展示统计数据"],
     requiredProps: ["title", "dataKey"],
-    optionalProps: ["subtitle", "icon", "unit"],
+    optionalProps: ["subtitle", "icon", "presetIconId", "unit"],
     example: "同 KPI",
   },
   

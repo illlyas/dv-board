@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Widget } from "@/components/widget/widget";
-import { BoardHeroBackdrop } from "@/components/dv-assets";
+import { BoardFooterBackdrop, BoardHeroBackdrop, BoardPageBackdrop } from "@/components/dv-assets";
+import type { KPIProps } from "@/types/widget.types";
 import { DV_CHART_PANEL_WIDGET_STYLE } from "@/lib/dv-board-styles";
 import "@/components/widgets"; // 自动注册所有基础组件
 
@@ -31,6 +32,15 @@ const CHART_PALETTE = [
 ];
 
 // ================= Mock 数据 =================
+
+const KPI_PRESET_ICON_IDS = [
+  "preset-icon-1",
+  "preset-icon-2",
+  "preset-icon-3",
+  "preset-icon-4",
+  "preset-icon-5",
+  "preset-icon-6",
+] as const satisfies readonly KPIProps["presetIconId"][];
 
 const KPI_ITEMS = [
   { title: "总销售额", value: 1284560, unit: "", prefix: "¥ ", format: "number", trendValue: "+12.4%", trendDirection: "up" as const },
@@ -99,6 +109,7 @@ function ChartCardShell({ children }: { children: React.ReactNode }) {
 }
 
 function DashboardContent() {
+  const [demoPage, setDemoPage] = useState(0);
   const cardStyle: React.CSSProperties = {
     background: "var(--color-surface, #ffffff)",
     border: "1px solid var(--color-border, #e5e7eb)",
@@ -114,6 +125,7 @@ function DashboardContent() {
   return (
     <div
       style={{
+        position: "relative",
         width: CANVAS_W,
         height: CANVAS_H,
         background: "var(--color-bg, #f8fafc)",
@@ -124,10 +136,21 @@ function DashboardContent() {
         overflow: "hidden",
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      >
+        <BoardPageBackdrop id="page-default" style={{ width: "100%", height: "100%", display: "block" }} />
+      </div>
       {/* 顶部 Header（布局代码，非 widget） */}
       <header
         style={{
           position: "relative",
+          zIndex: 1,
           height: 96,
           padding: "0 var(--space-8, 32px)",
           display: "flex",
@@ -198,12 +221,6 @@ function DashboardContent() {
               gap: "var(--space-3, 12px)",
               flexShrink: 0,
               padding: "var(--space-1, 8px) var(--space-3, 12px) 0",
-              borderTopLeftRadius: "var(--radius-md, 8px)",
-              borderTopRightRadius: "var(--radius-md, 8px)",
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-              border: "1px solid var(--color-border, #e5e7eb)",
-              borderBottom: "none",
             }}
           >
             <Widget
@@ -257,6 +274,8 @@ function DashboardContent() {
       {/* 主体网格 */}
       <main
         style={{
+          position: "relative",
+          zIndex: 1,
           flex: 1,
           display: "grid",
           /* 中间与底部按 1 : 1.4 分剩余高度，并保证最小行高，避免图表/表格在 flex 链上被裁切 */
@@ -285,6 +304,7 @@ function DashboardContent() {
                   trendValue: k.trendValue,
                   trendDirection: k.trendDirection,
                   staticData: { value: k.value },
+                  presetIconId: KPI_PRESET_ICON_IDS[i % KPI_PRESET_ICON_IDS.length],
                   shadow: true,
                   gradient: [
                     `color-mix(in srgb, ${CHART_PALETTE[i % CHART_PALETTE.length]} 85%, transparent)`,
@@ -449,6 +469,71 @@ function DashboardContent() {
         </div>
 
       </main>
+
+      {/* 底部分页条（与 generate-jsx / BoardFooterBackdrop 约定一致） */}
+      <footer
+        role="navigation"
+        aria-label="分页演示"
+        style={{
+          position: "relative",
+          zIndex: 1,
+          flexShrink: 0,
+          height: 56,
+          boxSizing: "border-box",
+          borderTop: "1px solid var(--color-border, #e5e7eb)",
+          background: "var(--color-surface, #ffffff)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <BoardFooterBackdrop id="footer-default" style={{ width: "100%", height: "100%", display: "block" }} />
+        </div>
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "var(--space-6, 24px)",
+            padding: "0 var(--space-8, 32px)",
+          }}
+        >
+          {(["总览", "明细"] as const).map((label, i) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setDemoPage(i)}
+              style={{
+                margin: 0,
+                padding: "0 var(--space-3, 12px)",
+                border: "none",
+                borderRadius: 0,
+                borderBottom:
+                  demoPage === i ? "2px solid var(--color-primary, #3b82f6)" : "2px solid transparent",
+                background: "transparent",
+                boxShadow: "none",
+                color: demoPage === i ? "var(--color-primary, #3b82f6)" : "var(--color-text-secondary, #64748b)",
+                fontFamily: "var(--font-body, system-ui)",
+                fontSize: "var(--font-size-sm, 13px)",
+                fontWeight:
+                  demoPage === i ? "var(--font-weight-semibold, 600)" : "var(--font-weight-normal, 400)",
+                cursor: "pointer",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 }

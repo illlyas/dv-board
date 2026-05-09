@@ -1,0 +1,45 @@
+{
+  "configVersion": 2,
+  "id": "project-1778322555248",
+  "name": "未命名项目33",
+  "style": "big-screen-violet-nebula",
+  "createdAt": "2026-05-09T10:29:15.251Z",
+  "updatedAt": "2026-05-09T10:29:15.251Z",
+  "visualAssets": {
+    "version": 1,
+    "items": [
+      {
+        "itemKey": "hero:main",
+        "role": "hero.header",
+        "implementationId": "hero-default",
+        "enabled": true,
+        "label": "主标题区默认矢量底",
+        "description": "顶栏 96px 内全宽矢量背景，与 token-demo / generate-jsx 约定一致。"
+      },
+      {
+        "itemKey": "chart:title:global",
+        "role": "chart.title",
+        "implementationId": "chart-label-default",
+        "enabled": true,
+        "label": "图表标题条底纹",
+        "description": "Line/Bar/Pie 等组件标题区 ChartLabelBackdrop；与 props.titleBackdrop 组合，运行时由配置决定是否绘制。"
+      },
+      {
+        "itemKey": "footer:main",
+        "role": "footer.nav",
+        "implementationId": "footer-default",
+        "enabled": true,
+        "label": "分页条默认矢量底",
+        "description": "画布底部 footer（约 56px 高）内全宽底纹，与 token-demo / generate-jsx 约定一致。"
+      },
+      {
+        "itemKey": "page:main",
+        "role": "page.background",
+        "implementationId": "page-default",
+        "enabled": true,
+        "label": "页面默认纹理底",
+        "description": "1920×1080 画布内全幅弱对比底纹（叠在 var(--color-bg) 之上），与 token-demo / generate-jsx 约定一致。"
+      }
+    ]
+  }
+}

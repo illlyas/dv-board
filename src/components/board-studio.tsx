@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePipeline } from "@/hooks/use-pipeline";
 import { useAgent } from "@/hooks/use-agent";
 import { useDashboardEditor } from "@/hooks/use-dashboard-editor";
 import { useMarkdownRefine } from "@/hooks/use-markdown-refine";
+import { useViTokensTweaks } from "@/hooks/use-vi-tokens-tweaks";
 import { listProjectFiles } from "@/lib/pipeline/file-operations";
 import type { FileItem } from "@/types/board-studio.types";
 import { TaskProgress } from "./board-studio/task-progress";
 import { ChatPanel } from "./board-studio/chat-panel";
-import { FilePanel } from "./board-studio/file-panel";
+import { FilePanel, type DashboardTweaksPanelData } from "./board-studio/file-panel";
 import { FloatingEditDialog } from "./board-studio/floating-edit-dialog";
 import { MarkdownAgentDialog } from "./board-studio/markdown-agent-dialog";
 import { useTabManager } from "./board-studio/use-tab-manager";
@@ -40,7 +41,12 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
 
   const [editingDashboard, setEditingDashboard] = useState<FileItem | null>(null);
   const [selectedWidgets, setSelectedWidgets] = useState<SelectedWidget[]>([]);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
   const currentCodeRef = useRef<string>("");
+
+  useEffect(() => {
+    setTweaksOpen(false);
+  }, [projectName]);
 
   const pipelineHook = usePipeline();
   const agentHook = useAgent();
@@ -48,29 +54,49 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
   const { openTabs, activeTabId, setActiveTabId, handleFileOpen, handleTabClose, updateTabFile } = useTabManager();
 
   const [fileRefreshTrigger, setFileRefreshTrigger] = useState(0);
+
+  const viTweaks = useViTokensTweaks(projectName, fileRefreshTrigger);
+
   const [visualAssetsBlock, setVisualAssetsBlock] = useState<VisualAssetsBlock | null>(null);
+  const [visualAssetsLoading, setVisualAssetsLoading] = useState(() => Boolean(projectName.trim()));
+  const [visualAssetsFetchError, setVisualAssetsFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!projectName.trim()) {
       setVisualAssetsBlock(null);
+      setVisualAssetsLoading(false);
+      setVisualAssetsFetchError(null);
       return;
     }
     let cancelled = false;
+    setVisualAssetsLoading(true);
+    setVisualAssetsFetchError(null);
     fetch(`/api/projects/${encodeURIComponent(projectName)}`)
       .then((r) => {
-        if (!r.ok) throw new Error("project fetch failed");
+        if (!r.ok) throw new Error(`project fetch failed (${r.status})`);
         return r.json() as Promise<{ project: { visualAssets?: VisualAssetsBlock } }>;
       })
       .then((d) => {
         if (!cancelled) setVisualAssetsBlock(d.project.visualAssets ?? null);
       })
-      .catch(() => {
-        if (!cancelled) setVisualAssetsBlock(null);
+      .catch((e) => {
+        if (!cancelled) {
+          setVisualAssetsBlock(null);
+          setVisualAssetsFetchError(e instanceof Error ? e.message : String(e));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setVisualAssetsLoading(false);
       });
     return () => {
       cancelled = true;
     };
   }, [projectName, fileRefreshTrigger]);
+
+  const retryVisualAssetsConfig = useCallback(() => {
+    setVisualAssetsFetchError(null);
+    setFileRefreshTrigger((n) => n + 1);
+  }, []);
 
   const handleVisualAssetsSaved = useCallback((next: VisualAssetsBlock) => {
     setVisualAssetsBlock(next);
@@ -138,13 +164,38 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
     dashboardEditor.startEditing(file);
     setEditingDashboard(file);
     setSelectedWidgets([]);
+    setTweaksOpen(true);
   }, [dashboardEditor]);
 
-  const handleExitEdit = useCallback(() => {
+  const handleExitEdit = useCallback(async () => {
+    const ok = await viTweaks.flushSave();
+    if (!ok) return;
     dashboardEditor.stopEditing();
     setEditingDashboard(null);
     setSelectedWidgets([]);
-  }, [dashboardEditor]);
+    setTweaksOpen(false);
+  }, [dashboardEditor, viTweaks.flushSave]);
+
+  const dashboardTweaks: DashboardTweaksPanelData = useMemo(
+    () => ({
+      hasTokensFile: viTweaks.hasTokensFile,
+      workingCssVariables: viTweaks.workingDoc?.cssVariables ?? {},
+      onTokenChange: viTweaks.setCssVariable,
+      isSaving: viTweaks.isSaving,
+      dirty: viTweaks.dirty,
+      saveError: viTweaks.saveError,
+      onRetrySave: viTweaks.retrySave,
+    }),
+    [
+      viTweaks.hasTokensFile,
+      viTweaks.workingDoc,
+      viTweaks.setCssVariable,
+      viTweaks.isSaving,
+      viTweaks.dirty,
+      viTweaks.saveError,
+      viTweaks.retrySave,
+    ]
+  );
 
   const handleEditSubmit = useCallback((message: string) => {
     dashboardEditor.runEdit(message, projectName, selectedWidgets, currentCodeRef.current);
@@ -252,7 +303,14 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
           onExitMdAgent={handleExitMdAgent}
           onMdAgentSelectText={handleMdAgentSelectText}
           visualAssetsBlock={visualAssetsBlock}
+          visualAssetsLoading={visualAssetsLoading}
+          visualAssetsFetchError={visualAssetsFetchError}
+          onRetryVisualAssetsConfig={retryVisualAssetsConfig}
           onVisualAssetsSaved={handleVisualAssetsSaved}
+          previewCssVariables={viTweaks.injectVars}
+          tweaksOpen={tweaksOpen}
+          setTweaksOpen={setTweaksOpen}
+          dashboardTweaks={dashboardTweaks}
         />
 
         {/* 浮动编辑对话框（编辑模式下，有选中元素时显示） */}

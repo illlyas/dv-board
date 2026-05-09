@@ -8,6 +8,9 @@ interface DashboardToolbarProps {
   isEditing: boolean;
   onStartEdit: () => void;
   onExitEdit: () => void;
+  /** JSX 编辑模式下的 Tweaks 侧栏 */
+  tweaksOpen?: boolean;
+  onToggleTweaks?: () => void;
 }
 
 function DashboardIcon() {
@@ -21,7 +24,14 @@ function DashboardIcon() {
   );
 }
 
-export function DashboardToolbar({ file, isEditing, onStartEdit, onExitEdit }: DashboardToolbarProps) {
+export function DashboardToolbar({
+  file,
+  isEditing,
+  onStartEdit,
+  onExitEdit,
+  tweaksOpen,
+  onToggleTweaks,
+}: DashboardToolbarProps) {
   const handleToggle = () => {
     if (isEditing) onExitEdit();
     else onStartEdit();
@@ -34,6 +44,20 @@ export function DashboardToolbar({ file, isEditing, onStartEdit, onExitEdit }: D
         <span className="text-xs text-gray-400">{file.name}</span>
       </div>
       <div className="flex items-center gap-2">
+        {isEditing && onToggleTweaks && (
+          <button
+            type="button"
+            onClick={onToggleTweaks}
+            title={tweaksOpen ? "收起 Tweaks" : "展开 Tweaks"}
+            className={`text-xs px-2 py-1 rounded border shrink-0 transition-colors ${
+              tweaksOpen
+                ? "border-blue-200 bg-blue-50 text-blue-700"
+                : "border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            {tweaksOpen ? "收起 Tweaks" : "Tweaks"}
+          </button>
+        )}
         <span className="text-xs text-gray-400">{isEditing ? "编辑" : "预览"}</span>
         {/* Switch */}
         <button

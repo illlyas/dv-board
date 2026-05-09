@@ -1,0 +1,291 @@
+{
+  "mode": "dark",
+  "cssVariables": {
+    "--color-bg": "#090920",
+    "--color-surface": "#18181B",
+    "--color-surface-2": "#27272A",
+    "--color-muted": "#3F3F46",
+    "--color-primary": "#E879F9",
+    "--color-primary-hover": "#F0ABFC",
+    "--color-accent": "#417980",
+    "--color-success": "rgba(73, 92, 222, 0.61)",
+    "--color-warning": "#FBBF24",
+    "--color-danger": "#FB7185",
+    "--color-info": "#818CF8",
+    "--color-text-primary": "#FAFAFA",
+    "--color-text-secondary": "#D4D4D8",
+    "--color-text-muted": "#A1A1AA",
+    "--color-text-inverse": "#09090B",
+    "--color-border": "rgba(212,212,216,0.25)",
+    "--color-border-strong": "rgba(232,121,249,0.45)",
+    "--color-grid": "rgba(129,140,248,0.12)",
+    "--dv-chart-panel-bg": "color-mix(in srgb, var(--color-muted) 5%, transparent)",
+    "--dv-chart-panel-padding": "0",
+    "--dv-chart-panel-border": "none",
+    "--dv-chart-panel-radius": "0",
+    "--color-overlay": "rgba(0,0,0,0.6)",
+    "--dv-chart-plot-bg": "rgba(142, 196, 170, 0.13)",
+    "--dv-chart-grid-stroke": "rgba(129,140,248,0.12)",
+    "--dv-chart-grid-dash": "2 8",
+    "--dv-chart-axis-line": "rgba(212,212,216,0.2)",
+    "--dv-chart-axis-tick-stroke": "rgba(212,212,216,0.3)",
+    "--dv-chart-tick-label": "#D4D4D8",
+    "--dv-chart-axis-title": "rgba(89, 103, 181, 0.51)",
+    "--dv-chart-legend-text": "#D4D4D8",
+    "--dv-chart-tooltip-bg": "#27272A",
+    "--dv-chart-tooltip-border": "rgba(232,121,249,0.45)",
+    "--dv-chart-tooltip-fg": "#FAFAFA",
+    "--dv-chart-label-line": "rgba(212,212,216,0.4)",
+    "--dv-chart-reference-stroke": "#FB7185",
+    "--dv-chart-title-color-backdrop": "#FAFAFA",
+    "--dv-chart-title-font-size": "18px",
+    "--dv-chart-title-font-size-compact": "14px",
+    "--dv-chart-title-font-weight": "700",
+    "--dv-chart-title-font-weight-compact": "600",
+    "--dv-chart-title-line-height": "1.3",
+    "--dv-chart-title-font-family": "\"Space Grotesk\", \"DM Sans\", system-ui, sans-serif",
+    "--dv-chart-title-gap-after-title": "8px",
+    "--dv-chart-title-subtitle-font-size": "14px",
+    "--dv-chart-title-block-margin-bottom": "16px",
+    "--dv-chart-title-backdrop-padding": "8px",
+    "--font-display": "\"Space Grotesk\", \"DM Sans\", system-ui, sans-serif",
+    "--font-body": "\"Inter\", system-ui, sans-serif",
+    "--font-mono": "\"IBM Plex Mono\", monospace",
+    "--font-size-xs": "12px",
+    "--font-size-sm": "14px",
+    "--font-size-md": "16px",
+    "--font-size-lg": "18px",
+    "--font-size-xl": "24px",
+    "--font-size-2xl": "30px",
+    "--font-size-3xl": "38px",
+    "--font-weight-regular": "400",
+    "--font-weight-medium": "500",
+    "--font-weight-semibold": "600",
+    "--font-weight-bold": "700",
+    "--line-height-tight": "1.2",
+    "--line-height-normal": "1.5",
+    "--line-height-relaxed": "1.7",
+    "--letter-spacing-tight": "-0.02em",
+    "--letter-spacing-normal": "0em",
+    "--letter-spacing-wide": "0.05em",
+    "--space-1": "8px",
+    "--space-2": "12px",
+    "--space-3": "16px",
+    "--space-4": "24px",
+    "--space-5": "32px",
+    "--space-6": "48px",
+    "--space-7": "64px",
+    "--space-8": "80px",
+    "--space-9": "96px",
+    "--space-10": "112px",
+    "--space-11": "128px",
+    "--space-12": "144px",
+    "--radius-sm": "8px",
+    "--radius-md": "10px",
+    "--radius-lg": "12px",
+    "--radius-xl": "16px",
+    "--radius-pill": "9999px",
+    "--shadow-sm": "0 2px 8px rgba(232,121,249,0.15)",
+    "--shadow-md": "0 4px 16px rgba(232,121,249,0.2)",
+    "--shadow-lg": "0 8px 32px rgba(232,121,249,0.25)",
+    "--shadow-xl": "0 12px 48px rgba(232,121,249,0.3)",
+    "--motion-fast": "150ms",
+    "--motion-normal": "300ms",
+    "--motion-slow": "500ms",
+    "--motion-easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "--border-width-thin": "1px",
+    "--border-width-normal": "2px",
+    "--backdrop-blur": "4px",
+    "--kpi-bg-from": "#18181B",
+    "--kpi-bg-to": "#27272A",
+    "--kpi-text-primary": "#FFFFFF",
+    "--kpi-text-secondary": "rgba(255,255,255,0.7)",
+    "--kpi-text-muted": "rgba(255,255,255,0.45)"
+  },
+  "chartPalette": [
+    "#E879F9",
+    "#818CF8",
+    "#22D3EE",
+    "#4ADE80",
+    "#FBBF24",
+    "#FB7185"
+  ],
+  "raw": {
+    "color": {
+      "primary": {
+        "name": "main purple",
+        "hex": "#E879F9",
+        "usage": "主强调（品红紫）"
+      },
+      "secondary": [
+        {
+          "name": "hover primary",
+          "hex": "#F0ABFC",
+          "usage": "悬停"
+        },
+        {
+          "name": "accent cyan",
+          "hex": "#22D3EE",
+          "usage": "电青辅助（与紫对比）"
+        },
+        {
+          "name": "info indigo",
+          "hex": "#818CF8",
+          "usage": "靛紫信息"
+        }
+      ],
+      "accent": [
+        {
+          "name": "accent cyan",
+          "hex": "#22D3EE",
+          "usage": "电青辅助（与紫对比）"
+        }
+      ],
+      "surface": [
+        {
+          "name": "deepest bg",
+          "hex": "#09090B",
+          "usage": "最深底"
+        },
+        {
+          "name": "surface module",
+          "hex": "#18181B",
+          "usage": "模块"
+        },
+        {
+          "name": "surface secondary",
+          "hex": "#27272A",
+          "usage": "次级"
+        },
+        {
+          "name": "muted",
+          "hex": "#3F3F46",
+          "usage": "弱对比"
+        }
+      ],
+      "text": [
+        {
+          "name": "primary text",
+          "hex": "#FAFAFA",
+          "usage": "主文字"
+        },
+        {
+          "name": "secondary text",
+          "hex": "#D4D4D8",
+          "usage": "二级文字"
+        },
+        {
+          "name": "muted text",
+          "hex": "#A1A1AA",
+          "usage": "弱对比文字"
+        },
+        {
+          "name": "inverse text",
+          "hex": "#09090B",
+          "usage": "反色文字"
+        }
+      ],
+      "border": [
+        {
+          "name": "default border",
+          "hex": "rgba(212,212,216,0.25)",
+          "usage": "边框"
+        },
+        {
+          "name": "strong border",
+          "hex": "rgba(232,121,249,0.45)",
+          "usage": "强调边框"
+        }
+      ],
+      "semantic": {
+        "success": {
+          "hex": "#4ADE80",
+          "usage": "成功"
+        },
+        "warning": {
+          "hex": "#FBBF24",
+          "usage": "警告"
+        },
+        "danger": {
+          "hex": "#FB7185",
+          "usage": "危险"
+        }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "display": "\"Space Grotesk\", \"DM Sans\", system-ui, sans-serif",
+        "body": "\"Inter\", system-ui, sans-serif",
+        "mono": "\"IBM Plex Mono\", monospace"
+      },
+      "scale": [
+        "12px",
+        "14px",
+        "16px",
+        "18px",
+        "24px",
+        "30px",
+        "38px",
+        "48px"
+      ],
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ]
+    },
+    "spacing": {
+      "baseUnit": "8px",
+      "scale": [
+        "8px",
+        "12px",
+        "16px",
+        "24px",
+        "32px",
+        "48px",
+        "64px"
+      ]
+    },
+    "radius": {
+      "sm": "8px",
+      "md": "10px",
+      "lg": "12px",
+      "xl": "16px",
+      "pill": "9999px"
+    },
+    "shadow": {
+      "sm": "0 2px 8px rgba(232,121,249,0.15)",
+      "md": "0 4px 16px rgba(232,121,249,0.2)",
+      "lg": "0 8px 32px rgba(232,121,249,0.25)",
+      "xl": "0 12px 48px rgba(232,121,249,0.3)"
+    },
+    "motion": {
+      "fast": "150ms",
+      "normal": "300ms",
+      "slow": "500ms",
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)"
+    },
+    "components": {
+      "button": {
+        "border": "rgba(232,121,249,0.45)",
+        "background": "transparent",
+        "hoverBorder": "rgba(232,121,249,0.8)"
+      },
+      "card": {
+        "background": "var(--color-surface)",
+        "radius": "12px",
+        "border": "none"
+      },
+      "input": {
+        "background": "var(--color-surface-2)",
+        "border": "var(--color-border)",
+        "focusBorder": "var(--color-info)"
+      },
+      "navigation": {
+        "background": "transparent",
+        "borderBottom": "1px solid var(--color-border)"
+      }
+    }
+  }
+}

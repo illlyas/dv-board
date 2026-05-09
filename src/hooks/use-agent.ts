@@ -1,5 +1,7 @@
 /**
- * 有文件项目：单一路径 —— 意图分类 → 按需同步 story/pages/vi → 始终生成 dashboard.jsx
+ * 有文件项目（Agent 模式）：意图分类 → 按需增量修订 story/pages/vi → 始终生成 dashboard.jsx。
+ * 默认以磁盘上的 pages-story / vi-tokens / dashboard.jsx 为「长期记忆」；仅在为 true 的意图标志下重写叙事或页面契约。
+ * JSX 排版由 /api/board/generate-jsx 约束：顶 KPI 横条 + 其下左中右三栏（中为主视觉），左右栏内多图须均分垂直空间。
  */
 "use client";
 
@@ -188,6 +190,20 @@ export function useAgent() {
         let pagesStoryText: string | null = null;
         let tokensForJsx: ViTokens | null = null;
 
+        /** 本轮开始前的磁盘快照，供 story/pages 增量合并（AI 长期记忆） */
+        let snapshotStory = "";
+        let snapshotPages = "";
+        try {
+          snapshotStory = await readFile(`.dv/${projectName}/数据故事/design-story.md`);
+        } catch {
+          /* 新项目或无文件 */
+        }
+        try {
+          snapshotPages = await readFile(`.dv/${projectName}/页面结构/pages-story.md`);
+        } catch {
+          /* */
+        }
+
         for (const task of work) {
           if (ac.signal.aborted) return;
           setTaskStatus(task.id, "running");
@@ -205,12 +221,16 @@ export function useAgent() {
           }));
 
           if (task.skill === "story") {
-            designStoryText = await executeDesignStory(trimmedBrief, undefined, ctxBase);
+            designStoryText = await executeDesignStory(trimmedBrief, undefined, ctxBase, {
+              existingStory: snapshotStory.trim() ? snapshotStory : undefined,
+            });
           } else if (task.skill === "pages") {
             const src =
               designStoryText ??
               (await readFile(`.dv/${projectName}/数据故事/design-story.md`));
-            pagesStoryText = await executePagesStory(src, ctxBase);
+            pagesStoryText = await executePagesStory(src, ctxBase, {
+              existingPages: snapshotPages.trim() ? snapshotPages : undefined,
+            });
           } else if (task.skill === "vi-md") {
             const { tokens } = await executeViTokensFromMarkdown(intent.viSystemMarkdown!, {
               ...ctxBase,

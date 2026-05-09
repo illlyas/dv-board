@@ -76,6 +76,7 @@ export function ChatPanel({
             <MessageBubble role={msg.role} content={msg.content} streaming={msg.streaming} />
             {msg.formData && showForm && msg.id === lastFormMessage?.id && (
               <FormRenderer
+                key={msg.id}
                 form={msg.formData as QuestionFormData}
                 onSubmit={onFormSubmit}
                 disabled={isRunning}

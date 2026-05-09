@@ -2,12 +2,25 @@
 
 import React, { createContext, useContext, useMemo } from "react";
 import type { VisualAssetItem, VisualAssetsBlock } from "@/lib/visual-assets/types";
-import { ITEM_KEY_CHART_TITLE_GLOBAL, ITEM_KEY_HERO_MAIN, VISUAL_ROLE_CHART_TITLE, VISUAL_ROLE_HERO_HEADER } from "@/lib/visual-assets/types";
+import {
+  ITEM_KEY_CHART_TITLE_GLOBAL,
+  ITEM_KEY_FOOTER_MAIN,
+  ITEM_KEY_HERO_MAIN,
+  ITEM_KEY_PAGE_MAIN,
+  VISUAL_ROLE_CHART_TITLE,
+  VISUAL_ROLE_FOOTER_NAV,
+  VISUAL_ROLE_HERO_HEADER,
+  VISUAL_ROLE_PAGE_BACKGROUND,
+} from "@/lib/visual-assets/types";
 
 export type VisualAssetsContextValue = {
   block: VisualAssetsBlock;
   /** 主标题：是否绘制底纹、生效的 implementationId（覆盖 JSX props） */
   getHeroHeaderEffective: (jsxId: string | undefined) => { enabled: boolean; implementationId: string };
+  /** 底栏分页区：是否绘制底纹、生效的 implementationId */
+  getFooterNavEffective: (jsxId: string | undefined) => { enabled: boolean; implementationId: string };
+  /** 整页画布背景：是否绘制、生效的 implementationId */
+  getPageBackgroundEffective: (jsxId: string | undefined) => { enabled: boolean; implementationId: string };
   /** 图表标题底纹是否启用（与 props.titleBackdrop 相与） */
   isChartTitleBackdropEnabled: () => boolean;
   getItemByItemKey: (itemKey: string) => VisualAssetItem | undefined;
@@ -26,6 +39,21 @@ function buildValue(block: VisualAssetsBlock): VisualAssetsContextValue {
       const row = findByRole(block.items, VISUAL_ROLE_HERO_HEADER) ?? block.items.find((i) => i.itemKey === ITEM_KEY_HERO_MAIN);
       const enabled = row?.enabled !== false;
       const id = row?.implementationId ?? jsxId ?? "hero-default";
+      return { enabled, implementationId: id };
+    },
+    getFooterNavEffective(jsxId) {
+      const row =
+        findByRole(block.items, VISUAL_ROLE_FOOTER_NAV) ?? block.items.find((i) => i.itemKey === ITEM_KEY_FOOTER_MAIN);
+      const enabled = row?.enabled !== false;
+      const id = row?.implementationId ?? jsxId ?? "footer-default";
+      return { enabled, implementationId: id };
+    },
+    getPageBackgroundEffective(jsxId) {
+      const row =
+        findByRole(block.items, VISUAL_ROLE_PAGE_BACKGROUND) ??
+        block.items.find((i) => i.itemKey === ITEM_KEY_PAGE_MAIN);
+      const enabled = row?.enabled !== false;
+      const id = row?.implementationId ?? jsxId ?? "page-default";
       return { enabled, implementationId: id };
     },
     isChartTitleBackdropEnabled() {

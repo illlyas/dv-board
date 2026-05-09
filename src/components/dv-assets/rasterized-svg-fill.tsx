@@ -115,6 +115,8 @@ export function RasterizedSvgFill({
           width: "100%",
           height: "100%",
           verticalAlign: "top",
+          // Chromium：祖先带 backdrop-filter 时 2D canvas 可能整片不合成出来；透明 background 可规避
+          backgroundImage: "linear-gradient(transparent, transparent)",
         }}
       />
     </div>

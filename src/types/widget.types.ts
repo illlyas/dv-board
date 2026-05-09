@@ -172,6 +172,12 @@ export interface DataBinding {
 // ============================================================================
 
 export interface KPIProps extends BaseWidgetProps, DataBinding {
+  /**
+   * 看板预设矢量图标（与 `BoardPresetIcon` 一致），取值 `preset-icon-1` … `preset-icon-6`。
+   * 若设置则显示在卡片右上角（栅格图标）；与 `icon` 字符串并存时 **以此为准**。
+   */
+  presetIconId?: "preset-icon-1" | "preset-icon-2" | "preset-icon-3" | "preset-icon-4" | "preset-icon-5" | "preset-icon-6" | (string & {});
+
   /** 数值字段 */
   valueKey?: string;
   

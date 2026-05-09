@@ -67,7 +67,9 @@ function shouldCallMockAgent(o: UseWidgetDataOptions): boolean {
   if (role === "filter-options") {
     return !o.filterHasStaticOptions;
   }
-  return !!(o.dataKey || o.query || o.dataSource);
+  /** 有 dataSlotId 即应走 mock-slot；生成 JSX 常只写 slot 不写 dataKey */
+  const hasSlot = !!o.dataSlotId?.trim();
+  return !!(o.dataKey || o.query || o.dataSource || hasSlot);
 }
 
 export function useWidgetData<T = any>(
@@ -175,6 +177,17 @@ export function useWidgetData<T = any>(
         result = await fetchByDataSource(oc.dataSource, oc.widgetType);
       } else if (result == null && oc.query) {
         result = await fetchByQuery(oc.query, oc.widgetType);
+      }
+
+      // 无预览上下文、mock-slot 失败或未触发时：仍有槽位/绑定则用本地形状 mock，避免图表空白
+      if (result == null && oc.enabled && oc.widgetType) {
+        const sid = oc.dataSlotId?.trim();
+        const role = inferMockRole(oc.widgetType);
+        const needBinding =
+          role === "data" || (role === "filter-options" && !oc.filterHasStaticOptions);
+        if (needBinding && (sid || oc.dataKey || oc.query || oc.dataSource)) {
+          result = generateMockData(String(oc.dataKey || oc.query?.metric || sid || "slot"), oc.widgetType);
+        }
       }
 
       setData(result);

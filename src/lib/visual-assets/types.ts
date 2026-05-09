@@ -25,9 +25,15 @@ export interface VisualAssetsBlock {
 
 export const VISUAL_ROLE_HERO_HEADER = "hero.header";
 export const VISUAL_ROLE_CHART_TITLE = "chart.title";
+export const VISUAL_ROLE_FOOTER_NAV = "footer.nav";
+export const VISUAL_ROLE_PAGE_BACKGROUND = "page.background";
 
 export const ITEM_KEY_HERO_MAIN = "hero:main";
 export const ITEM_KEY_CHART_TITLE_GLOBAL = "chart:title:global";
+export const ITEM_KEY_FOOTER_MAIN = "footer:main";
+export const ITEM_KEY_PAGE_MAIN = "page:main";
 
 export const IMPLEMENTATION_HERO_DEFAULT = "hero-default";
 export const IMPLEMENTATION_CHART_LABEL_DEFAULT = "chart-label-default";
+export const IMPLEMENTATION_FOOTER_DEFAULT = "footer-default";
+export const IMPLEMENTATION_PAGE_DEFAULT = "page-default";

@@ -31,7 +31,13 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
       jsx = "";
     }
     const detected = scanDashboardJsxForVisualAssets(jsx);
-    const suggestedVisualAssets = mergeScanIntoVisualAssets(withAssets.visualAssets!, detected.heroImplementationIds, detected.chartTitleBackdropUsed);
+    const suggestedVisualAssets = mergeScanIntoVisualAssets(
+      withAssets.visualAssets!,
+      detected.heroImplementationIds,
+      detected.chartTitleBackdropUsed,
+      detected.footerImplementationIds,
+      detected.pageImplementationIds
+    );
 
     return NextResponse.json({
       detected,

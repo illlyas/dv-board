@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-
     "@ai-sdk/openai": "^3.0.53",
     "@ai-sdk/openai-compatible": "^2.0.41",
     "@ai-sdk/react": "^3.0.170",
@@ -28,6 +27,7 @@
     "next": "16.2.4",
     "radix-ui": "^1.4.3",
     "react": "19.2.4",
+    "react-colorful": "^5.7.0",
     "react-dom": "19.2.4",
     "shadcn": "^4.5.0",
     "streamdown": "^2.5.0",

@@ -67,7 +67,8 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
 
         // 动态导入 Widget 组件和注册表
         const { Widget } = await import("@/components/widget/widget");
-        const { BoardHeroBackdrop } = await import("@/components/dv-assets");
+        const { BoardHeroBackdrop, BoardFooterBackdrop, BoardPageBackdrop, BoardPresetIcon } =
+          await import("@/components/dv-assets");
         await import("@/components/widgets"); // 自动注册所有组件
 
         // 1. 移除所有 import 语句
@@ -111,6 +112,9 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           "useRef",
           "Widget",
           "BoardHeroBackdrop",
+          "BoardFooterBackdrop",
+          "BoardPageBackdrop",
+          "BoardPresetIcon",
           fullCode
         );
         
@@ -122,7 +126,10 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           React.useCallback,
           React.useRef,
           Widget,
-          BoardHeroBackdrop
+          BoardHeroBackdrop,
+          BoardFooterBackdrop,
+          BoardPageBackdrop,
+          BoardPresetIcon
         );
         
         console.log("[JsxRenderer] Component created:", typeof GeneratedComponent);
