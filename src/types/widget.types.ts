@@ -3,6 +3,7 @@
  */
 
 import type { CSSProperties } from "react";
+import type { EChartsOption } from "echarts";
 
 // ============================================================================
 // 组件类型枚举
@@ -140,6 +141,12 @@ export interface BaseWidgetProps {
   
   /** 主题模式（影响默认颜色） */
   theme?: "light" | "dark";
+
+  /** 预览用 store 槽位 id（建议 p{页码}.xxx，全局唯一） */
+  dataSlotId?: string;
+
+  /** 所在分页；缺省从 dataSlotId 的 p{n}. 前缀解析 */
+  pageIndex?: number;
 }
 
 // ============================================================================
@@ -284,6 +291,12 @@ export interface ChartCommonProps extends BaseWidgetProps, DataBinding {
   
   /** 数据标签颜色 */
   dataLabelColor?: string;
+
+  /**
+   * 合并进 ECharts option（置于内置映射之后）；`series` 若提供则整体替换内置 series。
+   * 画布内颜色请用 hex/rgb（可与 colorScheme 一致），勿写 var()。
+   */
+  echartsOptionOverrides?: EChartsOption;
 }
 
 // ============================================================================
@@ -368,6 +381,9 @@ export interface PieChartProps extends BaseWidgetProps, DataBinding {
   
   /** 百分比文字颜色 */
   percentageColor?: string;
+
+  /** 同 ChartCommonProps：合并进 ECharts pie option */
+  echartsOptionOverrides?: EChartsOption;
 }
 
 // ============================================================================

@@ -1,13 +1,18 @@
 /**
- * Agent 模式状态管理 Hook
+ * 有文件项目：单一路径 —— 意图分类 → 按需同步 story/pages/vi → 始终生成 dashboard.jsx
  */
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { callPipelineStep } from "@/lib/pipeline-api";
-import { listProjectFiles } from "@/lib/pipeline/file-operations";
-import { runTasks } from "@/lib/agent/task-runner";
-import type { PipelineState, ChatMessage, AgentTask } from "@/types/pipeline.types";
+import { listProjectFiles, readFile } from "@/lib/pipeline/file-operations";
+import {
+  executeDesignStory,
+  executePagesStory,
+  executeVISystem,
+  executeViTokensFromMarkdown,
+  executeJSXGeneration,
+} from "@/lib/pipeline/step-executors";
+import type { PipelineState, ChatMessage, AgentTask, ViTokens } from "@/types/pipeline.types";
 import {
   createUserMessage,
   createAssistantMessage,
@@ -15,34 +20,46 @@ import {
 } from "@/lib/pipeline/message-utils";
 
 const INITIAL_STATE: PipelineState = {
-  step: "idle", brief: "", projectName: "", style: "", currentForm: null, extractedInfo: null,
-  designStory: null, pagesStory: null, viContent: null, viTokens: null, jsxCode: null, isLoading: false,
-  statusText: "等待开始", errorMsg: null,
+  step: "idle",
+  brief: "",
+  projectName: "",
+  style: "",
+  currentForm: null,
+  extractedInfo: null,
+  designStory: null,
+  pagesStory: null,
+  viContent: null,
+  viTokens: null,
+  jsxCode: null,
+  isLoading: false,
+  statusText: "等待开始",
+  errorMsg: null,
 };
 
-type FilesData = {
-  categories: Record<string, Array<{ name: string; path: string; updatedAt: string }>>;
-};
-
-function flattenFiles(data: FilesData, projectName: string): string[] {
-  const prefix = `.dv/${projectName}/`;
-  return Object.values(data.categories).flatMap((files) =>
-    files.map((f) => (f.path.startsWith(prefix) ? f.path.slice(prefix.length) : f.path))
-  );
-}
-
-function toAgentTasks(
-  raw: Array<{ skill: string; description: string; inputs: Record<string, unknown> }>
-): AgentTask[] {
-  return raw.map((t) => ({ id: crypto.randomUUID(), ...t, status: "pending" as const }));
-}
-
-/** 将 ChatMessage[] 转为 LLM 多轮对话格式，过滤掉 system 消息和未完成的 streaming 消息 */
 function toConversationHistory(messages: ChatMessage[]): Array<{ role: "user" | "assistant"; content: string }> {
   return messages
     .filter((m) => (m.role === "user" || m.role === "assistant") && !m.streaming && m.content.trim())
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 }
+
+async function loadTokens(projectName: string): Promise<ViTokens> {
+  const raw = await readFile(`.dv/${projectName}/品牌VI/vi-tokens.json`);
+  const parsed = JSON.parse(raw) as ViTokens & { cssVariables?: Record<string, string>; chartPalette?: string[]; raw?: unknown };
+  return {
+    mode: parsed.mode,
+    cssVariables: parsed.cssVariables ?? {},
+    chartPalette: parsed.chartPalette ?? [],
+    raw: parsed.raw ?? parsed,
+  };
+}
+
+type Intent = {
+  clarification: string | null;
+  updateStory: boolean;
+  updatePages: boolean;
+  updateViReload: boolean;
+  viSystemMarkdown: string | null;
+};
 
 export function useAgent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -50,79 +67,7 @@ export function useAgent() {
   const [state, setState] = useState<PipelineState>(INITIAL_STATE);
   const abortRef = useRef<AbortController | null>(null);
   const isRunningRef = useRef(false);
-  const messagesRef = useRef<ChatMessage[]>([]);  // 追踪最新 messages，供 callback 读取
-  const pausedContextRef = useRef<{
-    remainingTasks: AgentTask[];
-    projectName: string;
-    style: string;
-    existingFiles: string[];
-  } | null>(null);
-
-  const updateTask = useCallback((id: string, status: AgentTask["status"]) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
-  }, []);
-
-  const appendMsg = useCallback((msg: ChatMessage) => {
-    setMessages((prev) => {
-      let next: ChatMessage[];
-      if (!msg.streaming) {
-        next = [...prev, msg];
-      } else {
-        const idx = prev.findIndex((m) => m.id === msg.id);
-        if (idx === -1) {
-          next = [...prev, msg];
-        } else {
-          next = [...prev];
-          next[idx] = msg;
-        }
-      }
-      messagesRef.current = next;
-      return next;
-    });
-  }, []);
-
-  const execTasks = useCallback(
-    async (
-      agentTasks: AgentTask[],
-      projectName: string,
-      style: string,
-      existingFiles: string[],
-      signal: AbortSignal,
-      conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>
-    ) => {
-      await runTasks(agentTasks, projectName, style, existingFiles, signal, {
-        onTaskStart: (id) => updateTask(id, "running"),
-        onTaskDone: (id) => updateTask(id, "done"),
-        onTaskSkipped: (id, reason) => {
-          updateTask(id, "skipped");
-          setMessages((prev) => [...prev, createSystemMessage(`跳过任务：${reason}`)]);
-        },
-        onTaskError: (id, error) => {
-          updateTask(id, "error");
-          setMessages((prev) => [...prev, createSystemMessage(`❌ 任务出错：${error}`)]);
-          setState((s) => ({ ...s, step: "error", isLoading: false, errorMsg: error }));
-        },
-        onMessage: appendMsg,
-        onFormPause: (taskId, form, extractedInfo) => {
-          updateTask(taskId, "running");
-          setState((s) => ({ ...s, currentForm: form, isLoading: false }));
-          setMessages((prev) => [
-            ...prev,
-            createAssistantMessage("需要补充一些信息：", { formData: form }),
-          ]);
-          const idx = agentTasks.findIndex((t) => t.id === taskId);
-          pausedContextRef.current = {
-            remainingTasks: agentTasks.slice(idx),
-            projectName,
-            style,
-            existingFiles,
-          };
-          void extractedInfo;
-        },
-      }, conversationHistory);
-    },
-    [updateTask, appendMsg]
-  );
+  const messagesRef = useRef<ChatMessage[]>([]);
 
   const handleError = useCallback((err: unknown) => {
     if (err instanceof DOMException && err.name === "AbortError") {
@@ -132,13 +77,6 @@ export function useAgent() {
       const msg = err instanceof Error ? err.message : String(err);
       setState((s) => ({ ...s, step: "error", isLoading: false, errorMsg: msg }));
       setMessages((prev) => [...prev, createSystemMessage(`❌ 错误：${msg}`)]);
-    }
-  }, []);
-
-  const markDone = useCallback((signal: AbortSignal) => {
-    if (!pausedContextRef.current && !signal.aborted) {
-      setState((s) => ({ ...s, step: "done", isLoading: false, statusText: "✅ 完成" }));
-      setMessages((prev) => [...prev, createAssistantMessage("所有任务已完成！")]);
     }
   }, []);
 
@@ -160,87 +98,168 @@ export function useAgent() {
       });
       setTasks([]);
       setState((s) => ({
-        ...s, step: "collecting", brief: trimmedBrief, projectName, style,
-        isLoading: true, statusText: "正在规划任务...", currentForm: null, errorMsg: null,
+        ...s,
+        step: "collecting",
+        brief: trimmedBrief,
+        projectName,
+        style,
+        isLoading: true,
+        statusText: "分析迭代意图…",
+        currentForm: null,
+        errorMsg: null,
       }));
 
+      const ctxBase = { signal: ac.signal, projectName };
+
+      const setTaskStatus = (id: string, status: AgentTask["status"]) => {
+        setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+      };
+
       try {
-        const filesData = (await listProjectFiles(projectName)) as FilesData;
-        const existingFiles = flattenFiles(filesData, projectName);
+        const intentRes = await fetch("/api/board/dashboard-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userMessage: trimmedBrief,
+            projectName,
+            style,
+            conversationHistory: toConversationHistory(messagesRef.current.slice(0, -1)),
+          }),
+          signal: ac.signal,
+        });
+        if (!intentRes.ok) {
+          const errBody = await intentRes.json().catch(() => ({}));
+          throw new Error((errBody as { error?: string }).error || `intent HTTP ${intentRes.status}`);
+        }
+        const intent = (await intentRes.json()) as Intent;
 
-        const conversationHistory = toConversationHistory(messagesRef.current);
-
-        const result = await callPipelineStep(
-          "/api/board/agent-plan",
-          { userMessage: trimmedBrief, projectName, style, existingFiles, conversationHistory },
-          undefined,
-          ac.signal
-        );
-
-        const json = result.json as Record<string, unknown>;
-
-        if (json.clarification) {
-          setMessages((prev) => [...prev, createAssistantMessage(json.clarification as string)]);
-          setState((s) => ({ ...s, isLoading: false }));
+        if (intent.clarification) {
+          setMessages((prev) => [...prev, createAssistantMessage(intent.clarification!)]);
+          setState((s) => ({ ...s, isLoading: false, step: "idle", statusText: "等待开始" }));
           return;
         }
 
-        const agentTasks = toAgentTasks(
-          json.tasks as Array<{ skill: string; description: string; inputs: Record<string, unknown> }>
-        );
-        setTasks(agentTasks);
-        await execTasks(agentTasks, projectName, style, existingFiles, ac.signal, conversationHistory);
-        markDone(ac.signal);
+        const work: AgentTask[] = [];
+        if (intent.updateStory) {
+          work.push({
+            id: crypto.randomUUID(),
+            skill: "story",
+            description: "更新数据故事 (design-story.md)",
+            inputs: {},
+            status: "pending",
+          });
+        }
+        if (intent.updatePages) {
+          work.push({
+            id: crypto.randomUUID(),
+            skill: "pages",
+            description: "更新页面结构 (pages-story.md)",
+            inputs: {},
+            status: "pending",
+          });
+        }
+        if (intent.viSystemMarkdown) {
+          work.push({
+            id: crypto.randomUUID(),
+            skill: "vi-md",
+            description: "更新品牌 VI 并重算 Tokens",
+            inputs: {},
+            status: "pending",
+          });
+        } else if (intent.updateViReload) {
+          work.push({
+            id: crypto.randomUUID(),
+            skill: "vi-reload",
+            description: "从预设风格重装 VI 并重算 Tokens",
+            inputs: {},
+            status: "pending",
+          });
+        }
+        work.push({
+          id: crypto.randomUUID(),
+          skill: "jsx",
+          description: "生成 dashboard.jsx",
+          inputs: {},
+          status: "pending",
+        });
+        setTasks(work);
+
+        let designStoryText: string | null = null;
+        let pagesStoryText: string | null = null;
+        let tokensForJsx: ViTokens | null = null;
+
+        for (const task of work) {
+          if (ac.signal.aborted) return;
+          setTaskStatus(task.id, "running");
+          setState((s) => ({
+            ...s,
+            step:
+              task.skill === "story"
+                ? "story"
+                : task.skill === "pages"
+                  ? "designing"
+                  : task.skill === "jsx"
+                    ? "generating"
+                    : "vi",
+            statusText: task.description,
+          }));
+
+          if (task.skill === "story") {
+            designStoryText = await executeDesignStory(trimmedBrief, undefined, ctxBase);
+          } else if (task.skill === "pages") {
+            const src =
+              designStoryText ??
+              (await readFile(`.dv/${projectName}/数据故事/design-story.md`));
+            pagesStoryText = await executePagesStory(src, ctxBase);
+          } else if (task.skill === "vi-md") {
+            const { tokens } = await executeViTokensFromMarkdown(intent.viSystemMarkdown!, {
+              ...ctxBase,
+            });
+            tokensForJsx = tokens;
+          } else if (task.skill === "vi-reload") {
+            const st = (style || "").trim();
+            if (!st) throw new Error("重装 VI 需要项目风格 style，请在侧栏或创建流程中选择风格。");
+            const { tokens } = await executeVISystem({ ...ctxBase }, st);
+            tokensForJsx = tokens;
+          } else if (task.skill === "jsx") {
+            const pages =
+              pagesStoryText ??
+              (await readFile(`.dv/${projectName}/页面结构/pages-story.md`));
+            const tok = tokensForJsx ?? (await loadTokens(projectName));
+            const jsx = await executeJSXGeneration(pages, tok, ctxBase, "dashboard.jsx");
+            setState((s) => ({
+              ...s,
+              step: "done",
+              jsxCode: jsx,
+              isLoading: false,
+              statusText: "✅ 看板已更新",
+            }));
+            setMessages((prev) => [
+              ...prev,
+              createAssistantMessage(
+                `已更新 dashboard.jsx（${jsx.metadata.pageCount} 页，约 ${jsx.metadata.estimatedComponents} 个组件）。`
+              ),
+            ]);
+          }
+
+          setTaskStatus(task.id, "done");
+        }
       } catch (err) {
         handleError(err);
       } finally {
         isRunningRef.current = false;
       }
     },
-    [execTasks, handleError, markDone]
+    [handleError]
   );
 
-  const submitFormAnswers = useCallback(
-    async (answers: Record<string, unknown>) => {
-      const ctx = pausedContextRef.current;
-      if (!ctx) return;
-      pausedContextRef.current = null;
-
-      const { remainingTasks, projectName, style, existingFiles } = ctx;
-      const summary = Object.entries(answers)
-        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join("、") : v}`)
-        .join(" | ");
-
-      setMessages((prev) => [...prev, createUserMessage(`已补充：${summary}`)]);
-      setState((s) => ({ ...s, currentForm: null, isLoading: true }));
-
-      const updatedTasks = remainingTasks.map((t) => {
-        if (t.skill === "analyze-brief") return { ...t, inputs: { ...t.inputs, answers } };
-        if (t.skill === "design-story") return { ...t, inputs: { ...t.inputs, answers } };
-        return t;
-      });
-
-      abortRef.current?.abort();
-      const ac = new AbortController();
-      abortRef.current = ac;
-      isRunningRef.current = true;
-
-      try {
-        await execTasks(updatedTasks, projectName, style, existingFiles, ac.signal);
-        markDone(ac.signal);
-      } catch (err) {
-        handleError(err);
-      } finally {
-        isRunningRef.current = false;
-      }
-    },
-    [execTasks, handleError, markDone]
-  );
+  const submitFormAnswers = useCallback(async (_answers: Record<string, unknown>) => {
+    /* Agent 模式不再使用问卷 */
+  }, []);
 
   const clear = useCallback(() => {
     abortRef.current?.abort();
     isRunningRef.current = false;
-    pausedContextRef.current = null;
     messagesRef.current = [];
     setMessages([]);
     setTasks([]);

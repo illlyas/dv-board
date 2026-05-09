@@ -5,6 +5,7 @@ import type { OpenTab } from "@/types/board-studio.types";
 import { FileIcon, FolderIcon } from "./category-icons";
 
 export const FILES_TAB_ID = "__files__";
+export const VISUAL_ASSETS_TAB_ID = "__visual_assets__";
 
 interface TabItem {
   id: string;
@@ -22,6 +23,7 @@ interface TabBarProps {
 export function TabBar({ openTabs, activeTabId, onTabSelect, onTabClose }: TabBarProps) {
   const allTabs: TabItem[] = [
     { id: FILES_TAB_ID, label: "项目文件", closable: false },
+    { id: VISUAL_ASSETS_TAB_ID, label: "视觉素材", closable: false },
     ...openTabs.map((t) => ({ id: t.id, label: t.file.name, closable: true })),
   ];
 
@@ -30,6 +32,7 @@ export function TabBar({ openTabs, activeTabId, onTabSelect, onTabClose }: TabBa
       {allTabs.map((tab) => {
         const isActive = activeTabId === tab.id;
         const isJsx = tab.label.endsWith(".jsx");
+        const isVisualTab = tab.id === VISUAL_ASSETS_TAB_ID;
         
         return (
           <div
@@ -44,6 +47,10 @@ export function TabBar({ openTabs, activeTabId, onTabSelect, onTabClose }: TabBa
           >
             {tab.id === FILES_TAB_ID ? (
               <FolderIcon />
+            ) : isVisualTab ? (
+              <span className="text-[10px] leading-none" aria-hidden>
+                ◆
+              </span>
             ) : (
               <FileIcon isJsx={isJsx} />
             )}

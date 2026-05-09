@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 
 interface JsxRendererProps {
   code: string;
@@ -67,6 +67,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
 
         // 动态导入 Widget 组件和注册表
         const { Widget } = await import("@/components/widget/widget");
+        const { BoardHeroBackdrop } = await import("@/components/dv-assets");
         await import("@/components/widgets"); // 自动注册所有组件
 
         // 1. 移除所有 import 语句
@@ -109,6 +110,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           "useCallback", 
           "useRef",
           "Widget",
+          "BoardHeroBackdrop",
           fullCode
         );
         
@@ -119,7 +121,8 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           React.useMemo,
           React.useCallback,
           React.useRef,
-          Widget
+          Widget,
+          BoardHeroBackdrop
         );
         
         console.log("[JsxRenderer] Component created:", typeof GeneratedComponent);

@@ -91,12 +91,19 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["时间序列分析", "趋势对比", "多指标对比"],
     requiredProps: ["title", "dataKey", "xAxis", "yAxis"],
-    optionalProps: ["subtitle", "showLegend", "showGrid", "smooth", "area", "colorScheme"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "showLegend", "showGrid", "smooth", "area", "colorScheme", "gridColor", "axisColor", "axisTextColor", "tooltipBackgroundColor", "tooltipTextColor", "echartsOptionOverrides"],
     example: `{
   type: "LineChart",
   props: {
     title: "门诊量趋势",
     dataKey: "outpatient_trend",
+    titleBackdrop: true,
+    style: {
+      border: "var(--dv-chart-panel-border)",
+      padding: "var(--dv-chart-panel-padding)",
+      borderRadius: "var(--dv-chart-panel-radius)",
+      background: "var(--dv-chart-panel-bg)",
+    },
     xAxis: { field: "date", label: "日期" },
     yAxis: [
       { field: "outpatient", label: "门诊量", color: "#3b82f6" },
@@ -116,7 +123,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["分类对比", "排名展示", "目标达成对比"],
     requiredProps: ["title", "dataKey", "xAxis", "yAxis"],
-    optionalProps: ["direction", "showTarget", "targetValue", "showLegend", "showGrid"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "direction", "showTarget", "targetValue", "showLegend", "showGrid", "colorScheme", "gridColor", "axisColor", "axisTextColor", "echartsOptionOverrides"],
     example: `{
   type: "BarChart",
   props: {
@@ -138,7 +145,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["结构分析", "占比展示", "分类分布"],
     requiredProps: ["title", "dataKey", "nameField", "valueField"],
-    optionalProps: ["showPercentage", "showLegend", "legendPosition", "donut", "colorScheme"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "showPercentage", "showLegend", "legendPosition", "donut", "colorScheme", "innerRadius", "outerRadius", "echartsOptionOverrides"],
     example: `{
   type: "PieChart",
   props: {
@@ -160,7 +167,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["结构分析", "占比展示"],
     requiredProps: ["title", "dataKey", "nameField", "valueField"],
-    optionalProps: ["showPercentage", "showLegend", "innerRadius"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "showPercentage", "showLegend", "innerRadius", "outerRadius", "colorScheme", "echartsOptionOverrides"],
     example: "同 PieChart，会自动设置 donut: true",
   },
   
@@ -171,7 +178,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["趋势分析", "累积展示"],
     requiredProps: ["title", "dataKey", "xAxis", "yAxis"],
-    optionalProps: ["showLegend", "showGrid", "smooth"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "showLegend", "showGrid", "smooth", "area", "colorScheme", "echartsOptionOverrides"],
     example: "同 LineChart，会自动设置 area: true",
   },
   
@@ -182,7 +189,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "table",
     useCases: ["明细数据展示", "数据列表", "可排序数据"],
     requiredProps: ["title", "dataKey", "columns"],
-    optionalProps: ["pagination", "pageSize", "showIndex", "striped", "bordered", "sortable"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "pagination", "pageSize", "showIndex", "striped", "bordered", "sortable", "backgroundColor"],
     example: `{
   type: "Table",
   props: {

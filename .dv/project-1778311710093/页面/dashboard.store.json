@@ -1,0 +1,1526 @@
+{
+  "version": 1,
+  "dashboardFile": "dashboard.jsx",
+  "updatedAt": "2026-05-09T07:41:51.323Z",
+  "pages": [
+    {
+      "pageIndex": 0,
+      "components": [
+        {
+          "slotId": "p0.kpi.oee",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "oee",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "设备综合效率 OEE",
+            "format": "percent",
+            "dataKey": "oee",
+            "dataSlotId": "p0.kpi.oee",
+            "pageIndex": 0,
+            "unit": "%"
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 75.6,
+              "trend": "up",
+              "trendValue": "+2.3%",
+              "comparison": {
+                "label": "上一班次",
+                "value": 73.3
+              }
+            }
+          },
+          "filledAt": "2026-05-09T07:40:57.458Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.capacity",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "capacity_rate",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "产能达成率",
+            "format": "percent",
+            "dataKey": "capacity_rate",
+            "dataSlotId": "p0.kpi.capacity",
+            "pageIndex": 0,
+            "unit": "%"
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 85.6,
+              "trend": "up",
+              "trendValue": "+2.3%",
+              "comparison": {
+                "label": "目标值",
+                "value": "90%"
+              }
+            }
+          },
+          "filledAt": "2026-05-09T07:40:57.932Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.yield",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "yield_rate",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "良品率",
+            "format": "percent",
+            "dataKey": "yield_rate",
+            "dataSlotId": "p0.kpi.yield",
+            "pageIndex": 0,
+            "unit": "%"
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 88.5,
+              "trend": "down",
+              "trendValue": "-1.2%",
+              "comparison": {
+                "label": "目标值",
+                "value": "90%"
+              },
+              "status": "warning"
+            }
+          },
+          "filledAt": "2026-05-09T07:40:59.393Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.energy",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "energy_index",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "能耗指数",
+            "format": "percent",
+            "dataKey": "energy_index",
+            "dataSlotId": "p0.kpi.energy",
+            "pageIndex": 0,
+            "unit": "%"
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 103.2,
+              "trend": "up",
+              "trendValue": "+3.2%",
+              "comparison": {
+                "label": "同比昨日",
+                "value": "+1.1%"
+              }
+            }
+          },
+          "filledAt": "2026-05-09T07:41:00.618Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.oee_trend",
+          "pageIndex": 0,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "oee_trend_24h",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "OEE趋势（近24h）",
+            "xAxis": {
+              "field": "hour",
+              "label": "小时"
+            },
+            "yAxis": [
+              {
+                "field": "oee",
+                "label": "OEE(%)",
+                "color": "#F59E0B"
+              }
+            ],
+            "dataKey": "oee_trend_24h",
+            "dataSlotId": "p0.chart.oee_trend",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "hour": 0,
+                "oee": 78.3
+              },
+              {
+                "hour": 1,
+                "oee": 76.1
+              },
+              {
+                "hour": 2,
+                "oee": 72.5
+              },
+              {
+                "hour": 3,
+                "oee": 70.2
+              },
+              {
+                "hour": 4,
+                "oee": 68.9
+              },
+              {
+                "hour": 5,
+                "oee": 71.4
+              },
+              {
+                "hour": 6,
+                "oee": 75.8
+              },
+              {
+                "hour": 7,
+                "oee": 80.2
+              },
+              {
+                "hour": 8,
+                "oee": 85.6
+              },
+              {
+                "hour": 9,
+                "oee": 88.3
+              },
+              {
+                "hour": 10,
+                "oee": 87.1
+              },
+              {
+                "hour": 11,
+                "oee": 84.7
+              },
+              {
+                "hour": 12,
+                "oee": 82.4
+              },
+              {
+                "hour": 13,
+                "oee": 81.9
+              },
+              {
+                "hour": 14,
+                "oee": 83.2
+              },
+              {
+                "hour": 15,
+                "oee": 86.5
+              },
+              {
+                "hour": 16,
+                "oee": 89.1
+              },
+              {
+                "hour": 17,
+                "oee": 90.3
+              },
+              {
+                "hour": 18,
+                "oee": 88.7
+              },
+              {
+                "hour": 19,
+                "oee": 85.4
+              },
+              {
+                "hour": 20,
+                "oee": 81.6
+              },
+              {
+                "hour": 21,
+                "oee": 79.3
+              },
+              {
+                "hour": 22,
+                "oee": 77.8
+              },
+              {
+                "hour": 23,
+                "oee": 76
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:01.292Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.table.alerts",
+          "pageIndex": 0,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "alerts",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "title": "实时预警",
+            "columns": [
+              {
+                "field": "time",
+                "label": "时间",
+                "width": 160
+              },
+              {
+                "field": "type",
+                "label": "类型",
+                "width": 120
+              },
+              {
+                "field": "severity",
+                "label": "等级",
+                "width": 80
+              },
+              {
+                "field": "location",
+                "label": "设备/区域",
+                "width": 160
+              },
+              {
+                "field": "status",
+                "label": "状态",
+                "width": 100
+              }
+            ],
+            "dataKey": "alerts",
+            "dataSlotId": "p0.table.alerts",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "time": "2025-03-21 14:23:08",
+                "type": "设备故障",
+                "severity": "高",
+                "location": "注塑车间-注塑机A03",
+                "status": "待处理"
+              },
+              {
+                "time": "2025-03-21 14:18:32",
+                "type": "质量异常",
+                "severity": "中",
+                "location": "装配车间-工位B12",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-03-21 14:05:11",
+                "type": "能耗超标",
+                "severity": "中",
+                "location": "冲压车间-冲压机C07",
+                "status": "待处理"
+              },
+              {
+                "time": "2025-03-21 13:52:47",
+                "type": "安全事件",
+                "severity": "高",
+                "location": "仓储车间-货架D区",
+                "status": "处理中"
+              },
+              {
+                "time": "2025-03-21 13:40:20",
+                "type": "设备故障",
+                "severity": "低",
+                "location": "注塑车间-机械手E02",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-03-21 13:28:55",
+                "type": "质量异常",
+                "severity": "高",
+                "location": "装配车间-工位B05",
+                "status": "待处理"
+              },
+              {
+                "time": "2025-03-21 13:15:33",
+                "type": "能耗超标",
+                "severity": "低",
+                "location": "喷涂车间-烘干线F01",
+                "status": "已关闭"
+              },
+              {
+                "time": "2025-03-21 13:02:10",
+                "type": "安全事件",
+                "severity": "中",
+                "location": "冲压车间-打磨区G03",
+                "status": "待处理"
+              },
+              {
+                "time": "2025-03-21 12:48:46",
+                "type": "设备故障",
+                "severity": "高",
+                "location": "注塑车间-注塑机A07",
+                "status": "处理中"
+              },
+              {
+                "time": "2025-03-21 12:35:22",
+                "type": "质量异常",
+                "severity": "低",
+                "location": "装配车间-工位B19",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-03-21 12:20:59",
+                "type": "能耗超标",
+                "severity": "中",
+                "location": "冷却塔-循环泵H01",
+                "status": "待处理"
+              },
+              {
+                "time": "2025-03-21 12:08:37",
+                "type": "安全事件",
+                "severity": "高",
+                "location": "仓储车间-升降机I02",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-03-21 11:55:14",
+                "type": "设备故障",
+                "severity": "中",
+                "location": "注塑车间-注塑机A11",
+                "status": "处理中"
+              },
+              {
+                "time": "2025-03-21 11:42:50",
+                "type": "质量异常",
+                "severity": "高",
+                "location": "装配车间-工位B08",
+                "status": "待处理"
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:09.657Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.device_status",
+          "pageIndex": 0,
+          "widgetType": "DonutChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_status_dist",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "DonutChart",
+            "title": "设备状态分布",
+            "dataKey": "device_status_dist",
+            "dataSlotId": "p0.chart.device_status",
+            "pageIndex": 0,
+            "showLegend": true,
+            "legendPosition": "right"
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "name": "运行中",
+                "value": 120
+              },
+              {
+                "name": "待机",
+                "value": 45
+              },
+              {
+                "name": "计划停机",
+                "value": 20
+              },
+              {
+                "name": "非计划停机",
+                "value": 8
+              },
+              {
+                "name": "故障",
+                "value": 15
+              },
+              {
+                "name": "维修中",
+                "value": 10
+              },
+              {
+                "name": "保养中",
+                "value": 5
+              },
+              {
+                "name": "离线",
+                "value": 3
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:11.940Z",
+          "source": "agent"
+        }
+      ]
+    },
+    {
+      "pageIndex": 1,
+      "components": [
+        {
+          "slotId": "p1.chart.fault_freq",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "fault_freq",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "故障频次",
+            "xAxis": {
+              "field": "device",
+              "label": "设备"
+            },
+            "yAxis": {
+              "field": "count",
+              "label": "次数"
+            },
+            "dataKey": "fault_freq",
+            "dataSlotId": "p1.chart.fault_freq",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "device": "设备A",
+                "count": 23
+              },
+              {
+                "device": "设备B",
+                "count": 45
+              },
+              {
+                "device": "设备C",
+                "count": 12
+              },
+              {
+                "device": "设备D",
+                "count": 34
+              },
+              {
+                "device": "设备E",
+                "count": 28
+              },
+              {
+                "device": "设备F",
+                "count": 39
+              },
+              {
+                "device": "设备G",
+                "count": 16
+              },
+              {
+                "device": "设备H",
+                "count": 42
+              },
+              {
+                "device": "设备I",
+                "count": 31
+              },
+              {
+                "device": "设备J",
+                "count": 25
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:22.092Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.oee_rank",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "oee_rank",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "设备OEE排名",
+            "xAxis": {
+              "field": "device",
+              "label": "设备"
+            },
+            "yAxis": {
+              "field": "oee",
+              "label": "OEE(%)"
+            },
+            "dataKey": "oee_rank",
+            "dataSlotId": "p1.chart.oee_rank",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "device": "注塑机A",
+                "oee": 72.4
+              },
+              {
+                "device": "注塑机B",
+                "oee": 85.1
+              },
+              {
+                "device": "装配线A",
+                "oee": 63.8
+              },
+              {
+                "device": "装配线B",
+                "oee": 78.9
+              },
+              {
+                "device": "冲压机A",
+                "oee": 91.2
+              },
+              {
+                "device": "冲压机B",
+                "oee": 68.7
+              },
+              {
+                "device": "焊接机A",
+                "oee": 88.3
+              },
+              {
+                "device": "焊接机B",
+                "oee": 76.5
+              },
+              {
+                "device": "涂装机A",
+                "oee": 82
+              },
+              {
+                "device": "涂装机B",
+                "oee": 59.4
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:22.977Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.yield_compare",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "yield_compare",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "良品率对比（班组/产品）",
+            "xAxis": {
+              "field": "category",
+              "label": "类别"
+            },
+            "yAxis": {
+              "field": "yield",
+              "label": "良品率(%)"
+            },
+            "dataKey": "yield_compare",
+            "dataSlotId": "p1.chart.yield_compare",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "category": "班组A",
+                "yield": 95.2
+              },
+              {
+                "category": "班组B",
+                "yield": 88.7
+              },
+              {
+                "category": "班组C",
+                "yield": 92.1
+              },
+              {
+                "category": "班组D",
+                "yield": 84.6
+              },
+              {
+                "category": "班组E",
+                "yield": 97.3
+              },
+              {
+                "category": "班组F",
+                "yield": 90.8
+              },
+              {
+                "category": "班组G",
+                "yield": 86.4
+              },
+              {
+                "category": "班组H",
+                "yield": 93
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:24.104Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.ct_trend",
+          "pageIndex": 1,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "ct_trend_24h",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "CT时间趋势",
+            "xAxis": {
+              "field": "time",
+              "label": "时间"
+            },
+            "yAxis": [
+              {
+                "field": "ct",
+                "label": "CT(s)",
+                "color": "#38BDF8"
+              }
+            ],
+            "dataKey": "ct_trend_24h",
+            "dataSlotId": "p1.chart.ct_trend",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "time": "00:00",
+                "ct": 32.5
+              },
+              {
+                "time": "01:00",
+                "ct": 28.3
+              },
+              {
+                "time": "02:00",
+                "ct": 25.1
+              },
+              {
+                "time": "03:00",
+                "ct": 27.8
+              },
+              {
+                "time": "04:00",
+                "ct": 30.2
+              },
+              {
+                "time": "05:00",
+                "ct": 35.6
+              },
+              {
+                "time": "06:00",
+                "ct": 42.1
+              },
+              {
+                "time": "07:00",
+                "ct": 48.9
+              },
+              {
+                "time": "08:00",
+                "ct": 55.4
+              },
+              {
+                "time": "09:00",
+                "ct": 62.3
+              },
+              {
+                "time": "10:00",
+                "ct": 68.7
+              },
+              {
+                "time": "11:00",
+                "ct": 71.2
+              },
+              {
+                "time": "12:00",
+                "ct": 65
+              },
+              {
+                "time": "13:00",
+                "ct": 59.8
+              },
+              {
+                "time": "14:00",
+                "ct": 54.6
+              },
+              {
+                "time": "15:00",
+                "ct": 50.3
+              },
+              {
+                "time": "16:00",
+                "ct": 47.1
+              },
+              {
+                "time": "17:00",
+                "ct": 44.5
+              },
+              {
+                "time": "18:00",
+                "ct": 40.2
+              },
+              {
+                "time": "19:00",
+                "ct": 36.8
+              },
+              {
+                "time": "20:00",
+                "ct": 33.4
+              },
+              {
+                "time": "21:00",
+                "ct": 31
+              },
+              {
+                "time": "22:00",
+                "ct": 29.7
+              },
+              {
+                "time": "23:00",
+                "ct": 30.5
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:26.770Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.oee_decomp",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "oee_decomp",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "选中设备OEE分解",
+            "xAxis": {
+              "field": "dimension",
+              "label": "维度"
+            },
+            "yAxis": {
+              "field": "value",
+              "label": "百分比(%)"
+            },
+            "dataKey": "oee_decomp",
+            "dataSlotId": "p1.chart.oee_decomp",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "dimension": "可用性",
+                "value": 95.2
+              },
+              {
+                "dimension": "性能",
+                "value": 82.5
+              },
+              {
+                "dimension": "质量",
+                "value": 98.1
+              },
+              {
+                "dimension": "计划停机",
+                "value": 4.8
+              },
+              {
+                "dimension": "故障停机",
+                "value": 2.3
+              },
+              {
+                "dimension": "换模调整",
+                "value": 1.5
+              },
+              {
+                "dimension": "速度损失",
+                "value": 6.8
+              },
+              {
+                "dimension": "缺陷损失",
+                "value": 1.9
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:27.368Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.table.device_detail",
+          "pageIndex": 1,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_detail",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "title": "设备详情",
+            "columns": [
+              {
+                "field": "device",
+                "label": "设备",
+                "width": 120
+              },
+              {
+                "field": "model",
+                "label": "型号",
+                "width": 100
+              },
+              {
+                "field": "fault_time",
+                "label": "累计故障时长(h)",
+                "width": 140
+              },
+              {
+                "field": "maintenance",
+                "label": "最近维护",
+                "width": 160
+              },
+              {
+                "field": "status",
+                "label": "状态",
+                "width": 80
+              }
+            ],
+            "dataKey": "device_detail",
+            "dataSlotId": "p1.table.device_detail",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "device": "注塑机A01",
+                "model": "IM-200",
+                "fault_time": 12.5,
+                "maintenance": "2025-03-10 14:30",
+                "status": "正常"
+              },
+              {
+                "device": "装配机器人B03",
+                "model": "AR-500",
+                "fault_time": 45.2,
+                "maintenance": "2025-03-08 09:00",
+                "status": "告警"
+              },
+              {
+                "device": "冲压机C07",
+                "model": "HP-300",
+                "fault_time": 8,
+                "maintenance": "2025-03-12 16:45",
+                "status": "正常"
+              },
+              {
+                "device": "焊接机D12",
+                "model": "W-400",
+                "fault_time": 67.8,
+                "maintenance": "2025-02-28 11:20",
+                "status": "故障"
+              },
+              {
+                "device": "CNC机床E05",
+                "model": "CM-600",
+                "fault_time": 3.2,
+                "maintenance": "2025-03-11 08:00",
+                "status": "正常"
+              },
+              {
+                "device": "注塑机A02",
+                "model": "IM-200",
+                "fault_time": 22.1,
+                "maintenance": "2025-03-09 13:15",
+                "status": "告警"
+              },
+              {
+                "device": "传送带F02",
+                "model": "CB-100",
+                "fault_time": 5,
+                "maintenance": "2025-03-13 10:00",
+                "status": "正常"
+              },
+              {
+                "device": "冷却塔G01",
+                "model": "CT-50",
+                "fault_time": 0,
+                "maintenance": "2025-03-07 07:30",
+                "status": "正常"
+              },
+              {
+                "device": "空压机H04",
+                "model": "AC-200",
+                "fault_time": 33.6,
+                "maintenance": "2025-03-03 15:00",
+                "status": "告警"
+              },
+              {
+                "device": "贴标机I09",
+                "model": "LB-300",
+                "fault_time": 18.3,
+                "maintenance": "2025-03-06 09:45",
+                "status": "正常"
+              },
+              {
+                "device": "包装机J11",
+                "model": "PK-500",
+                "fault_time": 55,
+                "maintenance": "2025-02-25 14:00",
+                "status": "故障"
+              },
+              {
+                "device": "检测仪K02",
+                "model": "MT-100",
+                "fault_time": 1.5,
+                "maintenance": "2025-03-14 11:30",
+                "status": "正常"
+              },
+              {
+                "device": "注塑机A03",
+                "model": "IM-300",
+                "fault_time": 78.9,
+                "maintenance": "2025-02-20 16:00",
+                "status": "故障"
+              },
+              {
+                "device": "机器人B05",
+                "model": "AR-600",
+                "fault_time": 6.7,
+                "maintenance": "2025-03-12 09:00",
+                "status": "正常"
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:30.865Z",
+          "source": "agent"
+        }
+      ]
+    },
+    {
+      "pageIndex": 2,
+      "components": [
+        {
+          "slotId": "p2.kpi.energy_overview",
+          "pageIndex": 2,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "total_energy",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "能耗总览",
+            "format": "number",
+            "dataKey": "total_energy",
+            "dataSlotId": "p2.kpi.energy_overview",
+            "pageIndex": 2,
+            "unit": "kWh"
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 3845.6,
+              "trend": "up",
+              "trendValue": "+3.2%",
+              "comparison": {
+                "label": "前日",
+                "value": "3726.8 kWh"
+              },
+              "overloadWorkshops": 2
+            }
+          },
+          "filledAt": "2026-05-09T07:41:43.788Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.accident_trend",
+          "pageIndex": 2,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "accident_trend_monthly",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "事故率月趋势",
+            "xAxis": {
+              "field": "month",
+              "label": "月份"
+            },
+            "yAxis": [
+              {
+                "field": "rate",
+                "label": "事故率(起/百万工时)",
+                "color": "#EF4444"
+              }
+            ],
+            "dataKey": "accident_trend_monthly",
+            "dataSlotId": "p2.chart.accident_trend",
+            "pageIndex": 2
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "month": "1月",
+                "rate": 2.3
+              },
+              {
+                "month": "2月",
+                "rate": 1.8
+              },
+              {
+                "month": "3月",
+                "rate": 3.1
+              },
+              {
+                "month": "4月",
+                "rate": 2.7
+              },
+              {
+                "month": "5月",
+                "rate": 4.2
+              },
+              {
+                "month": "6月",
+                "rate": 3.5
+              },
+              {
+                "month": "7月",
+                "rate": 2.9
+              },
+              {
+                "month": "8月",
+                "rate": 1.5
+              },
+              {
+                "month": "9月",
+                "rate": 2
+              },
+              {
+                "month": "10月",
+                "rate": 3.8
+              },
+              {
+                "month": "11月",
+                "rate": 4.5
+              },
+              {
+                "month": "12月",
+                "rate": 2.1
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:44.962Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.energy_curve",
+          "pageIndex": 2,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "energy_curve_24h",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "分时段能耗曲线",
+            "xAxis": {
+              "field": "hour",
+              "label": "小时"
+            },
+            "yAxis": [
+              {
+                "field": "electric",
+                "label": "电(kW)",
+                "color": "#F59E0B"
+              },
+              {
+                "field": "water",
+                "label": "水(m³)",
+                "color": "#FBBF24"
+              },
+              {
+                "field": "gas",
+                "label": "气(m³)",
+                "color": "#38BDF8"
+              }
+            ],
+            "dataKey": "energy_curve_24h",
+            "dataSlotId": "p2.chart.energy_curve",
+            "pageIndex": 2
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "hour": 0,
+                "electric": 320.5,
+                "water": 12.3,
+                "gas": 8.1
+              },
+              {
+                "hour": 3,
+                "electric": 280.2,
+                "water": 10.8,
+                "gas": 6.9
+              },
+              {
+                "hour": 6,
+                "electric": 450.1,
+                "water": 18.5,
+                "gas": 15.2
+              },
+              {
+                "hour": 9,
+                "electric": 680.7,
+                "water": 25.4,
+                "gas": 22.6
+              },
+              {
+                "hour": 12,
+                "electric": 720.3,
+                "water": 28.9,
+                "gas": 24.1
+              },
+              {
+                "hour": 15,
+                "electric": 690.8,
+                "water": 26.7,
+                "gas": 21.5
+              },
+              {
+                "hour": 18,
+                "electric": 520.4,
+                "water": 20.1,
+                "gas": 16.8
+              },
+              {
+                "hour": 21,
+                "electric": 380.2,
+                "water": 14.6,
+                "gas": 10.3
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:44.998Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.energy_benchmark",
+          "pageIndex": 2,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "energy_benchmark",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "单位产品能耗对标",
+            "xAxis": {
+              "field": "workshop",
+              "label": "车间"
+            },
+            "yAxis": {
+              "field": "unit_energy",
+              "label": "能耗/基准(%)"
+            },
+            "dataKey": "energy_benchmark",
+            "dataSlotId": "p2.chart.energy_benchmark",
+            "pageIndex": 2
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "workshop": "注塑车间",
+                "unit_energy": 95.2
+              },
+              {
+                "workshop": "装配车间",
+                "unit_energy": 102.8
+              },
+              {
+                "workshop": "喷涂车间",
+                "unit_energy": 110.5
+              },
+              {
+                "workshop": "冲压车间",
+                "unit_energy": 88.3
+              },
+              {
+                "workshop": "焊接车间",
+                "unit_energy": 97.6
+              },
+              {
+                "workshop": "热处理车间",
+                "unit_energy": 115.4
+              },
+              {
+                "workshop": "机加工车间",
+                "unit_energy": 93.1
+              },
+              {
+                "workshop": "包装车间",
+                "unit_energy": 79.8
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:45.471Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.table.events",
+          "pageIndex": 2,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "anomaly_events",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "title": "异常事件时间轴",
+            "columns": [
+              {
+                "field": "time",
+                "label": "时间",
+                "width": 160
+              },
+              {
+                "field": "type",
+                "label": "类型",
+                "width": 120
+              },
+              {
+                "field": "status",
+                "label": "状态",
+                "width": 100
+              },
+              {
+                "field": "responsible",
+                "label": "负责人",
+                "width": 100
+              }
+            ],
+            "dataKey": "anomaly_events",
+            "dataSlotId": "p2.table.events",
+            "pageIndex": 2
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "time": "2025-04-10 08:23:45",
+                "type": "设备故障-电机过热",
+                "status": "待处理",
+                "responsible": "张伟"
+              },
+              {
+                "time": "2025-04-10 08:15:12",
+                "type": "质量异常-尺寸超差",
+                "status": "处理中",
+                "responsible": "李敏"
+              },
+              {
+                "time": "2025-04-10 07:58:30",
+                "type": "能耗超标-电流波动",
+                "status": "已关闭",
+                "responsible": "王强"
+              },
+              {
+                "time": "2025-04-10 07:42:18",
+                "type": "安全事件-防护门未关",
+                "status": "待处理",
+                "responsible": "赵刚"
+              },
+              {
+                "time": "2025-04-10 07:30:05",
+                "type": "设备故障-轴承异响",
+                "status": "处理中",
+                "responsible": "刘洋"
+              },
+              {
+                "time": "2025-04-10 07:15:44",
+                "type": "质量异常-气密检测失败",
+                "status": "待处理",
+                "responsible": "陈静"
+              },
+              {
+                "time": "2025-04-10 06:58:22",
+                "type": "安全隐患-线路老化",
+                "status": "已关闭",
+                "responsible": "周明"
+              },
+              {
+                "time": "2025-04-10 06:40:11",
+                "type": "设备故障-液压泄漏",
+                "status": "处理中",
+                "responsible": "孙磊"
+              },
+              {
+                "time": "2025-04-10 06:25:36",
+                "type": "能耗超标-电压骤降",
+                "status": "待处理",
+                "responsible": "黄丽"
+              },
+              {
+                "time": "2025-04-10 06:10:59",
+                "type": "安全事件-化学品泄漏",
+                "status": "处理中",
+                "responsible": "吴涛"
+              },
+              {
+                "time": "2025-04-10 05:55:14",
+                "type": "质量异常-表面划伤",
+                "status": "已关闭",
+                "responsible": "郑敏"
+              },
+              {
+                "time": "2025-04-10 05:40:07",
+                "type": "设备故障-传感器失灵",
+                "status": "待处理",
+                "responsible": "马超"
+              },
+              {
+                "time": "2025-04-10 05:22:33",
+                "type": "安全隐患-消防通道堵塞",
+                "status": "处理中",
+                "responsible": "林霞"
+              },
+              {
+                "time": "2025-04-10 05:08:19",
+                "type": "能耗超标-电表异常",
+                "status": "已关闭",
+                "responsible": "何强"
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:48.347Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.hazard_closed",
+          "pageIndex": 2,
+          "widgetType": "DonutChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "hazard_closed",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "DonutChart",
+            "title": "隐患排查闭环率",
+            "dataKey": "hazard_closed",
+            "dataSlotId": "p2.chart.hazard_closed",
+            "pageIndex": 2,
+            "showLegend": true,
+            "legendPosition": "right"
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "category": "设备故障隐患",
+                "value": 35
+              },
+              {
+                "category": "电气安全隐患",
+                "value": 28
+              },
+              {
+                "category": "消防设施隐患",
+                "value": 22
+              },
+              {
+                "category": "作业环境隐患",
+                "value": 18
+              },
+              {
+                "category": "物料堆放隐患",
+                "value": 15
+              },
+              {
+                "category": "人员违章隐患",
+                "value": 12
+              },
+              {
+                "category": "工艺安全隐患",
+                "value": 10
+              },
+              {
+                "category": "其他隐患",
+                "value": 8
+              }
+            ]
+          },
+          "filledAt": "2026-05-09T07:41:51.302Z",
+          "source": "agent"
+        }
+      ]
+    }
+  ]
+}

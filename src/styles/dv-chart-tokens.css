@@ -1,0 +1,65 @@
+/**
+ * 大屏图表域 Token（--dv-chart-*）
+ * - 默认用 color-mix 从语义色推导，便于随 light/dark 与 VI 注入的 --color-* 变化
+ * - 可在任意父级 style 或 vi cssVariables 中覆盖各键以验收主题
+ */
+
+:root {
+  /* 绘图区底色（Cartesian 坐标系背景） */
+  --dv-chart-plot-bg: color-mix(
+    in oklab,
+    var(--color-text-primary, var(--foreground)) 4%,
+    transparent
+  );
+
+  /* 网格线 */
+  --dv-chart-grid-stroke: color-mix(
+    in oklab,
+    var(--color-text-primary, var(--foreground)) 10%,
+    transparent
+  );
+  --dv-chart-grid-dash: 2 8;
+
+  /* 坐标轴线、刻度线 */
+  --dv-chart-axis-line: var(--color-border, var(--border));
+  --dv-chart-axis-tick-stroke: color-mix(
+    in oklab,
+    var(--color-text-primary, var(--foreground)) 28%,
+    transparent
+  );
+
+  /* 刻度字、轴标题、图例 */
+  --dv-chart-tick-label: var(--color-text-secondary, var(--muted-foreground));
+  --dv-chart-axis-title: var(--color-text-muted, var(--muted-foreground));
+  --dv-chart-legend-text: var(--color-text-secondary, var(--foreground));
+  --dv-chart-legend-inactive: color-mix(
+    in oklab,
+    var(--color-text-secondary, var(--muted-foreground)) 55%,
+    transparent
+  );
+
+  /* Tooltip */
+  --dv-chart-tooltip-bg: var(--color-surface, var(--popover));
+  --dv-chart-tooltip-border: var(--color-border, var(--border));
+  --dv-chart-tooltip-fg: var(--color-text-primary, var(--popover-foreground));
+
+  /* 参考线 / 目标线 */
+  --dv-chart-reference-stroke: var(--color-danger, var(--destructive));
+
+  /* 饼图标签引导线 */
+  --dv-chart-label-line: color-mix(
+    in oklab,
+    var(--color-text-primary, var(--foreground)) 22%,
+    transparent
+  );
+
+  /* 图表/表格 Widget 外层壳（大屏：无内边距、无边框、无圆角、弱次要底） */
+  --dv-chart-panel-bg: color-mix(
+    in srgb,
+    var(--color-muted, var(--muted)) 5%,
+    transparent
+  );
+  --dv-chart-panel-padding: 0;
+  --dv-chart-panel-border: none;
+  --dv-chart-panel-radius: 0;
+}

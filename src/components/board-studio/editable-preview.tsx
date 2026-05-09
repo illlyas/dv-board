@@ -2,6 +2,8 @@
 
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { JsxRenderer } from "@/components/jsx-renderer";
+import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
+import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 
 const CANVAS_W = 1920;
 const CANVAS_H = 1080;
@@ -16,13 +18,28 @@ interface EditablePreviewProps {
   selectedWidgets: SelectedWidget[];
   onSelectionChange: (widgets: SelectedWidget[]) => void;
   cssVariables?: Record<string, string>;
+  visualAssetsBlock?: VisualAssetsBlock | null;
 }
 
-const StableRenderer = memo(function StableRenderer({ code }: { code: string }) {
-  return <JsxRenderer code={code} />;
+const StableRenderer = memo(function StableRenderer({
+  code,
+  visualAssetsBlock,
+}: {
+  code: string;
+  visualAssetsBlock?: VisualAssetsBlock | null;
+}) {
+  const jsx = <JsxRenderer code={code} />;
+  if (!visualAssetsBlock) return jsx;
+  return <VisualAssetsProvider block={visualAssetsBlock}>{jsx}</VisualAssetsProvider>;
 });
 
-export function EditablePreview({ code, selectedWidgets, onSelectionChange, cssVariables }: EditablePreviewProps) {
+export function EditablePreview({
+  code,
+  selectedWidgets,
+  onSelectionChange,
+  cssVariables,
+  visualAssetsBlock,
+}: EditablePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -182,7 +199,7 @@ export function EditablePreview({ code, selectedWidgets, onSelectionChange, cssV
           position: "relative",
         }}
       >
-        <StableRenderer code={code} />
+        <StableRenderer code={code} visualAssetsBlock={visualAssetsBlock} />
         <div ref={overlayRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 8 }} />
         <div ref={hoverBoxRef} style={{ display: "none", position: "absolute", pointerEvents: "none" }} />
       </div>

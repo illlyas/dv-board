@@ -1,94 +1,82 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { BoardStudio } from "@/components/board-studio";
-
-interface Project {
-  id: string;
-  name: string;
-  style: string;
-  createdAt: string;
-  updatedAt: string;
-  thumbnail?: string;
-}
+import type { ProjectConfig } from "@/lib/projects/project-config";
 
 export default function ProjectPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<ProjectConfig | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState("");
 
-  useEffect(() => {
-    const stored = localStorage.getItem("dv-projects");
-    if (stored) {
-      try {
-        const projects: Project[] = JSON.parse(stored);
-        const found = projects.find((p) => p.id === projectId);
-        if (found) {
-          setProject(found);
-          setEditName(found.name);
-        } else {
-          // 项目不存在，返回首页
-          router.push("/");
-        }
-      } catch (e) {
-        console.error("Failed to parse projects:", e);
+  const loadProject = useCallback(async () => {
+    setLoadError(false);
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}`);
+      if (!res.ok) {
+        setLoadError(true);
         router.push("/");
+        return;
       }
-    } else {
+      const data = (await res.json()) as { project: ProjectConfig };
+      setProject(data.project);
+      setEditName(data.project.name);
+    } catch (e) {
+      console.error("[ProjectPage] load:", e);
+      setLoadError(true);
       router.push("/");
     }
   }, [projectId, router]);
 
-  const handleSaveName = () => {
+  useEffect(() => {
+    void loadProject();
+  }, [loadProject]);
+
+  const handleSaveName = async () => {
     if (!project || !editName.trim()) return;
 
-    const stored = localStorage.getItem("dv-projects");
-    if (!stored) return;
+    const newName = editName.trim();
+    if (newName === project.name) {
+      setIsEditingName(false);
+      return;
+    }
 
     try {
-      const projects: Project[] = JSON.parse(stored);
-
-      const newName = editName.trim();
-      const isDuplicate = projects.some(
-        (p) => p.id !== projectId && p.name === newName
-      );
-
-      if (isDuplicate) {
-        alert(`已存在名为"${newName}"的项目，请使用其他名称。`);
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        project?: ProjectConfig;
+        message?: string;
+      };
+      if (res.status === 409) {
+        alert(data.message ?? "已存在同名展示项目，请使用其他名称。");
         setEditName(project.name);
         setIsEditingName(false);
         return;
       }
-
-      const oldName = project.name;
-      const updated = projects.map((p) =>
-        p.id === projectId
-          ? { ...p, name: newName, updatedAt: new Date().toISOString() }
-          : p
-      );
-      localStorage.setItem("dv-projects", JSON.stringify(updated));
-      setProject((prev) => prev ? { ...prev, name: newName } : null);
-
-      // 如果名称变了，重命名 .dv/ 目录
-      if (oldName !== newName) {
-        fetch("/api/files/rename-project", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ oldName, newName }),
-        }).catch((err) => console.error("Failed to rename project dir:", err));
+      if (!res.ok) {
+        throw new Error("update failed");
+      }
+      if (data.project) {
+        setProject(data.project);
       }
     } catch (e) {
-      console.error("Failed to save project name:", e);
+      console.error("[ProjectPage] save name:", e);
+      setEditName(project.name);
     }
 
     setIsEditingName(false);
   };
 
-  if (!project) {
+  if (!project && !loadError) {
     return (
       <div className="flex h-full items-center justify-center bg-background text-foreground">
         <div className="text-center space-y-2">
@@ -99,11 +87,13 @@ export default function ProjectPage() {
     );
   }
 
+  if (!project) {
+    return null;
+  }
+
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
-      {/* 顶部导航栏 */}
       <header className="flex items-center gap-3 px-4 py-2 border-b border-border/50 shrink-0">
-        {/* 返回按钮 */}
         <button
           onClick={() => router.push("/")}
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -126,12 +116,11 @@ export default function ProjectPage() {
 
         <span className="text-border/50">|</span>
 
-        {/* 项目名称（可编辑） */}
         {isEditingName ? (
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleSaveName();
+              void handleSaveName();
             }}
             className="flex items-center gap-2"
           >
@@ -139,7 +128,7 @@ export default function ProjectPage() {
               autoFocus
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              onBlur={handleSaveName}
+              onBlur={() => void handleSaveName()}
               className="text-sm font-medium bg-muted/50 border border-border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
           </form>
@@ -154,9 +143,8 @@ export default function ProjectPage() {
         )}
       </header>
 
-      {/* 工作台主体 */}
       <div className="flex-1 min-h-0 flex">
-        <BoardStudio projectName={project.name} style={project.style ?? ""} />
+        <BoardStudio projectName={project.id} style={project.style ?? ""} />
       </div>
     </div>
   );

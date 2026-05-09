@@ -13,5 +13,11 @@ export { renderSvgMarkupToCanvas } from "@/lib/rasterized-svg/render-svg-markup-
 
 export { HeroTitleBackdrop, type HeroTitleBackdropProps } from "./titles/hero-title-backdrop";
 export { ChartLabelBackdrop, type ChartLabelBackdropProps } from "./titles/chart-label-backdrop";
+export {
+  BoardHeroBackdrop,
+  type BoardHeroBackdropProps,
+  BOARD_HERO_BACKDROP_IDS,
+  type BoardHeroBackdropId,
+} from "./board/board-hero-backdrop";
 export { buildHeroTitleSvgMarkup } from "./titles/hero-title-backdrop-markup";
 export { buildChartLabelSvgMarkup } from "./titles/chart-label-backdrop-markup";

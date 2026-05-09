@@ -6,7 +6,7 @@ import { callPipelineStep, callPipelineStepText } from "@/lib/pipeline-api";
 import { jsxCodeSchema, normalizeJSXCode } from "@/lib/board/jsx-output";
 import type { JSXCode } from "@/lib/board/jsx-output";
 import type { ViTokens } from "@/types/pipeline.types";
-import { saveFile } from "./file-operations";
+import { readFile, saveFile } from "./file-operations";
 
 export interface StepExecutorContext {
   signal: AbortSignal;
@@ -145,6 +145,33 @@ export async function executeVISystem(
   }
 
   return { tokens, rawMd };
+}
+
+/**
+ * 将自定义 vi-system Markdown 落盘，并基于该文档重新生成 vi-tokens.json（与 vi-system 联动）。
+ */
+export async function executeViTokensFromMarkdown(
+  viMarkdown: string,
+  ctx: StepExecutorContext
+): Promise<{ tokens: ViTokens }> {
+  if (!ctx.projectName) throw new Error("缺少 projectName");
+
+  ctx.onProgress?.(viMarkdown);
+
+  const res = await fetch("/api/board/apply-vi-markdown", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ projectName: ctx.projectName, markdown: viMarkdown }),
+    signal: ctx.signal,
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(err.error ?? `apply-vi-markdown ${res.status}`);
+  }
+
+  const raw = await readFile(`.dv/${ctx.projectName}/品牌VI/vi-tokens.json`);
+  const parsed = JSON.parse(raw) as Record<string, unknown>;
+  return { tokens: normalizeViTokens(parsed) };
 }
 
 /**

@@ -1,40 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CreateProjectDialog, type CreateProjectPayload } from "@/components/create-project-dialog";
-
-interface Project {
-  id: string;
-  name: string;
-  style: string;
-  createdAt: string;
-  updatedAt: string;
-  thumbnail?: string;
-}
+import type { ProjectConfig } from "@/lib/projects/project-config";
 
 type ViewMode = "recent" | "my-designs";
 
 export default function Home() {
   const router = useRouter();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectConfig[]>([]);
+  const [listLoading, setListLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("my-designs");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // 从 localStorage 加载项目列表
-  useEffect(() => {
-    const stored = localStorage.getItem("dv-projects");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as Project[];
-        // 向后兼容：老数据可能没有 style 字段
-        setProjects(parsed.map((p) => ({ ...p, style: p.style ?? "" })));
-      } catch (e) {
-        console.error("Failed to parse projects:", e);
-      }
+  const refreshProjects = useCallback(async () => {
+    setListLoading(true);
+    try {
+      const res = await fetch("/api/projects");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as { projects: ProjectConfig[] };
+      setProjects(data.projects ?? []);
+    } catch (e) {
+      console.error("[Home] list projects:", e);
+      setProjects([]);
+    } finally {
+      setListLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    void refreshProjects();
+  }, [refreshProjects]);
 
   // 计算一个唯一的默认项目名（如果重名则加序号）
   const computeUniqueName = (base: string): string => {
@@ -50,23 +48,26 @@ export default function Home() {
     setDialogOpen(true);
   };
 
-  // 确认新建项目
-  const handleCreateProject = ({ name, style }: CreateProjectPayload) => {
+  const handleCreateProject = async ({ name, style }: CreateProjectPayload) => {
     const finalName = computeUniqueName(name);
-    const newProject: Project = {
-      id: `project-${Date.now()}`,
-      name: finalName,
-      style,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const updatedProjects = [...projects, newProject];
-    setProjects(updatedProjects);
-    localStorage.setItem("dv-projects", JSON.stringify(updatedProjects));
-    setDialogOpen(false);
-
-    router.push(`/project/${newProject.id}`);
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: finalName, style }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error ?? `HTTP ${res.status}`);
+      }
+      const data = (await res.json()) as { project: ProjectConfig };
+      setDialogOpen(false);
+      await refreshProjects();
+      router.push(`/project/${data.project.id}`);
+    } catch (e) {
+      console.error("[Home] create project:", e);
+      alert(e instanceof Error ? e.message : "创建失败");
+    }
   };
 
   // 打开项目
@@ -79,23 +80,14 @@ export default function Home() {
     e.stopPropagation();
     if (!confirm("确定要删除这个项目吗？此操作不可恢复。")) return;
 
-    const project = projects.find((p) => p.id === projectId);
-
-    const updatedProjects = projects.filter((p) => p.id !== projectId);
-    setProjects(updatedProjects);
-    localStorage.setItem("dv-projects", JSON.stringify(updatedProjects));
-
-    // 删除对应的 .dv/ 目录
-    if (project?.name) {
-      try {
-        await fetch("/api/files/delete-project", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projectName: project.name }),
-        });
-      } catch (err) {
-        console.error("Failed to delete project files:", err);
-      }
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await refreshProjects();
+    } catch (err) {
+      console.error("[Home] delete project:", err);
     }
   };
 
@@ -169,7 +161,11 @@ export default function Home() {
       {/* 主内容区 */}
       <main className="flex-1 overflow-auto">
         <div className="p-8">
-          {projects.length === 0 ? (
+          {listLoading ? (
+            <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+              <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : projects.length === 0 ? (
             // 空状态
             <div className="flex items-center justify-center h-[calc(100vh-200px)]">
               <div className="text-center space-y-4 max-w-md">

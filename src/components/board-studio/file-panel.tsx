@@ -3,11 +3,18 @@
 import React, { useCallback, useEffect, useState } from "react";
 import type { FileItem, FilesResponse, OpenTab } from "@/types/board-studio.types";
 import { listProjectFiles, readFile } from "@/lib/pipeline/file-operations";
-import { TabBar, FILES_TAB_ID } from "./tab-bar";
+import { TabBar, FILES_TAB_ID, VISUAL_ASSETS_TAB_ID } from "./tab-bar";
 import { FileList } from "./file-list";
 import { FileTabContent } from "./file-content";
 import { DashboardToolbar } from "./dashboard-toolbar";
+import { MarkdownAgentToolbar } from "./markdown-agent-toolbar";
 import type { SelectedWidget } from "./editable-preview";
+import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
+import { VisualAssetsPanel } from "./visual-assets-panel";
+
+function isMarkdownAgentFile(file: FileItem): boolean {
+  return ["design-story.md", "pages-story.md", "vi-system.md"].includes(file.name);
+}
 
 interface FilePanelProps {
   projectName: string;
@@ -23,6 +30,12 @@ interface FilePanelProps {
   selectedWidgets: SelectedWidget[];
   onSelectionChange: (widgets: SelectedWidget[]) => void;
   onCodeLoad?: (code: string) => void;
+  mdAgentTabId: string | null;
+  onStartMdAgent: () => void;
+  onExitMdAgent: () => void;
+  onMdAgentSelectText: (text: string) => void;
+  visualAssetsBlock: VisualAssetsBlock | null;
+  onVisualAssetsSaved: (next: VisualAssetsBlock) => void;
 }
 
 export function FilePanel({
@@ -39,6 +52,12 @@ export function FilePanel({
   selectedWidgets,
   onSelectionChange,
   onCodeLoad,
+  mdAgentTabId,
+  onStartMdAgent,
+  onExitMdAgent,
+  onMdAgentSelectText,
+  visualAssetsBlock,
+  onVisualAssetsSaved,
 }: FilePanelProps) {
   const [files, setFiles] = useState<FilesResponse["categories"] | null>(null);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
@@ -105,7 +124,12 @@ export function FilePanel({
   }, [fetchFiles, fetchTokens, refreshTrigger]);
 
   const activeTab = openTabs.find(t => t.id === activeTabId);
+  const isVisualAssetsTab = activeTabId === VISUAL_ASSETS_TAB_ID;
   const isJsxTab = activeTab?.file.name.endsWith(".jsx") ?? false;
+  const isMdAgentTarget = activeTab ? isMarkdownAgentFile(activeTab.file) : false;
+  const mdAgentOn = Boolean(
+    activeTab && mdAgentTabId === activeTabId && isMdAgentTarget && !isVisualAssetsTab
+  );
 
   return (
     <div className="flex flex-col h-full min-w-0">
@@ -116,7 +140,7 @@ export function FilePanel({
         onTabClose={onTabClose}
       />
 
-      {isJsxTab && activeTab && (
+      {isJsxTab && activeTab && !isVisualAssetsTab && (
         <DashboardToolbar
           file={activeTab.file}
           isEditing={editingTabId === activeTabId}
@@ -125,7 +149,30 @@ export function FilePanel({
         />
       )}
 
+      {isMdAgentTarget && activeTab && !isVisualAssetsTab && (
+        <MarkdownAgentToolbar
+          file={activeTab.file}
+          isAgentMode={mdAgentOn}
+          onStartAgent={onStartMdAgent}
+          onExitAgent={onExitMdAgent}
+        />
+      )}
+
       <div className="flex-1 min-h-0 overflow-hidden bg-white">
+        {/* 视觉素材 */}
+        <div className={`h-full flex flex-col min-h-0 ${isVisualAssetsTab ? "" : "hidden"}`}>
+          {visualAssetsBlock ? (
+            <VisualAssetsPanel
+              projectId={projectName}
+              block={visualAssetsBlock}
+              cssVariables={cssVariables}
+              onSaved={onVisualAssetsSaved}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">加载项目配置…</div>
+          )}
+        </div>
+
         {/* 项目文件 tab */}
         <div className={`h-full flex flex-col ${activeTabId === FILES_TAB_ID ? "" : "hidden"}`}>
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 shrink-0">
@@ -159,11 +206,15 @@ export function FilePanel({
           <div key={tab.id} className={`h-full ${activeTabId === tab.id ? "" : "hidden"}`}>
             <FileTabContent
               file={tab.file}
+              projectName={projectName}
               isEditing={editingTabId === tab.id}
               selectedWidgets={editingTabId === tab.id ? selectedWidgets : []}
               onSelectionChange={editingTabId === tab.id ? onSelectionChange : undefined}
               onCodeLoad={editingTabId === tab.id ? onCodeLoad : undefined}
               cssVariables={cssVariables}
+              mdAgentMode={mdAgentTabId === tab.id && isMarkdownAgentFile(tab.file)}
+              onMdAgentSelectText={mdAgentTabId === tab.id && isMarkdownAgentFile(tab.file) ? onMdAgentSelectText : undefined}
+              visualAssetsBlock={visualAssetsBlock}
             />
           </div>
         ))}

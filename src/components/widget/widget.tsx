@@ -1,10 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import type { AnyWidgetConfig } from "@/types/widget.types";
 import { Placeholder } from "./placeholder";
 import { getWidget } from "./registry";
 import { useWidgetData } from "@/hooks/use-widget-data";
+import { buildPropsSnapshotForMock } from "@/lib/dashboard-store";
+import { useVisualAssetsOptional } from "@/contexts/visual-assets-context";
+
+const CHART_TITLE_BACKDROP_TYPES = new Set([
+  "LineChart",
+  "BarChart",
+  "PieChart",
+  "DonutChart",
+  "AreaChart",
+  "Table",
+]);
 
 interface WidgetProps {
   /** 组件配置 */
@@ -18,6 +29,12 @@ interface WidgetProps {
   
   /** 错误处理 */
   onError?: (error: Error) => void;
+
+  /** 看板 store 槽位 id（全局唯一，建议 p{页码}.xxx） */
+  dataSlotId?: string;
+
+  /** 所在分页索引；缺省则从 dataSlotId 前缀解析 */
+  pageIndex?: number;
 }
 
 /**
@@ -34,8 +51,36 @@ export function Widget({
   enableData = true,
   showPlaceholder = true,
   onError,
+  dataSlotId,
+  pageIndex,
 }: WidgetProps) {
   const { type, props } = config;
+  const va = useVisualAssetsOptional();
+  const chartTitleOn = va?.isChartTitleBackdropEnabled() ?? true;
+
+  const resolvedConfig = useMemo(() => {
+    if (!CHART_TITLE_BACKDROP_TYPES.has(type)) return config;
+    const p = { ...(props as Record<string, unknown>) };
+    if (typeof p.titleBackdrop === "boolean") {
+      p.titleBackdrop = p.titleBackdrop && chartTitleOn;
+    }
+    return { ...config, props: p } as AnyWidgetConfig;
+  }, [config, type, props, chartTitleOn]);
+
+  const resolvedSlotId =
+    dataSlotId ?? (props as { dataSlotId?: string }).dataSlotId;
+  const resolvedPageIndex =
+    pageIndex ?? (props as { pageIndex?: number }).pageIndex;
+
+  const filterHasStaticOptions =
+    (type === "Select" || type === "MultiSelect") &&
+    Array.isArray((props as { options?: unknown[] }).options) &&
+    ((props as { options?: unknown[] }).options?.length ?? 0) > 0;
+
+  const propsSnapshot = buildPropsSnapshotForMock(
+    type,
+    props as Record<string, unknown>
+  );
 
   // 获取数据（将 widget type 一并传入，以便根据 type 生成正确形状的 mock 数据）
   const { data, loading, error, refresh } = useWidgetData({
@@ -45,6 +90,10 @@ export function Widget({
     staticData: props.staticData,
     widgetType: type,
     enabled: enableData,
+    dataSlotId: resolvedSlotId,
+    pageIndex: resolvedPageIndex,
+    filterHasStaticOptions,
+    propsSnapshot,
   });
 
   // 错误处理
@@ -60,7 +109,7 @@ export function Widget({
   // 如果组件未注册，显示占位符
   if (!Component) {
     if (showPlaceholder) {
-      return <Placeholder config={config} loading={loading} error={error} />;
+      return <Placeholder config={resolvedConfig} loading={loading} error={error} />;
     }
     return null;
   }
@@ -68,12 +117,13 @@ export function Widget({
   // 渲染真实组件
   return (
     <div
-      data-widget-key={props.dataKey}
+      data-widget-key={props.dataKey ?? resolvedSlotId}
       data-widget-type={type}
+      data-widget-slot={resolvedSlotId}
       style={{ width: "100%", height: "100%", minHeight: 0 }}
     >
       <Component
-        config={config}
+        config={resolvedConfig}
         data={data}
         loading={loading}
         error={error}

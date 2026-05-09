@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { JsxRenderer } from "@/components/jsx-renderer";
+import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
+import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 
 const CANVAS_W = 1920;
 const CANVAS_H = 1080;
@@ -9,9 +11,11 @@ const CANVAS_H = 1080;
 export function ScaledBoardPreview({
   code,
   cssVariables,
+  visualAssetsBlock,
 }: {
   code: string;
   cssVariables?: Record<string, string>;
+  visualAssetsBlock?: VisualAssetsBlock | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -46,7 +50,13 @@ export function ScaledBoardPreview({
           flexShrink: 0,
         }}
       >
-        <JsxRenderer code={code} />
+        {visualAssetsBlock ? (
+          <VisualAssetsProvider block={visualAssetsBlock}>
+            <JsxRenderer code={code} />
+          </VisualAssetsProvider>
+        ) : (
+          <JsxRenderer code={code} />
+        )}
       </div>
     </div>
   );

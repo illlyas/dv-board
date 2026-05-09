@@ -2,8 +2,19 @@
  * Widget 数据获取 Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
+"use client";
+
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { DataBinding } from "@/types/widget.types";
+import { useDashboardPreviewOptional } from "@/contexts/dashboard-preview-context";
+import {
+  buildPropsSnapshotForMock,
+  findStoredComponent,
+  inferMockRole,
+  payloadToWidgetData,
+  resolvePageIndex,
+} from "@/lib/dashboard-store";
+import { runMockSlotPipelineOnce } from "@/lib/mock-slot-pipeline";
 
 interface UseWidgetDataOptions extends DataBinding {
   /** 当前 widget 类型，用于判定 mock 数据形状 */
@@ -14,6 +25,18 @@ interface UseWidgetDataOptions extends DataBinding {
 
   /** 刷新间隔（毫秒） */
   refreshInterval?: number;
+
+  /** 看板预览 store 槽位（与 *.store.json 对齐） */
+  dataSlotId?: string;
+
+  /** 分页页码；缺省则从 slotId 的 p{n}. 前缀解析 */
+  pageIndex?: number;
+
+  /** Select/MultiSelect 等已在 props 中写死 options 时跳过筛选项 agent */
+  filterHasStaticOptions?: boolean;
+
+  /** 传给 mock agent 的 props 子集（由 Widget 组装） */
+  propsSnapshot?: Record<string, unknown>;
 }
 
 interface UseWidgetDataResult<T = any> {
@@ -39,6 +62,14 @@ interface UseWidgetDataResult<T = any> {
  * 3. query: 根据查询配置获取
  * 4. staticData: 使用静态数据
  */
+function shouldCallMockAgent(o: UseWidgetDataOptions): boolean {
+  const role = inferMockRole(o.widgetType || "");
+  if (role === "filter-options") {
+    return !o.filterHasStaticOptions;
+  }
+  return !!(o.dataKey || o.query || o.dataSource);
+}
+
 export function useWidgetData<T = any>(
   options: UseWidgetDataOptions
 ): UseWidgetDataResult<T> {
@@ -50,17 +81,34 @@ export function useWidgetData<T = any>(
     widgetType,
     enabled = true,
     refreshInterval,
+    dataSlotId,
+    pageIndex,
+    filterHasStaticOptions,
+    propsSnapshot,
   } = options;
 
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
+  const previewCtx = useDashboardPreviewOptional();
+  const previewRef = useRef(previewCtx);
+  previewRef.current = previewCtx;
+  const previewActive = Boolean(previewCtx);
+  const storeHydrated = previewCtx?.hydrated ?? false;
+
+  const hasBoundStatic =
+    staticData !== undefined && staticData !== null;
+
   const [data, setData] = useState<T | null>(() =>
-    staticData !== undefined ? (staticData as T) : null,
+    hasBoundStatic ? (staticData as T) : null,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchData = useCallback(async () => {
     // 静态数据优先：不受 enabled 影响（避免 enableData={false} 时永远不注入）
-    if (staticData !== undefined) {
+    // null 视为「未绑定静态数据」，仍走下方拉取（避免生成代码误传 staticData: null 导致永无数据）
+    if (staticData !== undefined && staticData !== null) {
       setData(staticData as T);
       setLoading(false);
       setError(null);
@@ -69,23 +117,64 @@ export function useWidgetData<T = any>(
 
     if (!enabled) return;
 
+    const sid = dataSlotId?.trim();
+    if (previewRef.current && sid && !storeHydrated) {
+      setLoading(true);
+      setError(null);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       let result: any = null;
 
-      // 方式1: 通过 dataKey 获取
-      if (dataKey) {
-        result = await fetchByDataKey(dataKey, widgetType);
+      if (previewRef.current && sid && storeHydrated) {
+        const pi = resolvePageIndex(sid, pageIndex);
+        const store = previewRef.current.getStore();
+        if (store) {
+          const rec = findStoredComponent(store, pi, sid);
+          if (rec?.payload) {
+            result = payloadToWidgetData(rec.payload);
+          }
+        }
+
+        const o = optionsRef.current;
+        if (result == null && shouldCallMockAgent(o)) {
+          try {
+            const p = previewRef.current;
+            if (!p) throw new Error("preview context missing");
+            const role = inferMockRole(o.widgetType || "");
+            const { payload } = await runMockSlotPipelineOnce({
+              projectName: p.projectName,
+              dashboardFile: p.dashboardFile,
+              pageIndex: pi,
+              slotId: sid,
+              widgetType: o.widgetType || "Unknown",
+              role,
+              binding: {
+                dataKey: o.dataKey ?? null,
+                dataSource: o.dataSource ?? null,
+                query: o.query ?? null,
+              },
+              propsSnapshot: o.propsSnapshot ?? {},
+              pagesStoryExcerpt: p.getPagesStoryExcerpt(),
+            });
+            result = payloadToWidgetData(payload);
+          } catch (mockErr) {
+            console.warn("[useWidgetData] mock-slot 失败，回退本地 mock:", mockErr);
+          }
+        }
       }
-      // 方式2: 通过 dataSource 函数获取
-      else if (dataSource) {
-        result = await fetchByDataSource(dataSource, widgetType);
-      }
-      // 方式3: 通过 query 配置获取
-      else if (query) {
-        result = await fetchByQuery(query, widgetType);
+
+      const oc = optionsRef.current;
+      if (result == null && oc.dataKey) {
+        result = await fetchByDataKey(oc.dataKey, oc.widgetType);
+      } else if (result == null && oc.dataSource) {
+        result = await fetchByDataSource(oc.dataSource, oc.widgetType);
+      } else if (result == null && oc.query) {
+        result = await fetchByQuery(oc.query, oc.widgetType);
       }
 
       setData(result);
@@ -96,7 +185,19 @@ export function useWidgetData<T = any>(
     } finally {
       setLoading(false);
     }
-  }, [dataKey, dataSource, query, staticData, widgetType, enabled]);
+  }, [
+    dataKey,
+    dataSource,
+    query,
+    staticData,
+    widgetType,
+    enabled,
+    dataSlotId,
+    pageIndex,
+    filterHasStaticOptions,
+    previewActive,
+    storeHydrated,
+  ]);
 
   // 初始加载
   useEffect(() => {
@@ -236,11 +337,24 @@ function buildTimeSeriesArray() {
   return Array.from({ length: 30 }, (_, i) => {
     const date = new Date(2024, 0, i + 1);
     const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+    const month = `${date.getMonth() + 1}月`;
+    const value = Math.floor(Math.random() * 1000) + 500;
+    const outpatient = Math.floor(Math.random() * 800) + 400;
+    const emergency = Math.floor(Math.random() * 300) + 100;
+    const quality = Math.floor(Math.random() * 15) + 85;
+    const yieldVal = Math.floor(Math.random() * 800) + 200;
     return {
       date: dateStr,
-      value: Math.floor(Math.random() * 1000) + 500,
-      outpatient: Math.floor(Math.random() * 800) + 400,
-      emergency: Math.floor(Math.random() * 300) + 100,
+      time: dateStr,
+      month,
+      day: dateStr,
+      value,
+      yield: yieldVal,
+      quality,
+      sales: value,
+      orders: outpatient,
+      outpatient,
+      emergency,
       inpatient: Math.floor(Math.random() * 500) + 200,
       surgery: Math.floor(Math.random() * 200) + 50,
     };
@@ -249,23 +363,44 @@ function buildTimeSeriesArray() {
 
 function buildDistributionArray() {
   const categories = ["类型A", "类型B", "类型C", "类型D", "类型E"];
-  return categories.map(name => ({
-    name,
-    type: name,
-    value: Math.floor(Math.random() * 100) + 50,
-    count: Math.floor(Math.random() * 100) + 50,
-  }));
+  return categories.map(name => {
+    const value = Math.floor(Math.random() * 100) + 50;
+    const pct = Math.floor(Math.random() * 30) + 10;
+    return {
+      name,
+      type: name,
+      factor: name,
+      category: name,
+      value,
+      count: value,
+      percentage: pct,
+    };
+  });
 }
 
 function buildComparisonArray() {
-  return Array.from({ length: 8 }, (_, i) => ({
-    name: `项目${String.fromCharCode(65 + i)}`,
-    category: `分类${i + 1}`,
-    department: `科室${i + 1}`,
-    value: Math.floor(Math.random() * 100) + 20,
-    load: Math.floor(Math.random() * 100) + 20,
-    target: 80,
-  }));
+  return Array.from({ length: 8 }, (_, i) => {
+    const name = `项目${String.fromCharCode(65 + i)}`;
+    const department = `产线${i + 1}`;
+    const device = `设备${i + 1}`;
+    const value = Math.floor(Math.random() * 100) + 20;
+    const load = Math.floor(Math.random() * 100) + 20;
+    const faultMin = Math.floor(Math.random() * 120) + 5;
+    return {
+      name,
+      category: `分类${i + 1}`,
+      department,
+      device,
+      产线: department,
+      value,
+      load,
+      yield: load,
+      fault_duration: faultMin,
+      newUser: Math.floor(Math.random() * 400) + 100,
+      returning: Math.floor(Math.random() * 300) + 80,
+      target: 80,
+    };
+  });
 }
 
 function buildTableArray() {
@@ -273,6 +408,9 @@ function buildTableArray() {
     id: i + 1,
     name: `项目${i + 1}`,
     department: `科室${(i % 5) + 1}`,
+    metric: ["产量", "良品率", "节拍", "能耗"][i % 4],
+    triggered_at: `2024-01-${String((i % 28) + 1).padStart(2, "0")} 08:${String(i % 60).padStart(2, "0")}`,
+    trend: i % 3 === 0 ? "上升" : i % 3 === 1 ? "下降" : "持平",
     value: Math.floor(Math.random() * 1000) + 100,
     doctors: Math.floor(Math.random() * 20) + 5,
     patients: Math.floor(Math.random() * 100) + 20,

@@ -28,7 +28,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultName?: string;
-  onSubmit: (payload: CreateProjectPayload) => void;
+  onSubmit: (payload: CreateProjectPayload) => void | Promise<void>;
 }
 
 export function CreateProjectDialog({
@@ -42,6 +42,7 @@ export function CreateProjectDialog({
   const [styles, setStyles] = useState<string[]>([]);
   const [loadingStyles, setLoadingStyles] = useState(false);
   const [stylesErr, setStylesErr] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // 打开时重置输入
   useEffect(() => {
@@ -49,6 +50,7 @@ export function CreateProjectDialog({
       setName(defaultName);
       setStyle("");
       setStylesErr(null);
+      setSubmitting(false);
     }
   }, [open, defaultName]);
 
@@ -86,11 +88,16 @@ export function CreateProjectDialog({
   }, [open]);
 
   const trimmed = name.trim();
-  const canSubmit = trimmed.length > 0 && style.length > 0 && !loadingStyles;
+  const canSubmit = trimmed.length > 0 && style.length > 0 && !loadingStyles && !submitting;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canSubmit) return;
-    onSubmit({ name: trimmed, style });
+    setSubmitting(true);
+    try {
+      await onSubmit({ name: trimmed, style });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -152,8 +159,8 @@ export function CreateProjectDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             取消
           </Button>
-          <Button onClick={handleConfirm} disabled={!canSubmit}>
-            创建
+          <Button onClick={() => void handleConfirm()} disabled={!canSubmit}>
+            {submitting ? "创建中…" : "创建"}
           </Button>
         </DialogFooter>
       </DialogContent>

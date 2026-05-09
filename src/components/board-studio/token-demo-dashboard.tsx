@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Widget } from "@/components/widget/widget";
-import { HeroTitleBackdrop } from "@/components/dv-assets";
+import { BoardHeroBackdrop } from "@/components/dv-assets";
+import { DV_CHART_PANEL_WIDGET_STYLE } from "@/lib/dv-board-styles";
 import "@/components/widgets"; // 自动注册所有基础组件
 
 /**
@@ -78,7 +79,7 @@ function ChartCardShell({ children }: { children: React.ReactNode }) {
         position: "relative",
         minHeight: 0,
         height: "100%",
-        borderRadius: 16,
+        borderRadius: 0,
         overflow: "hidden",
       }}
     >
@@ -145,7 +146,7 @@ function DashboardContent() {
             pointerEvents: "none",
           }}
         >
-          <HeroTitleBackdrop style={{ width: "100%", height: "100%", display: "block" }} />
+          <BoardHeroBackdrop id="hero-default" style={{ width: "100%", height: "100%", display: "block" }} />
         </div>
         <div
           style={{
@@ -310,6 +311,7 @@ function DashboardContent() {
               config={{
                 type: "LineChart",
                 props: {
+                  style: DV_CHART_PANEL_WIDGET_STYLE,
                   titleBackdrop: true,
                   title: "销售额与订单趋势",
                   xAxis: "month",
@@ -333,6 +335,7 @@ function DashboardContent() {
               config={{
                 type: "BarChart",
                 props: {
+                  style: DV_CHART_PANEL_WIDGET_STYLE,
                   titleBackdrop: true,
                   title: "周订单分布",
                   xAxis: "day",
@@ -367,6 +370,7 @@ function DashboardContent() {
               config={{
                 type: "DonutChart",
                 props: {
+                  style: DV_CHART_PANEL_WIDGET_STYLE,
                   titleBackdrop: true,
                   title: "流量来源",
                   nameField: "name",
@@ -388,6 +392,7 @@ function DashboardContent() {
               config={{
                 type: "Table",
                 props: {
+                  style: DV_CHART_PANEL_WIDGET_STYLE,
                   titleBackdrop: true,
                   backgroundColor: "transparent",
                   title: "产品系列表现",
