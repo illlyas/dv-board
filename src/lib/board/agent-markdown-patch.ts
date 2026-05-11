@@ -1,8 +1,9 @@
 /**
  * Markdown str_replace 微调：各业务 agent 路由共用的解析与落盘辅助。
+ * 所有路径走 `@/lib/storage` 统一存储层，`projectName` 即项目目录名。
  */
-import { readFile, writeFile } from "fs/promises";
-import path from "path";
+import { storage, dvPath } from "@/lib/storage";
+import { isValidProjectKey } from "@/lib/projects/project-config";
 
 export interface StrReplaceOp {
   oldStr: string;
@@ -14,13 +15,15 @@ export interface StrReplaceEditResponse {
   description: string;
 }
 
+/**
+ * 兼容旧接口：返回一个"项目 key"字符串，历史代码把它当路径传入 readMarkdownUnderProject。
+ * 存储层不再用绝对路径，所以这里只做校验并原样返回。
+ */
 export function safeDvProjectRoot(projectName: string): string {
-  const base = path.resolve(process.cwd(), ".dv");
-  const resolved = path.resolve(base, projectName);
-  if (!resolved.startsWith(base + path.sep)) {
+  if (!isValidProjectKey(projectName)) {
     throw new Error("Invalid projectName");
   }
-  return resolved;
+  return projectName;
 }
 
 export function applyStrReplacePatches(doc: string, patches: StrReplaceOp[]): { result: string; errors: string[] } {
@@ -53,13 +56,11 @@ export function parseStrReplaceEditJson(text: string): StrReplaceEditResponse {
   return JSON.parse(cleaned) as StrReplaceEditResponse;
 }
 
-export async function readMarkdownUnderProject(root: string, segments: string[]): Promise<string> {
-  const abs = path.join(root, ...segments);
-  const raw = await readFile(abs, "utf-8");
+export async function readMarkdownUnderProject(projectKey: string, segments: string[]): Promise<string> {
+  const raw = await storage.readText(dvPath(projectKey, ...segments));
   return raw.replace(/\r\n/g, "\n");
 }
 
-export async function writeMarkdownUnderProject(root: string, segments: string[], content: string): Promise<void> {
-  const abs = path.join(root, ...segments);
-  await writeFile(abs, content, "utf-8");
+export async function writeMarkdownUnderProject(projectKey: string, segments: string[], content: string): Promise<void> {
+  await storage.writeText(dvPath(projectKey, ...segments), content);
 }

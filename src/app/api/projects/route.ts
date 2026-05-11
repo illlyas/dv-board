@@ -1,17 +1,11 @@
 /**
  * GET  /api/projects — 列出 .dv 下带 project.config.json 的项目
- * POST /api/projects — 创建项目目录、分类子目录与 project.config.json
+ * POST /api/projects — 创建项目的 project.config.json（分类"目录"由首次写入文件时隐式建立）
  */
 import { NextResponse } from "next/server";
-import { mkdir, readdir, readFile, writeFile } from "fs/promises";
-import path from "path";
 import {
-  PROJECT_CATEGORY_DIRS,
   PROJECT_CONFIG_FILENAME,
   isValidProjectKey,
-  projectConfigPath,
-  projectRootDir,
-  dvProjectsRoot,
   type BoardKind,
   type ProjectConfig,
   type ThemeMode,
@@ -24,28 +18,17 @@ import {
 import { getLayoutPreset } from "@/lib/board/board-layout-presets";
 import { createVisualAssetsForNewProject, getAssetKit } from "@/lib/projects/asset-kits";
 import { getScreenPreset } from "@/lib/board/screen-presets";
+import { storage, dvPath } from "@/lib/storage";
 
 export async function GET() {
   try {
-    const cwd = process.cwd();
-    const base = dvProjectsRoot(cwd);
-    let entries: string[] = [];
-    try {
-      entries = await readdir(base);
-    } catch {
-      return NextResponse.json({ projects: [] as ProjectConfig[] });
-    }
+    const { dirs } = await storage.listChildren(".dv");
 
     const projects: ProjectConfig[] = [];
-    for (const name of entries) {
+    for (const name of dirs) {
       if (!isValidProjectKey(name)) continue;
-      const cfgPath = projectConfigPath(cwd, name);
-      let raw: string;
-      try {
-        raw = await readFile(cfgPath, "utf-8");
-      } catch {
-        continue;
-      }
+      const raw = await storage.tryReadText(dvPath(name, PROJECT_CONFIG_FILENAME));
+      if (!raw) continue;
       const cfg = parseProjectConfigJson(raw);
       if (!cfg || cfg.id !== name) continue;
       projects.push(ensureProjectBoardDefaults(ensureProjectVisualAssets(cfg)));
@@ -85,14 +68,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing name" }, { status: 400 });
     }
 
-    const cwd = process.cwd();
     const id = `project-${Date.now()}`;
-    const root = projectRootDir(cwd, id);
-
-    await mkdir(root, { recursive: true });
-    for (const cat of PROJECT_CATEGORY_DIRS) {
-      await mkdir(path.join(root, cat), { recursive: true });
-    }
 
     const now = new Date().toISOString();
     const base: ProjectConfig = {
@@ -110,10 +86,10 @@ export async function POST(request: Request) {
       visualAssets: createVisualAssetsForNewProject(assetKitId),
     };
     const config = ensureProjectBoardDefaults(ensureProjectVisualAssets(base));
-    await writeFile(
-      path.join(root, PROJECT_CONFIG_FILENAME),
-      JSON.stringify(config, null, 2),
-      "utf-8"
+
+    await storage.writeText(
+      dvPath(id, PROJECT_CONFIG_FILENAME),
+      JSON.stringify(config, null, 2)
     );
 
     return NextResponse.json({ project: config });

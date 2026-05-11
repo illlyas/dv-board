@@ -7,8 +7,8 @@
 import { generateText } from "ai";
 import { createDeepSeekModel } from "@/lib/board-stream-utils";
 import { generateWidgetTypesDocs } from "@/lib/widget-metadata";
-import { readFile, writeFile } from "fs/promises";
-import { join } from "path";
+import { storage, dvPath } from "@/lib/storage";
+import { isValidProjectKey } from "@/lib/projects/project-config";
 
 export const maxDuration = 120;
 
@@ -105,6 +105,13 @@ interface SelectedElement {
   codeSnippet: string;
 }
 
+/** body.filePath 可能形如 "页面/dashboard.jsx" 或 ".dv/xxx/页面/dashboard.jsx"，统一成后者 */
+function resolveLogicalPath(projectName: string, filePath: string): string {
+  const f = filePath.replace(/\\/g, "/").replace(/^\/+/, "");
+  if (f.startsWith(".dv/")) return f;
+  return dvPath(projectName, ...f.split("/"));
+}
+
 export async function POST(request: Request) {
   const body = await request.json() as {
     userMessage: string;
@@ -115,23 +122,17 @@ export async function POST(request: Request) {
 
   if (!body.userMessage) return new Response("Missing userMessage", { status: 400 });
   if (!body.projectName || !body.filePath) return new Response("Missing projectName or filePath", { status: 400 });
+  if (!isValidProjectKey(body.projectName)) return new Response("Invalid projectName", { status: 400 });
 
-  const basePath = join(process.cwd(), ".dv", body.projectName);
-  const fullFilePath = join(basePath, body.filePath);
+  const logicalPath = resolveLogicalPath(body.projectName, body.filePath);
 
-  let currentCode: string;
-  try {
-    currentCode = await readFile(fullFilePath, "utf-8");
-  } catch {
+  const currentCode = await storage.tryReadText(logicalPath);
+  if (currentCode === null) {
     return new Response(`File not found: ${body.filePath}`, { status: 404 });
   }
 
-  let viSystemContent: string | undefined;
-  try {
-    viSystemContent = await readFile(join(basePath, "品牌VI", "vi-system.md"), "utf-8");
-  } catch {
-    viSystemContent = undefined;
-  }
+  const viSystemContent =
+    (await storage.tryReadText(dvPath(body.projectName, "品牌VI", "vi-system.md"))) ?? undefined;
 
   const systemPrompt = buildSystemPrompt(viSystemContent);
 
@@ -181,7 +182,7 @@ ${selectedCtx}
     const { result: newCode, errors } = applyPatches(currentCode, editResponse.patches ?? []);
 
     // 写回文件
-    await writeFile(fullFilePath, newCode, "utf-8");
+    await storage.writeText(logicalPath, newCode);
 
     return new Response(
       JSON.stringify({

@@ -2,32 +2,20 @@
  * POST /api/board/dashboard-intent
  * 非流式：根据当前项目文件与用户消息，返回本轮需要同步的文档范围（保守布尔 + 可选 vi 全文）。
  */
-import { promises as fs } from "fs";
-import path from "path";
 import { generateText } from "ai";
 import { createDeepSeekModel } from "@/lib/board-stream-utils";
+import { storage, dvPath } from "@/lib/storage";
+import { isValidProjectKey } from "@/lib/projects/project-config";
 
 export const maxDuration = 60;
 
 const TRUNC = 8000;
 
-function safeProjectDir(projectName: string): string {
-  const base = path.resolve(process.cwd(), ".dv");
-  const resolved = path.resolve(base, projectName);
-  if (!resolved.startsWith(base + path.sep)) {
-    throw new Error("Invalid projectName");
-  }
-  return resolved;
-}
-
-async function readSnippet(abs: string): Promise<string> {
-  try {
-    const s = await fs.readFile(abs, "utf-8");
-    if (s.length <= TRUNC) return s;
-    return `${s.slice(0, TRUNC)}\n\n...[truncated, ${s.length - TRUNC} chars omitted]`;
-  } catch {
-    return "";
-  }
+async function readSnippet(logicalPath: string): Promise<string> {
+  const raw = await storage.tryReadText(logicalPath);
+  if (raw === null) return "";
+  if (raw.length <= TRUNC) return raw;
+  return `${raw.slice(0, TRUNC)}\n\n...[truncated, ${raw.length - TRUNC} chars omitted]`;
 }
 
 function parseIntentJson(text: string): Record<string, unknown> {
@@ -80,21 +68,17 @@ export async function POST(request: Request) {
   if (!projectName) {
     return Response.json({ error: "Missing projectName" }, { status: 400 });
   }
+  if (!isValidProjectKey(projectName)) {
+    return Response.json({ error: "Invalid projectName" }, { status: 400 });
+  }
 
   try {
-    const root = safeProjectDir(projectName);
-    const storyPath = path.join(root, "数据故事", "design-story.md");
-    const pagesPath = path.join(root, "页面结构", "pages-story.md");
-    const viPath = path.join(root, "品牌VI", "vi-system.md");
-    const tokPath = path.join(root, "品牌VI", "vi-tokens.json");
-    const dashPath = path.join(root, "页面", "dashboard.jsx");
-
     const [story, pages, viMd, tokens, dashboard] = await Promise.all([
-      readSnippet(storyPath),
-      readSnippet(pagesPath),
-      readSnippet(viPath),
-      readSnippet(tokPath),
-      readSnippet(dashPath),
+      readSnippet(dvPath(projectName, "数据故事", "design-story.md")),
+      readSnippet(dvPath(projectName, "页面结构", "pages-story.md")),
+      readSnippet(dvPath(projectName, "品牌VI", "vi-system.md")),
+      readSnippet(dvPath(projectName, "品牌VI", "vi-tokens.json")),
+      readSnippet(dvPath(projectName, "页面", "dashboard.jsx")),
     ]);
 
     const tokensMissing = !tokens.trim();
@@ -129,7 +113,7 @@ ${userMessage}`;
     });
 
     const raw = parseIntentJson(text);
-    let updateStory = Boolean(raw.updateStory);
+    const updateStory = Boolean(raw.updateStory);
     const updatePages = Boolean(raw.updatePages);
     let updateViReload = Boolean(raw.updateViReload);
     const viSystemMarkdown =

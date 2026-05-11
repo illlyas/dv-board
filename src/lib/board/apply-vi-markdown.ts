@@ -2,20 +2,11 @@
  * 服务端：将 vi-system Markdown 写入项目并基于同一文档重算 vi-tokens.json（与 design-vi 使用同一套 system prompt）。
  */
 import { generateText } from "ai";
-import path from "path";
-import { writeFile } from "fs/promises";
 import { createDeepSeekModel } from "@/lib/board-stream-utils";
 import { DESIGN_VI_SYSTEM_PROMPT } from "@/lib/board/design-vi-system-prompt";
 import { applyDvChartPlotBgToViTokensPayload } from "@/lib/board/vi-tokens-dv-chart-plot-bg";
-
-function safeProjectRoot(projectName: string): string {
-  const base = path.resolve(process.cwd(), ".dv");
-  const resolved = path.resolve(base, projectName);
-  if (!resolved.startsWith(base + path.sep)) {
-    throw new Error("Invalid projectName");
-  }
-  return resolved;
-}
+import { storage, dvPath } from "@/lib/storage";
+import { isValidProjectKey } from "@/lib/projects/project-config";
 
 function parseJsonFromLlm(text: string): unknown {
   let cleaned = text.trim();
@@ -44,9 +35,14 @@ ${designMd}
 }
 
 export async function applyViMarkdownToProject(projectName: string, markdown: string): Promise<void> {
-  const root = safeProjectRoot(projectName);
+  if (!isValidProjectKey(projectName)) {
+    throw new Error("Invalid projectName");
+  }
   const json = await generateViTokensJsonFromMarkdown(markdown);
   const tokensOut = applyDvChartPlotBgToViTokensPayload(json);
-  await writeFile(path.join(root, "品牌VI", "vi-system.md"), markdown, "utf-8");
-  await writeFile(path.join(root, "品牌VI", "vi-tokens.json"), JSON.stringify(tokensOut, null, 2), "utf-8");
+  await storage.writeText(dvPath(projectName, "品牌VI", "vi-system.md"), markdown);
+  await storage.writeText(
+    dvPath(projectName, "品牌VI", "vi-tokens.json"),
+    JSON.stringify(tokensOut, null, 2)
+  );
 }

@@ -117,7 +117,7 @@ export function formatGenerateJsxScreenCanvasBlock(cfg: ProjectConfig): string {
 **KPI 横条防挤压（与本画布绑定，生成 JSX 时必须落实）**
 - main 内 **仅放 KPI 的那一行** \`gridTemplateRows\` **首段高度**须为 **≥ ${kpiStripRowMinPx}** px 的**纯数字**（禁止用该行吸收剩余高度代替固定下限）。若该页存在 **metric-group-inline** 且 **groupItems ≥ 5**、或组内多项带 **miniChart / footer / 趋势** 等「高卡」，首行须 **≥ ${kpiStripRowHeavyPx}** px，或拆成 **两个 KPI Widget** 分两列、或 **两行 KPI**（两行均用具体 px，例如 \`"${kpiStripRowMinPx}px ${kpiStripRowMinPx}px minmax(0,1fr)"\`，**禁止** KPI 行用 \`minmax(0,1fr)\` 当首行）。
 - **禁止**把 KPI / pixel 指标塞进 **header**（顶栏固定 96px，只容标题与筛选）。
-- 包裹 **\`<Widget type=KPI />\`** 的外层 div：**不要**套用与图表相同的 \`minHeight: 0\`「收缩壳」；在 KPI 行高已给足的前提下用 \`height: "100%", minWidth: 0, overflow: "hidden"\` 即可；**避免**再叠一层过矮的 \`maxHeight\`。
+- **KPI 横条布局必须用 flex 均分**：容器 \`display: "flex", gap: "var(--space-3)", height: "100%"\`；每个 KPI Widget 外层 \`<div style={{ flex: 1, minWidth: 0, height: "100%" }}>\`。**禁止**用 \`chartPanelShellStyle\` 或 \`minHeight: 0\` 包裹 KPI。这样无论放 1 个还是 5 个 KPI Widget 都能自动均分、撑满整行。
 - **metric-group-inline**：同一 Widget 内 **groupItems 列并列**建议 **≤4**；更多指标请拆成多个 KPI 或改 **sidebar-stack** / 第二行 KPI。
 - 若该页任一 KPI 的 props 含 **miniChart**（内嵌趋势/柱条），KPI 横条首行高度建议在上述下限基础上 **再增加 ≥40px**，避免运行时迷你图被压成一条线。
 `.trim();

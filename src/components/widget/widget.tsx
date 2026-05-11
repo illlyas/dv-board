@@ -121,12 +121,20 @@ export function Widget({
   }
 
   // 渲染真实组件
+  const isKpiWidget = type === "KPI" || type === "Metric" || type === "StatCard";
   return (
     <div
       data-widget-key={props.dataKey ?? resolvedSlotId}
       data-widget-type={type}
       data-widget-slot={resolvedSlotId}
-      style={{ width: "100%", height: "100%", minHeight: 0 }}
+      style={{
+        width: "100%",
+        height: "100%",
+        /* KPI 卡不设 minHeight:0，避免在 grid 行高固定时被压缩；图表类需要 minHeight:0 防溢出 */
+        minHeight: isKpiWidget ? undefined : 0,
+        minWidth: 0,
+        overflow: "hidden",
+      }}
     >
       <Component
         config={resolvedConfig}

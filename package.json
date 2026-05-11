@@ -10,6 +10,7 @@
     "gen:kpi-icons": "node scripts/gen-kpi-preset-icon-components.mjs"
   },
   "dependencies": {
+    "@0gfoundation/0g-storage-ts-sdk": "^1.2.9",
     "@ai-sdk/openai": "^3.0.53",
     "@ai-sdk/openai-compatible": "^2.0.41",
     "@ai-sdk/react": "^3.0.170",
@@ -23,6 +24,7 @@
     "cmdk": "^1.1.1",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.6",
+    "ethers": "^6.16.0",
     "lucide-react": "^1.11.0",
     "nanoid": "^5.1.9",
     "next": "16.2.4",

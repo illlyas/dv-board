@@ -3,12 +3,17 @@
  * 读取 dashboard.jsx，返回扫描结果与合并后的建议 visualAssets（不写盘）
  */
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
-import { isValidProjectKey, projectRootDir } from "@/lib/projects/project-config";
-import { parseProjectConfigJson, mergeScanIntoVisualAssets, ensureProjectVisualAssets } from "@/lib/projects/parse-project-config";
-import { projectConfigPath } from "@/lib/projects/project-config";
+import {
+  isValidProjectKey,
+  PROJECT_CONFIG_FILENAME,
+} from "@/lib/projects/project-config";
+import {
+  parseProjectConfigJson,
+  mergeScanIntoVisualAssets,
+  ensureProjectVisualAssets,
+} from "@/lib/projects/parse-project-config";
 import { scanDashboardJsxForVisualAssets } from "@/lib/visual-assets/scan-dashboard";
+import { storage, dvPath } from "@/lib/storage";
 
 export async function POST(_request: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -16,20 +21,16 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
     if (!isValidProjectKey(id)) {
       return NextResponse.json({ error: "Invalid project id" }, { status: 400 });
     }
-    const cwd = process.cwd();
-    const rawCfg = await readFile(projectConfigPath(cwd, id), "utf-8");
+    const rawCfg = await storage.tryReadText(dvPath(id, PROJECT_CONFIG_FILENAME));
+    if (rawCfg === null) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     const cfg = parseProjectConfigJson(rawCfg);
     if (!cfg || cfg.id !== id) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     const withAssets = ensureProjectVisualAssets(cfg);
-    const dashPath = path.join(projectRootDir(cwd, id), "页面", "dashboard.jsx");
-    let jsx = "";
-    try {
-      jsx = await readFile(dashPath, "utf-8");
-    } catch {
-      jsx = "";
-    }
+    const jsx = (await storage.tryReadText(dvPath(id, "页面", "dashboard.jsx"))) ?? "";
     const detected = scanDashboardJsxForVisualAssets(jsx);
     const suggestedVisualAssets = mergeScanIntoVisualAssets(
       withAssets.visualAssets!,
@@ -42,7 +43,7 @@ export async function POST(_request: Request, ctx: { params: Promise<{ id: strin
     return NextResponse.json({
       detected,
       suggestedVisualAssets,
-      dashboardPath: `.dv/${id}/页面/dashboard.jsx`,
+      dashboardPath: dvPath(id, "页面", "dashboard.jsx"),
     });
   } catch (e) {
     console.error("[visual-assets/scan]", e);

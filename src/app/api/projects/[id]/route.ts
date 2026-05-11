@@ -1,16 +1,12 @@
 /**
  * GET    /api/projects/[id] — 读取 project.config.json（缺 visualAssets 时补全并写回）
  * PATCH  /api/projects/[id] — 更新 name / style / visualAssets
- * DELETE /api/projects/[id] — 删除整个项目目录
+ * DELETE /api/projects/[id] — 删除整个项目目录（0G 适配器只摘除索引）
  */
 import { NextResponse } from "next/server";
-import { readFile, writeFile, rm, readdir } from "fs/promises";
 import {
   isValidProjectKey,
-  projectConfigPath,
-  projectRootDir,
-  dvProjectsRoot,
-  type ProjectConfig,
+  PROJECT_CONFIG_FILENAME,
 } from "@/lib/projects/project-config";
 import {
   parseProjectConfigJson,
@@ -19,24 +15,17 @@ import {
   withPersistedDefaults,
 } from "@/lib/projects/parse-project-config";
 import { validateVisualAssetsBlock } from "@/lib/visual-assets/validate";
+import { storage, dvPath } from "@/lib/storage";
 
-async function readAllProjectNames(cwd: string, excludeId: string): Promise<Set<string>> {
+async function readAllProjectNames(excludeId: string): Promise<Set<string>> {
   const names = new Set<string>();
-  let entries: string[] = [];
-  try {
-    entries = await readdir(dvProjectsRoot(cwd));
-  } catch {
-    return names;
-  }
-  for (const key of entries) {
+  const { dirs } = await storage.listChildren(".dv");
+  for (const key of dirs) {
     if (!isValidProjectKey(key) || key === excludeId) continue;
-    try {
-      const raw = await readFile(projectConfigPath(cwd, key), "utf-8");
-      const c = parseProjectConfigJson(raw);
-      if (c?.id === key) names.add(c.name);
-    } catch {
-      /* skip */
-    }
+    const raw = await storage.tryReadText(dvPath(key, PROJECT_CONFIG_FILENAME));
+    if (!raw) continue;
+    const c = parseProjectConfigJson(raw);
+    if (c?.id === key) names.add(c.name);
   }
   return names;
 }
@@ -47,9 +36,10 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
     if (!isValidProjectKey(id)) {
       return NextResponse.json({ error: "Invalid project id" }, { status: 400 });
     }
-    const cwd = process.cwd();
-    const cfgPath = projectConfigPath(cwd, id);
-    const raw = await readFile(cfgPath, "utf-8");
+    const raw = await storage.tryReadText(dvPath(id, PROJECT_CONFIG_FILENAME));
+    if (raw === null) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     const cfg = parseProjectConfigJson(raw);
     if (!cfg || cfg.id !== id) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -57,7 +47,10 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
     const ensured = ensureProjectBoardDefaults(ensureProjectVisualAssets(cfg));
     const needsWrite = !cfg.visualAssets?.items?.length || cfg.configVersion < 2;
     if (needsWrite) {
-      await writeFile(cfgPath, JSON.stringify(ensured, null, 2), "utf-8");
+      await storage.writeText(
+        dvPath(id, PROJECT_CONFIG_FILENAME),
+        JSON.stringify(ensured, null, 2)
+      );
     }
     return NextResponse.json({ project: ensured });
   } catch {
@@ -76,9 +69,10 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       style?: string;
       visualAssets?: unknown;
     };
-    const cwd = process.cwd();
-    const cfgPath = projectConfigPath(cwd, id);
-    const raw = await readFile(cfgPath, "utf-8");
+    const raw = await storage.tryReadText(dvPath(id, PROJECT_CONFIG_FILENAME));
+    if (raw === null) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     const cfg = parseProjectConfigJson(raw);
     if (!cfg || cfg.id !== id) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -89,7 +83,7 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
       if (!nextName) {
         return NextResponse.json({ error: "name cannot be empty" }, { status: 400 });
       }
-      const taken = await readAllProjectNames(cwd, id);
+      const taken = await readAllProjectNames(id);
       if (taken.has(nextName)) {
         return NextResponse.json({ error: "DUPLICATE_NAME", message: "已存在同名展示项目" }, { status: 409 });
       }
@@ -109,7 +103,10 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
     cfg.updatedAt = new Date().toISOString();
 
     const out = withPersistedDefaults(cfg);
-    await writeFile(cfgPath, JSON.stringify(out, null, 2), "utf-8");
+    await storage.writeText(
+      dvPath(id, PROJECT_CONFIG_FILENAME),
+      JSON.stringify(out, null, 2)
+    );
     return NextResponse.json({ project: out });
   } catch (e) {
     console.error("[api/projects PATCH]", e);
@@ -123,9 +120,7 @@ export async function DELETE(_request: Request, ctx: { params: Promise<{ id: str
     if (!isValidProjectKey(id)) {
       return NextResponse.json({ error: "Invalid project id" }, { status: 400 });
     }
-    const cwd = process.cwd();
-    const dir = projectRootDir(cwd, id);
-    await rm(dir, { recursive: true, force: true });
+    await storage.removeDir(dvPath(id));
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[api/projects DELETE]", err);

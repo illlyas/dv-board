@@ -1,14 +1,13 @@
 /**
  * POST /api/files/save
  *
- * 将 AI 生成的内容保存为 .md 文件到 .dv/{projectName}/{category}/ 目录
+ * 将 AI 生成的内容保存为文件到 .dv/{projectName}/{category}/ 目录（通过存储层）
  *
  * 输入：{ projectName: string, category: string, filename: string, content: string }
  * 输出：{ success: true, path: string }
  */
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { storage, dvPath } from "@/lib/storage";
 
 export async function POST(request: Request) {
   try {
@@ -33,15 +32,8 @@ export async function POST(request: Request) {
     const safeCategory = category.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_\-]/g, "_");
     const safeFilename = filename.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_\-\.]/g, "_");
 
-    // 构建目录路径：.dv/{projectName}/{category}/
-    const dirPath = path.join(process.cwd(), ".dv", safeName, safeCategory);
-    await mkdir(dirPath, { recursive: true });
-
-    // 写入文件
-    const filePath = path.join(dirPath, safeFilename);
-    await writeFile(filePath, content, "utf-8");
-
-    const relativePath = path.join(".dv", safeName, safeCategory, safeFilename);
+    const relativePath = dvPath(safeName, safeCategory, safeFilename);
+    await storage.writeText(relativePath, content);
 
     return NextResponse.json({ success: true, path: relativePath });
   } catch (err) {

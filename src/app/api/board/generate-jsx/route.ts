@@ -211,7 +211,20 @@ const widgets = {
 在 **gridTemplateColumns 必须用 repeat(N, minmax(0, 1fr))**（列方向）、**gridTemplateRows 禁止 auto**、**main 须 minHeight:0** 的前提下，**每一页** \`<main>\` 内骨架固定为 **两段式**，禁止退回「双列大图 + 底行通栏」等非三栏结构：
 
 1. **指标卡区（唯一例外）**  
-   - 紧贴 main **顶部**一行 **全宽** KPI 横条：\`gridTemplateColumns: repeat(N, minmax(0, 1fr))\`（N 为 KPI 个数，通常 3–6）。  
+   - 紧贴 main **顶部**一行 **全宽** KPI 横条，使用 **flex 均分布局**：  
+     \`\`\`
+     display: "flex", gap: "var(--space-3)", height: "100%", minWidth: 0, overflow: "hidden"
+     \`\`\`  
+     每个 KPI Widget 外层包一个 \`<div style={{ flex: 1, minWidth: 0, height: "100%" }}>\`，这样无论放几个 KPI 都自动均分宽度、撑满整行。  
+   - **正确写法示例**（3 个 KPI）：  
+     \`\`\`jsx
+     <div style={{ display: "flex", gap: "var(--space-3)", height: "100%", minWidth: 0, overflow: "hidden" }}>
+       <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi1} /></div>
+       <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi2} /></div>
+       <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi3} /></div>
+     </div>
+     \`\`\`  
+   - **禁止**用 \`chartPanelShellStyle\` 或任何带 \`minHeight: 0\` 的 div 包裹 KPI Widget。  
    - **仅此行**放置 KPI；不要把 LineChart/BarChart/PieChart/Table 等非 KPI 图表塞进这一行。  
    - 每张 KPI **必须**在 \`widgets.*.props\` 中设置 \`presetIconId\`（\`kpi-sync-refresh\` … \`kpi-package\` 六选一从左到右循环），与 token-demo 一致；**不要**在 header 再放 \`BoardPresetIcon\`。  
    - **行高（防挤压）**：\`main\` 的 \`gridTemplateRows\` **第一行**（KPI 独占行）须用 **足够大的具体 px**，数值 **≥** 上文「当前项目：画布像素」中的 **KPI 横条下限**；**禁止**照搬示例里的过小数字（如 130px）、也禁止让 KPI 行用 \`minmax(0,1fr)\` 当首行吸收高度。多成员 **metric-group-inline** 时按同节说明提高行高或拆 Widget。  
@@ -315,19 +328,19 @@ export default function Dashboard() {
       gap: "var(--space-4)",
       padding: "var(--space-4)",
     }}>
-      {/* ① 指标卡区：仅 KPI */}
+      {/* ① 指标卡区：仅 KPI，flex 均分撑满整行 */}
       <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+        display: "flex",
         gap: "var(--space-3)",
         minWidth: 0,
         height: "100%",
         overflow: "hidden",
       }}>
-        <Widget config={widgets.kpi1} />
-        <Widget config={widgets.kpi2} />
-        <Widget config={widgets.kpi3} />
-        <Widget config={widgets.kpi4} />
+        {/* ⚠ 每个 KPI 用 flex:1 均分，禁止用 chartPanelShellStyle 包裹 */}
+        <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi1} /></div>
+        <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi2} /></div>
+        <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi3} /></div>
+        <div style={{ flex: 1, minWidth: 0, height: "100%" }}><Widget config={widgets.kpi4} /></div>
       </div>
       {/* ② 三栏主视觉区：左/右栏内 repeat(M, minmax(0,1fr)) 均分；中栏单一主图；须 height:100% 让 minmax(0,1fr) 吃到 main 剩余高 */}
       <div style={{

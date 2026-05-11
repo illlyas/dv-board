@@ -41,3 +41,6 @@ next-env.d.ts
 
 # workbuddy
 .workbuddy/
+
+# 0G storage path index (contains rootHash mapping, do not commit)
+.dv/.storage-index.json

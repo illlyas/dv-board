@@ -127,7 +127,7 @@ export function EditablePreview({
     const canvas = canvasRef.current;
     if (!canvas) return null;
 
-    const overlayEl = canvas.parentElement?.querySelector("[data-overlay]") as HTMLElement | null;
+    const overlayEl = containerRef.current?.querySelector("[data-overlay]") as HTMLElement | null;
     if (overlayEl) overlayEl.style.pointerEvents = "none";
     const el = document.elementFromPoint(clientX, clientY);
     if (overlayEl) overlayEl.style.pointerEvents = "all";

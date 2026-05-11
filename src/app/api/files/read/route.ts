@@ -1,13 +1,12 @@
 /**
  * GET /api/files/read?path=.dv/xxx/yyy/zzz.md
  *
- * 读取指定文件内容
+ * 读取指定文件内容（通过存储层）
  *
  * 输出：{ content: string }
  */
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
+import { storage, normalizeLogical } from "@/lib/storage";
 
 export async function GET(request: Request) {
   try {
@@ -19,14 +18,12 @@ export async function GET(request: Request) {
     }
 
     // 安全检查：只允许读取 .dv/ 目录下的文件
-    const normalized = path.normalize(filePath);
-    if (!normalized.startsWith(".dv") && !normalized.startsWith(".dv/") && !normalized.startsWith(".dv\\")) {
+    const normalized = normalizeLogical(filePath);
+    if (!normalized.startsWith(".dv/") && normalized !== ".dv") {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const absolutePath = path.join(process.cwd(), normalized);
-    const content = await readFile(absolutePath, "utf-8");
-
+    const content = await storage.readText(normalized);
     return NextResponse.json({ content });
   } catch (err) {
     console.error("[files/read] error:", err);

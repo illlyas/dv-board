@@ -1,0 +1,318 @@
+{
+  "mode": "dark",
+  "cssVariables": {
+    "--color-bg": "rgba(0, 0, 0, 0)",
+    "--color-surface": "#0F172A",
+    "--color-surface-2": "#1E293B",
+    "--color-muted": "#334155",
+    "--color-primary": "#3B82F6",
+    "--color-primary-hover": "#60A5FA",
+    "--color-accent": "#0EA5E9",
+    "--color-success": "#22C55E",
+    "--color-warning": "#F59E0B",
+    "--color-danger": "#602727",
+    "--color-info": "#06B6D4",
+    "--color-text-primary": "#F8FAFC",
+    "--color-text-secondary": "#CBD5E1",
+    "--color-text-muted": "#94A3B8",
+    "--color-text-inverse": "#020617",
+    "--color-border": "rgba(148,163,184,0.35)",
+    "--color-border-strong": "rgba(59,130,246,0.45)",
+    "--color-grid": "rgba(59,130,246,0.1)",
+    "--dv-chart-panel-bg": "color-mix(in srgb, var(--color-muted) 5%, transparent)",
+    "--dv-chart-panel-padding": "0",
+    "--dv-chart-panel-border": "none",
+    "--dv-chart-panel-radius": "0",
+    "--dv-chart-plot-bg": "color-mix(in srgb, var(--color-text-primary) 15%, transparent)",
+    "--dv-chart-grid-stroke": "rgba(148,163,184,0.12)",
+    "--dv-chart-axis-line": "#475569",
+    "--dv-chart-axis-tick-stroke": "#475569",
+    "--dv-chart-tick-label": "#CBD5E1",
+    "--dv-chart-legend-text": "#CBD5E1",
+    "--dv-chart-tooltip-bg": "#1E293B",
+    "--dv-chart-tooltip-border": "rgba(59,130,246,0.45)",
+    "--dv-chart-tooltip-fg": "#F8FAFC",
+    "--dv-chart-reference-stroke": "#EF4444",
+    "--color-overlay": "rgba(0,0,0,0.6)",
+    "--font-display": "\"Source Han Sans SC\", \"Noto Sans SC\", system-ui, sans-serif",
+    "--font-body": "\"Source Han Sans SC\", \"Noto Sans SC\", system-ui, sans-serif",
+    "--font-mono": "\"JetBrains Mono\", ui-monospace, monospace",
+    "--font-size-xs": "12px",
+    "--font-size-sm": "14px",
+    "--font-size-md": "16px",
+    "--font-size-lg": "18px",
+    "--font-size-xl": "22px",
+    "--font-size-2xl": "28px",
+    "--font-size-3xl": "36px",
+    "--font-weight-regular": "400",
+    "--font-weight-medium": "500",
+    "--font-weight-semibold": "600",
+    "--font-weight-bold": "700",
+    "--line-height-tight": "1.2",
+    "--line-height-normal": "1.5",
+    "--line-height-relaxed": "1.8",
+    "--letter-spacing-tight": "-0.02em",
+    "--letter-spacing-normal": "0em",
+    "--letter-spacing-wide": "0.05em",
+    "--space-1": "8px",
+    "--space-2": "12px",
+    "--space-3": "16px",
+    "--space-4": "24px",
+    "--space-5": "32px",
+    "--space-6": "40px",
+    "--space-8": "48px",
+    "--space-10": "56px",
+    "--space-12": "64px",
+    "--radius-sm": "6px",
+    "--radius-md": "8px",
+    "--radius-lg": "10px",
+    "--radius-xl": "12px",
+    "--radius-pill": "9999px",
+    "--shadow-sm": "0 1px 2px rgba(0,0,0,0.3)",
+    "--shadow-md": "0 2px 4px rgba(0,0,0,0.4)",
+    "--shadow-lg": "0 4px 6px rgba(0,0,0,0.5)",
+    "--shadow-xl": "0 8px 16px rgba(0,0,0,0.6)",
+    "--motion-fast": "150ms",
+    "--motion-normal": "300ms",
+    "--motion-slow": "500ms",
+    "--motion-easing": "cubic-bezier(0.4,0,0.2,1)",
+    "--border-width-thin": "1px",
+    "--border-width-normal": "2px",
+    "--backdrop-blur": "12px",
+    "--kpi-bg-from": "#0F172A",
+    "--kpi-bg-to": "#1E293B",
+    "--kpi-text-primary": "#F8FAFC",
+    "--kpi-text-secondary": "#CBD5E1",
+    "--kpi-text-muted": "#94A3B8"
+  },
+  "chartPalette": [
+    "#3B82F6",
+    "#0EA5E9",
+    "#22C55E",
+    "#F59E0B",
+    "#A855F7",
+    "#EF4444"
+  ],
+  "raw": {
+    "color": {
+      "primary": {
+        "name": "Primary",
+        "hex": "#3B82F6",
+        "usage": "主强调"
+      },
+      "secondary": [
+        {
+          "name": "Accent",
+          "hex": "#0EA5E9",
+          "usage": "次级系列/链接感"
+        },
+        {
+          "name": "Surface",
+          "hex": "#0F172A",
+          "usage": "模块底"
+        },
+        {
+          "name": "Surface-2",
+          "hex": "#1E293B",
+          "usage": "次级底"
+        },
+        {
+          "name": "Muted",
+          "hex": "#334155",
+          "usage": "分割与弱底"
+        }
+      ],
+      "accent": [
+        {
+          "name": "Accent",
+          "hex": "#0EA5E9",
+          "usage": "次级强调"
+        }
+      ],
+      "surface": [
+        {
+          "name": "Bg",
+          "hex": "#020617",
+          "usage": "整屏底"
+        },
+        {
+          "name": "Surface",
+          "hex": "#0F172A",
+          "usage": "模块底"
+        },
+        {
+          "name": "Surface-2",
+          "hex": "#1E293B",
+          "usage": "次级底"
+        }
+      ],
+      "text": [
+        {
+          "name": "Text Primary",
+          "hex": "#F8FAFC",
+          "usage": "主要文字"
+        },
+        {
+          "name": "Text Secondary",
+          "hex": "#CBD5E1",
+          "usage": "次要文字"
+        },
+        {
+          "name": "Text Muted",
+          "hex": "#94A3B8",
+          "usage": "弱化文字"
+        },
+        {
+          "name": "Text Inverse",
+          "hex": "#020617",
+          "usage": "反色文字"
+        }
+      ],
+      "border": [
+        {
+          "name": "Border",
+          "hex": "rgba(148,163,184,0.35)",
+          "usage": "一般边框"
+        },
+        {
+          "name": "Border Strong",
+          "hex": "rgba(59,130,246,0.45)",
+          "usage": "强调边框"
+        }
+      ],
+      "semantic": {
+        "success": {
+          "name": "Success",
+          "hex": "#22C55E"
+        },
+        "warning": {
+          "name": "Warning",
+          "hex": "#F59E0B"
+        },
+        "danger": {
+          "name": "Danger",
+          "hex": "#EF4444"
+        },
+        "info": {
+          "name": "Info",
+          "hex": "#06B6D4"
+        }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "display": "\"Source Han Sans SC\", \"Noto Sans SC\", system-ui, sans-serif",
+        "body": "\"Source Han Sans SC\", \"Noto Sans SC\", system-ui, sans-serif",
+        "mono": "\"JetBrains Mono\", ui-monospace, monospace"
+      },
+      "scale": [
+        {
+          "size": "12px",
+          "name": "xs"
+        },
+        {
+          "size": "14px",
+          "name": "sm"
+        },
+        {
+          "size": "16px",
+          "name": "md"
+        },
+        {
+          "size": "18px",
+          "name": "lg"
+        },
+        {
+          "size": "22px",
+          "name": "xl"
+        },
+        {
+          "size": "28px",
+          "name": "2xl"
+        },
+        {
+          "size": "36px",
+          "name": "3xl"
+        }
+      ],
+      "weights": [
+        {
+          "weight": 400,
+          "name": "Regular"
+        },
+        {
+          "weight": 500,
+          "name": "Medium"
+        },
+        {
+          "weight": 600,
+          "name": "Semibold"
+        },
+        {
+          "weight": 700,
+          "name": "Bold"
+        }
+      ]
+    },
+    "spacing": {
+      "baseUnit": "8px",
+      "scale": [
+        8,
+        12,
+        16,
+        24,
+        32,
+        40,
+        48,
+        56,
+        64
+      ]
+    },
+    "radius": {
+      "sm": "6px",
+      "md": "8px",
+      "lg": "10px",
+      "xl": "12px",
+      "pill": "9999px"
+    },
+    "shadow": {
+      "sm": "0 1px 2px rgba(0,0,0,0.3)",
+      "md": "0 2px 4px rgba(0,0,0,0.4)",
+      "lg": "0 4px 6px rgba(0,0,0,0.5)",
+      "xl": "0 8px 16px rgba(0,0,0,0.6)"
+    },
+    "motion": {
+      "fast": "150ms",
+      "normal": "300ms",
+      "slow": "500ms",
+      "easing": "cubic-bezier(0.4,0,0.2,1)"
+    },
+    "components": {
+      "button": {
+        "bg": "var(--color-primary)",
+        "hoverBg": "var(--color-primary-hover)",
+        "text": "var(--color-text-inverse)",
+        "radius": "var(--radius-sm)"
+      },
+      "card": {
+        "bg": "var(--color-surface)",
+        "radius": "var(--radius-md)",
+        "padding": "var(--space-4)",
+        "border": "var(--color-border)"
+      },
+      "input": {
+        "bg": "var(--color-surface-2)",
+        "border": "var(--color-border)",
+        "focusBorder": "var(--color-primary)",
+        "text": "var(--color-text-primary)",
+        "placeholder": "var(--color-text-muted)"
+      },
+      "navigation": {
+        "bg": "var(--color-surface)",
+        "activeBg": "var(--color-primary)",
+        "text": "var(--color-text-secondary)",
+        "activeText": "var(--color-text-inverse)"
+      }
+    }
+  }
+}
