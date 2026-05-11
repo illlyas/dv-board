@@ -1,10 +1,10 @@
-# Open Design · AI Dashboard Generator
+# DV Board · AI Dashboard Generator
 
 > Describe what you need in natural language. AI generates a production-ready data visualization dashboard.
 
 ## Philosophy
 
-Traditional BI tools produce JSON configurations — unreadable to humans, opaque to AI. Open Design takes a different path:
+Traditional BI tools produce JSON configurations — unreadable to humans, opaque to AI. DV Board takes a different path:
 
 **The deliverable is code, not configuration.** Generated Markdown documents and JSX components are both human-readable design artifacts and source code that AI can directly understand and modify. Every conversational edit hits the mark precisely, with no guesswork through configuration mappings.
 
