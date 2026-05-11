@@ -10,6 +10,7 @@ import {
   dashboardStoreFilename,
   mergeComponentIntoStore,
 } from "@/lib/dashboard-store";
+import { isBoardTemplatePreviewProject } from "@/lib/board-templates/template-project-name";
 import type {
   DashboardStoreComponentRecord,
   DashboardStoreFile,
@@ -89,6 +90,12 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "缺少 projectName、dashboardFile 或 component" },
         { status: 400 }
+      );
+    }
+    if (isBoardTemplatePreviewProject(projectName)) {
+      return NextResponse.json(
+        { error: "模板预览为只读，不可写入 store" },
+        { status: 403 }
       );
     }
     assertDashboardJsx(dashboardFile);

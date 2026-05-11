@@ -35,6 +35,21 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
     return [props.yAxis];
   }, [props.yAxis]);
 
+  /** 多量纲双轴：显式 dualYAxis，或 overrides 里某 series 使用 yAxisIndex>=1 */
+  const useSplitValueAxis = React.useMemo(() => {
+    if (yAxisConfigs.length <= 1) return false;
+    if (props.dualYAxis === true) return true;
+    const s = props.echartsOptionOverrides?.series;
+    if (!Array.isArray(s)) return false;
+    for (const item of s) {
+      if (item && typeof item === "object" && !Array.isArray(item)) {
+        const yi = (item as { yAxisIndex?: number }).yAxisIndex;
+        if (typeof yi === "number" && !Number.isNaN(yi) && yi >= 1) return true;
+      }
+    }
+    return false;
+  }, [yAxisConfigs.length, props.dualYAxis, props.echartsOptionOverrides]);
+
   const xAxisConfig = React.useMemo(() => {
     if (!props.xAxis) return { field: "x", label: "X" };
     if (typeof props.xAxis === "string") return { field: props.xAxis, label: props.xAxis };
@@ -82,12 +97,15 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
     if (!theme || chartData.length === 0 || yAxisConfigs.length === 0) return null;
 
     const categories = chartData.map((d) => String(d[xAxisConfig.field] ?? ""));
+    const splitAxis = useSplitValueAxis && yAxisConfigs.length > 1;
+
     const series = yAxisConfigs.map((yAxis, index) => {
       const c = (yAxis.color as string | undefined) || theme.palette[index % theme.palette.length];
       return {
         name: yAxis.label || yAxis.field,
         type: "line" as const,
         data: chartData.map((d) => d[yAxis.field]),
+        ...(splitAxis ? { yAxisIndex: index } : {}),
         smooth: props.smooth ?? false,
         showSymbol: props.showPoints !== false,
         symbolSize: props.pointSize ?? 4,
@@ -104,12 +122,43 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
       };
     });
 
+    const singleYAxis = {
+      type: "value" as const,
+      axisLine: { lineStyle: { color: theme.axisLine } },
+      axisTick: { lineStyle: { color: theme.axisTick } },
+      axisLabel: { color: theme.axisText, fontSize: 11 },
+      splitLine: {
+        show: props.showGrid !== false,
+        lineStyle: { color: theme.gridColor, type: "dashed" as const },
+      },
+    };
+
+    const yAxis: EChartsOption["yAxis"] = splitAxis
+      ? yAxisConfigs.map((yAxisCfg, index) => {
+          const c = (yAxisCfg.color as string | undefined) || theme.palette[index % theme.palette.length];
+          return {
+            type: "value" as const,
+            position: index === 0 ? ("left" as const) : ("right" as const),
+            offset: index >= 2 ? (index - 1) * 64 : 0,
+            axisLine: { lineStyle: { color: c } },
+            axisTick: { lineStyle: { color: theme.axisTick } },
+            axisLabel: { color: theme.axisText, fontSize: 11 },
+            splitLine: {
+              show: index === 0 && props.showGrid !== false,
+              lineStyle: { color: theme.gridColor, type: "dashed" as const },
+            },
+            name: yAxisCfg.label || yAxisCfg.field,
+            nameTextStyle: { color: theme.axisTitle, fontSize: 11 },
+          };
+        })
+      : singleYAxis;
+
     const opt: EChartsOption = {
       color: theme.palette,
       animation: true,
       grid: {
         left: 8,
-        right: 12,
+        right: splitAxis ? 48 : 12,
         top: props.showLegend ? 36 : 12,
         bottom: 8,
         containLabel: true,
@@ -143,20 +192,11 @@ function LineChartWidget({ config, data, loading }: WidgetComponentProps<{ type:
         name: xAxisConfig.label,
         nameTextStyle: { color: theme.axisTitle, fontSize: 11 },
       },
-      yAxis: {
-        type: "value",
-        axisLine: { lineStyle: { color: theme.axisLine } },
-        axisTick: { lineStyle: { color: theme.axisTick } },
-        axisLabel: { color: theme.axisText, fontSize: 11 },
-        splitLine: {
-          show: props.showGrid !== false,
-          lineStyle: { color: theme.gridColor, type: "dashed" },
-        },
-      },
+      yAxis,
       series,
     };
     return opt;
-  }, [theme, chartData, xAxisConfig, yAxisConfigs, props]);
+  }, [theme, chartData, xAxisConfig, yAxisConfigs, useSplitValueAxis, props]);
 
   const mergedOption = React.useMemo(() => {
     if (!baseOption) return null;

@@ -1,12 +1,10 @@
 "use client";
 
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { JsxRenderer } from "@/components/jsx-renderer";
 import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
-
-const CANVAS_W = 1920;
-const CANVAS_H = 1080;
+import { getScreenPreset } from "@/lib/board/screen-presets";
 
 export interface SelectedWidget {
   dataKey: string;
@@ -19,6 +17,8 @@ interface EditablePreviewProps {
   onSelectionChange: (widgets: SelectedWidget[]) => void;
   cssVariables?: Record<string, string>;
   visualAssetsBlock?: VisualAssetsBlock | null;
+  canvasWidth?: number;
+  canvasHeight?: number;
 }
 
 const StableRenderer = memo(function StableRenderer({
@@ -39,6 +39,8 @@ export function EditablePreview({
   onSelectionChange,
   cssVariables,
   visualAssetsBlock,
+  canvasWidth,
+  canvasHeight,
 }: EditablePreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -46,24 +48,43 @@ export function EditablePreview({
   const hoverBoxRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const scaleRef = useRef(1);
+  const fallback = useMemo(() => getScreenPreset(undefined), []);
+  const cw = canvasWidth ?? fallback.width;
+  const ch = canvasHeight ?? fallback.height;
 
   const selectedRef = useRef(selectedWidgets);
   selectedRef.current = selectedWidgets;
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const update = () => {
-      const { width, height } = el.getBoundingClientRect();
-      const s = Math.min(width / CANVAS_W, height / CANVAS_H);
+  const [boardLayout, setBoardLayout] = useState({ w: cw, h: ch });
+
+  useLayoutEffect(() => {
+    setBoardLayout({ w: cw, h: ch });
+  }, [cw, ch, code]);
+
+  useLayoutEffect(() => {
+    const outer = containerRef.current;
+    const board = canvasRef.current;
+    if (!outer || !board) return;
+    const sync = () => {
+      const bw = Math.max(cw, board.offsetWidth, board.scrollWidth);
+      const bh = Math.max(ch, board.offsetHeight, board.scrollHeight);
+      const { width: ow, height: oh } = outer.getBoundingClientRect();
+      if (ow <= 0 || oh <= 0 || bw <= 0 || bh <= 0) return;
+      const s = Math.min(ow / bw, oh / bh);
       scaleRef.current = s;
       setScale(s);
+      setBoardLayout((prev) => (prev.w === bw && prev.h === bh ? prev : { w: bw, h: bh }));
     };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    sync();
+    const roOuter = new ResizeObserver(sync);
+    const roBoard = new ResizeObserver(sync);
+    roOuter.observe(outer);
+    roBoard.observe(board);
+    return () => {
+      roOuter.disconnect();
+      roBoard.disconnect();
+    };
+  }, [cw, ch, code]);
 
   const updateSelectionBoxes = useCallback(() => {
     const canvas = canvasRef.current;
@@ -182,26 +203,35 @@ export function EditablePreview({
     }
   }, [findWidgetFromPoint, onSelectionChange]);
 
+  const scaledW = boardLayout.w * scale;
+  const scaledH = boardLayout.h * scale;
+
   return (
     <div
       ref={containerRef}
-      className="w-full h-full flex items-center justify-center bg-gray-950 overflow-hidden relative"
+      className="min-h-0 w-full h-full flex flex-1 items-center justify-center bg-gray-950 overflow-hidden relative"
     >
-      <div
-        ref={canvasRef}
-        style={{
-          ...(cssVariables as React.CSSProperties | undefined),
-          width: CANVAS_W,
-          height: CANVAS_H,
-          transform: `scale(${scale})`,
-          transformOrigin: "center center",
-          flexShrink: 0,
-          position: "relative",
-        }}
-      >
-        <StableRenderer code={code} visualAssetsBlock={visualAssetsBlock} />
-        <div ref={overlayRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 8 }} />
-        <div ref={hoverBoxRef} style={{ display: "none", position: "absolute", pointerEvents: "none" }} />
+      <div className="relative shrink-0 overflow-hidden" style={{ width: scaledW, height: scaledH }}>
+        <div
+          ref={canvasRef}
+          style={{
+            ...(cssVariables as React.CSSProperties | undefined),
+            position: "absolute",
+            left: 0,
+            top: 0,
+            minWidth: cw,
+            minHeight: ch,
+            width: "max-content",
+            height: "max-content",
+            boxSizing: "border-box",
+            transform: `scale(${scale})`,
+            transformOrigin: "0 0",
+          }}
+        >
+          <StableRenderer code={code} visualAssetsBlock={visualAssetsBlock} />
+          <div ref={overlayRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 8 }} />
+          <div ref={hoverBoxRef} style={{ display: "none", position: "absolute", pointerEvents: "none" }} />
+        </div>
       </div>
 
       <div

@@ -1,69 +1,34 @@
 "use client";
 
 import React from "react";
-import { RasterizedSvgFill } from "@/components/dv-assets/rasterized-svg-fill";
-import type { SvgMarkupBuilderArgs } from "@/lib/rasterized-svg/svg-markup-types";
 import {
-  buildBoardPresetIcon1SvgMarkup,
-  buildBoardPresetIcon2SvgMarkup,
-  buildBoardPresetIcon3SvgMarkup,
-  buildBoardPresetIcon4SvgMarkup,
-  buildBoardPresetIcon5SvgMarkup,
-  buildBoardPresetIcon6SvgMarkup,
-} from "@/components/dv-assets/board/board-preset-icon-markups.generated";
+  DEFAULT_BOARD_PRESET_ICON_ID,
+  resolveBoardPresetIconId,
+  type BoardPresetIconId,
+} from "@/components/dv-assets/kpi-preset-icons/kpi-preset-icon-ids";
+import { KpiPresetIconById } from "@/components/dv-assets/kpi-preset-icons/kpi-preset-icon-by-id";
 
-export const BOARD_PRESET_ICON_IDS = [
-  "preset-icon-1",
-  "preset-icon-2",
-  "preset-icon-3",
-  "preset-icon-4",
-  "preset-icon-5",
-  "preset-icon-6",
-] as const;
-export type BoardPresetIconId = (typeof BOARD_PRESET_ICON_IDS)[number];
-
-type MarkupFn = (args: SvgMarkupBuilderArgs) => string;
-
-const BOARD_PRESET_ICON_MARKUP: Record<BoardPresetIconId, MarkupFn> = {
-  "preset-icon-1": buildBoardPresetIcon1SvgMarkup,
-  "preset-icon-2": buildBoardPresetIcon2SvgMarkup,
-  "preset-icon-3": buildBoardPresetIcon3SvgMarkup,
-  "preset-icon-4": buildBoardPresetIcon4SvgMarkup,
-  "preset-icon-5": buildBoardPresetIcon5SvgMarkup,
-  "preset-icon-6": buildBoardPresetIcon6SvgMarkup,
-};
+export { BOARD_PRESET_ICON_IDS, DEFAULT_BOARD_PRESET_ICON_ID, type BoardPresetIconId } from "@/components/dv-assets/kpi-preset-icons/kpi-preset-icon-ids";
 
 export type BoardPresetIconProps = {
-  /** 与 `.assets/icon/1.svg` … `6.svg` 一一对应 */
+  /** 语义 id（`kpi-*`）或旧版 `preset-icon-1` … `6` */
   id?: BoardPresetIconId | (string & {});
   className?: string;
   style?: React.CSSProperties;
+  /** 历史 API：旧 canvas 方案已移除，保留以兼容旧调用，无效果 */
   colorSourceRef?: React.RefObject<Element | null>;
+  /** 历史 API：无效果 */
   redrawToken?: number | string;
 };
 
 /**
- * 看板预设装饰图标（24×24 设计稿，canvas 栅格缩放）。生成 JSX 中写 `<BoardPresetIcon id="preset-icon-1" />`，无需 import。
+ * 看板预设装饰图标（纯 SVG + CSS 变量取色）。生成 JSX 中可写 `<BoardPresetIcon id="kpi-sync-refresh" />`，无需 import。
  */
 export function BoardPresetIcon({
-  id = "preset-icon-1",
+  id = DEFAULT_BOARD_PRESET_ICON_ID,
   className,
   style,
-  colorSourceRef,
-  redrawToken,
 }: BoardPresetIconProps) {
-  const resolved = (BOARD_PRESET_ICON_IDS as readonly string[]).includes(id as string)
-    ? (id as BoardPresetIconId)
-    : "preset-icon-1";
-  const buildSvgMarkup = BOARD_PRESET_ICON_MARKUP[resolved];
-  return (
-    <RasterizedSvgFill
-      className={className}
-      style={style}
-      colorSourceRef={colorSourceRef}
-      redrawToken={redrawToken}
-      buildSvgMarkup={buildSvgMarkup}
-      aria-hidden
-    />
-  );
+  const resolved = resolveBoardPresetIconId(id);
+  return <KpiPresetIconById id={resolved} className={className} style={style} />;
 }

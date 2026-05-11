@@ -12,9 +12,18 @@ import {
   projectConfigPath,
   projectRootDir,
   dvProjectsRoot,
+  type BoardKind,
   type ProjectConfig,
+  type ThemeMode,
 } from "@/lib/projects/project-config";
-import { parseProjectConfigJson, ensureProjectVisualAssets } from "@/lib/projects/parse-project-config";
+import {
+  parseProjectConfigJson,
+  ensureProjectBoardDefaults,
+  ensureProjectVisualAssets,
+} from "@/lib/projects/parse-project-config";
+import { getLayoutPreset } from "@/lib/board/board-layout-presets";
+import { createVisualAssetsForNewProject, getAssetKit } from "@/lib/projects/asset-kits";
+import { getScreenPreset } from "@/lib/board/screen-presets";
 
 export async function GET() {
   try {
@@ -39,7 +48,7 @@ export async function GET() {
       }
       const cfg = parseProjectConfigJson(raw);
       if (!cfg || cfg.id !== name) continue;
-      projects.push(ensureProjectVisualAssets(cfg));
+      projects.push(ensureProjectBoardDefaults(ensureProjectVisualAssets(cfg)));
     }
 
     projects.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
@@ -55,9 +64,23 @@ export async function POST(request: Request) {
     const body = (await request.json().catch(() => ({}))) as {
       name?: string;
       style?: string;
+      themeMode?: ThemeMode;
+      boardKind?: BoardKind;
+      layoutPresetId?: string;
+      assetKitId?: string;
+      screenPresetId?: string;
     };
     const name = typeof body.name === "string" ? body.name.trim() : "";
     const style = typeof body.style === "string" ? body.style.trim() : "";
+    const themeMode: ThemeMode = body.themeMode === "light" ? "light" : "dark";
+    const boardKind: BoardKind = body.boardKind === "wallboard" ? "wallboard" : "dashboard";
+    const layoutPresetId = getLayoutPreset(
+      typeof body.layoutPresetId === "string" ? body.layoutPresetId : undefined
+    ).id;
+    const assetKitId = getAssetKit(typeof body.assetKitId === "string" ? body.assetKitId : undefined).id;
+    const screenPresetId = getScreenPreset(
+      typeof body.screenPresetId === "string" ? body.screenPresetId : undefined
+    ).id;
     if (!name) {
       return NextResponse.json({ error: "Missing name" }, { status: 400 });
     }
@@ -73,14 +96,20 @@ export async function POST(request: Request) {
 
     const now = new Date().toISOString();
     const base: ProjectConfig = {
-      configVersion: 2,
+      configVersion: 3,
       id,
       name,
       style,
       createdAt: now,
       updatedAt: now,
+      themeMode,
+      boardKind,
+      layoutPresetId,
+      assetKitId,
+      screenPresetId,
+      visualAssets: createVisualAssetsForNewProject(assetKitId),
     };
-    const config = ensureProjectVisualAssets(base);
+    const config = ensureProjectBoardDefaults(ensureProjectVisualAssets(base));
     await writeFile(
       path.join(root, PROJECT_CONFIG_FILENAME),
       JSON.stringify(config, null, 2),

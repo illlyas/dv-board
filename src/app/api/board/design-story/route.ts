@@ -10,6 +10,8 @@
  */
 import { streamText } from "ai";
 import { createDeepSeekModel, toTextStreamResponse } from "@/lib/board-stream-utils";
+import { loadProjectConfigResolved } from "@/lib/projects/load-project-config";
+import { formatProjectBoardContextBlock } from "@/lib/projects/project-board-context";
 
 export const maxDuration = 120;
 
@@ -30,10 +32,17 @@ const SYSTEM_PROMPT = `你是一个数据可视化看板设计专家。根据用
 - **受众**：[主要使用者]
 - **决策支持**：[支持哪些决策]
 
-## 核心指标
-| 指标名称 | 类型 | 说明 |
-|---------|------|------|
-| [指标] | KPI/过程/诊断 | [说明] |
+## 核心指标（含 metricId，供 pages-story 与 JSX 引用）
+| 指标名称 | metricId | 类型 | 说明 |
+|---------|----------|------|------|
+| [中文名] | m_snake_id | KPI/过程/诊断 | [业务口径：聚合维度、时间窗] |
+
+## 指标呈现与数据契约（对齐 StatisticCard 式分区：标题/主值/辅值/趋势/微型证据/脚注）
+| metricId | 默认对比 | 呈现 layout | surface | 迷你序列字段名（可选） | 脚注要点（可选） | 向好方向 |
+|---------|----------|-------------|---------|------------------------|------------------|----------|
+| m_xxx | yoy/mom/target/无 | classic / header-inline / sidebar-stack / pedestal-row / metric-group-inline | card / none / hairline | 如 spark_sales | 口径一句 | 升或降为好 |
+
+**metricId** 全局唯一；**layout=surface=none** 用于顶栏无卡发光字；**metric-group-inline** 表示与其它指标同属一组（pages-story 中用 mode=group 引用）。
 
 ## 分析维度
 - [维度1]：[说明]
@@ -66,6 +75,7 @@ const SYSTEM_PROMPT = `你是一个数据可视化看板设计专家。根据用
 - 决策场景必须是"如果...则..."的可执行格式
 - 页面规划要有逻辑顺序（总览→详情→诊断）
 - 对于用户没有明确提供的信息，根据行业常识合理推断补全
+- **指标全链路**：每张 KPI 必须在「指标呈现与数据契约」表中占一行；若顶栏需多种形态（卡片 / 无卡 inline / 指标组），须在此表写清 layout/surface，避免下游只能生成同款卡。
 - **补充表单**：用户通过 Tags +「其它」提交的字段中，若以 **「其它：」** 开头表示自定义说明，必须把冒号后的语义写入对应章节（受众、对比方式、决策场景等），不得丢弃或仅写「其它」二字。
 
 ========================
@@ -81,6 +91,7 @@ export async function POST(request: Request) {
     brief?: string;
     answers?: Record<string, unknown>;
     existingStory?: string;
+    projectKey?: string;
   };
 
   const brief = body?.brief?.trim();
@@ -92,6 +103,15 @@ export async function POST(request: Request) {
 
   try {
     const model = createDeepSeekModel();
+
+    let system = SYSTEM_PROMPT;
+    const pk = typeof body.projectKey === "string" ? body.projectKey.trim() : "";
+    if (pk) {
+      const cfg = await loadProjectConfigResolved(process.cwd(), pk);
+      if (cfg) {
+        system += `\n\n若下列「项目场景契约」与上文默认假设冲突，**以本节为准**。\n\n${formatProjectBoardContextBlock(cfg)}`;
+      }
+    }
 
     let prompt = "";
 
@@ -123,7 +143,7 @@ ${existingStory}
       : "\n\n请根据以上信息生成完整的 Design Story 文档。";
     const result = streamText({
       model,
-      system: SYSTEM_PROMPT,
+      system,
       prompt,
     });
 

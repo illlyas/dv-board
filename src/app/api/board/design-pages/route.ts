@@ -9,6 +9,8 @@
 import { streamText } from "ai";
 import { createDeepSeekModel, toTextStreamResponse } from "@/lib/board-stream-utils";
 import { generateWidgetTypesSimple, getWidgetsByCategory } from "@/lib/widget-metadata";
+import { loadProjectConfigResolved } from "@/lib/projects/load-project-config";
+import { formatProjectBoardContextBlock } from "@/lib/projects/project-board-context";
 
 export const maxDuration = 120;
 
@@ -58,6 +60,12 @@ ${widgetTypesInfo}
 - pie → PieChart/DonutChart（饼图）
 - funnel → FunnelChart（漏斗图）
 - waterfall → BarChart（瀑布图）
+
+**KPI（pixel）与 Design Story 对齐**：组件清单中类型为 **pixel** 时，「数据说明」列必须引用 **metricId**，并可用分号分隔补充呈现参数（与 KPI Widget props 对应）：
+- 单指标示例：metricId=m_orders; layout=header-inline; surface=none; miniChart.seriesKey=orders_spark
+- 指标组（StatisticCard 式多 Stat）：mode=group; members=m_a+m_b+m_c; layout=metric-group-inline; surface=none  
+  members 中的 id 须与 Design Story「指标呈现与数据契约」表一致；下游生成 **groupItems**，每项独立 mock（父槽 dataSlotId.__成员 id）。
+- 同一页顶栏多个 pixel **尽量**混用 layout/surface（避免四张完全同款，软约束）。
 
 组件分析角色（analyticRole）：
 - headline：核心结论/标题（每页必须有）
@@ -123,7 +131,7 @@ ${widgetTypesInfo}
 | 序号 | 主视觉 | 组件标签 | 类型 | 分析角色 | 优先级 | 数据说明 | 设计理由 |
 |------|--------|---------|------|---------|--------|---------|---------|
 | 1 | | [标签] | text | headline | high | [数据说明] | [设计理由] |
-| 2 | | [标签] | pixel | headline | high | [数据说明] | [设计理由] |
+| 2 | | [标签] | pixel | headline | high | metricId=m_xxx; layout=…; surface=…（必填 metricId，可选 layout/surface/miniChart.seriesKey；指标组见上文 DSL） | [设计理由] |
 | 3 | ★ | [标签] | line | evidence | high | [数据说明] | [设计理由] |
 | ... | | | | | | | |
 
@@ -159,6 +167,7 @@ ${widgetTypesInfo}
 6. 页面之间必须有逻辑递进关系（总览 → 分析 → 诊断）
 7. 每个页面聚焦一个核心问题，叙事主轴落实在 **主视觉**（大图）上，其余图表环绕补充；主视觉必须在文案与表格「主视觉」列中显式标出，供代码生成定位到中栏
 8. **图表密度**：除 KPI（pixel）外每页至少 **5** 个图表/表类组件；宁可增加有意义的二级图、结构图、明细表，也不要少于 5 个导致版面空洞
+9. **KPI 全链路**：pixel 行「数据说明」必须含 **metricId**，并与 Design Story 指标契约表一致；需要迷你序列或指标组时写明 miniChart.seriesKey 或 mode=group
 
 ========================
 【增量修订模式】
@@ -194,6 +203,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     designStory?: string;
     existingPages?: string;
+    projectKey?: string;
   };
 
   const designStory = body?.designStory?.trim();
@@ -208,8 +218,14 @@ export async function POST(request: Request) {
 
     const model = createDeepSeekModel();
 
-    // 动态生成系统提示词
-    const systemPrompt = generateSystemPrompt();
+    let systemPrompt = generateSystemPrompt();
+    const pk = typeof body.projectKey === "string" ? body.projectKey.trim() : "";
+    if (pk) {
+      const cfg = await loadProjectConfigResolved(process.cwd(), pk);
+      if (cfg) {
+        systemPrompt += `\n\n若下列「项目场景契约」与上文默认假设（如主视觉默认落在中栏等）冲突，**以本节为准**。\n\n${formatProjectBoardContextBlock(cfg)}`;
+      }
+    }
 
     let userPrompt = "";
     if (existingPages) {

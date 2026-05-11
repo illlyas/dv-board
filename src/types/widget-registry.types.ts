@@ -28,6 +28,9 @@ export interface WidgetComponentProps<T = any> {
   
   /** 刷新数据 */
   onRefresh?: () => void;
+
+  /** 由 Widget 容器传入；指标组子项各自拉数时为 true */
+  enableWidgetData?: boolean;
 }
 
 /**

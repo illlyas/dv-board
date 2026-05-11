@@ -1,0 +1,2024 @@
+{
+  "version": 1,
+  "dashboardFile": "dashboard.jsx",
+  "updatedAt": "2026-05-10T05:45:52.064Z",
+  "pages": [
+    {
+      "pageIndex": 0,
+      "components": [
+        {
+          "slotId": "p0.kpi.output",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "output_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "产出率",
+            "dataKey": "output_rate_value",
+            "dataSlotId": "p0.kpi.output",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "件/h",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_output",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 148,
+              "unit": "件/h",
+              "trend": "up",
+              "trendValue": "+3.2%",
+              "comparison": {
+                "label": "目标",
+                "value": "155件/h"
+              },
+              "spark_output": [
+                142,
+                145,
+                139,
+                147,
+                151,
+                153,
+                148,
+                150,
+                146,
+                149,
+                144,
+                152
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:44:37.901Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.oeetrend",
+          "pageIndex": 0,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "oee_output_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "OEE & 产出率趋势",
+            "xAxis": {
+              "field": "date",
+              "label": "时间(小时)"
+            },
+            "yAxis": [
+              {
+                "field": "oee",
+                "label": "OEE (%)",
+                "color": "#22D3EE"
+              },
+              {
+                "field": "output_rate",
+                "label": "产出率 (件/h)",
+                "color": "#818CF8"
+              }
+            ],
+            "dataKey": "oee_output_trend",
+            "dataSlotId": "p0.chart.oeetrend",
+            "pageIndex": 0,
+            "showLegend": true
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "date": "2025-04-01 08:00",
+                "oee": 82.3,
+                "output_rate": 185
+              },
+              {
+                "date": "2025-04-01 09:00",
+                "oee": 85.7,
+                "output_rate": 192
+              },
+              {
+                "date": "2025-04-01 10:00",
+                "oee": 88.1,
+                "output_rate": 204
+              },
+              {
+                "date": "2025-04-01 11:00",
+                "oee": 79.6,
+                "output_rate": 170
+              },
+              {
+                "date": "2025-04-01 12:00",
+                "oee": 76.4,
+                "output_rate": 163
+              },
+              {
+                "date": "2025-04-01 13:00",
+                "oee": 81.2,
+                "output_rate": 178
+              },
+              {
+                "date": "2025-04-01 14:00",
+                "oee": 84.9,
+                "output_rate": 196
+              },
+              {
+                "date": "2025-04-01 15:00",
+                "oee": 87.5,
+                "output_rate": 210
+              },
+              {
+                "date": "2025-04-01 16:00",
+                "oee": 90.3,
+                "output_rate": 225
+              },
+              {
+                "date": "2025-04-01 17:00",
+                "oee": 83,
+                "output_rate": 188
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:38.856Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.failure",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "failure_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "故障率",
+            "dataKey": "failure_rate_value",
+            "dataSlotId": "p0.kpi.failure",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_failure",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "title": "故障率",
+              "value": 3.2,
+              "unit": "%",
+              "trend": "up",
+              "trendValue": "+0.5%",
+              "comparison": {
+                "label": "目标",
+                "value": "≤5%"
+              },
+              "spark_failure": [
+                2.8,
+                3.1,
+                2.9,
+                3,
+                3.3,
+                3.4,
+                3.1,
+                3.5,
+                3.6,
+                3.2
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:44:40.720Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.yield",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "yield_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "良品率",
+            "format": "percentage",
+            "dataKey": "yield_rate_value",
+            "dataSlotId": "p0.kpi.yield",
+            "pageIndex": 0,
+            "presetIconId": "kpi-insight-badge",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_yield",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 94.8,
+              "trend": "up",
+              "trendValue": "+0.3%",
+              "comparison": {
+                "label": "目标值",
+                "value": "95.0%"
+              },
+              "spark_yield": [
+                93.2,
+                93.8,
+                94.1,
+                94.5,
+                94.2,
+                94.6,
+                94.8,
+                95,
+                95.2,
+                95.1,
+                94.9,
+                95.3
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:44:42.657Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.oee",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "oee_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "OEE",
+            "dataKey": "oee_value",
+            "dataSlotId": "p0.kpi.oee",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "%",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_oee",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 78.4,
+              "trend": "up",
+              "trendValue": "+2.1%",
+              "comparison": {
+                "label": "目标",
+                "value": "85%"
+              },
+              "unit": "%"
+            },
+            "spark_oee": [
+              72.3,
+              74.1,
+              76.5,
+              75.8,
+              77.2,
+              78.4,
+              79.1,
+              78.9,
+              79.5,
+              78.4
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:44.818Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.outputbyworkshop",
+          "pageIndex": 0,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "workshop_output",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "各车间产出率对比",
+            "xAxis": {
+              "field": "workshop",
+              "label": "车间"
+            },
+            "yAxis": {
+              "field": "output_rate",
+              "label": "产出率 (件/h)"
+            },
+            "dataKey": "workshop_output",
+            "dataSlotId": "p0.chart.outputbyworkshop",
+            "pageIndex": 0,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "workshop": "一号车间",
+                "output_rate": 128
+              },
+              {
+                "workshop": "二号车间",
+                "output_rate": 142
+              },
+              {
+                "workshop": "三号车间",
+                "output_rate": 95
+              },
+              {
+                "workshop": "四号车间",
+                "output_rate": 110
+              },
+              {
+                "workshop": "五号车间",
+                "output_rate": 136
+              },
+              {
+                "workshop": "六号车间",
+                "output_rate": 87
+              },
+              {
+                "workshop": "七号车间",
+                "output_rate": 119
+              },
+              {
+                "workshop": "八号车间",
+                "output_rate": 104
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:45.931Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.order",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "order_completion_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "订单完成率",
+            "dataKey": "order_completion_value",
+            "dataSlotId": "p0.kpi.order",
+            "pageIndex": 0,
+            "presetIconId": "kpi-capsule",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_order",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 85.3,
+              "trend": "up",
+              "trendValue": "+2.1%",
+              "comparison": {
+                "label": "目标",
+                "value": "80%"
+              },
+              "unit": "%",
+              "title": "订单完成率"
+            },
+            "spark_order": [
+              78.5,
+              80.2,
+              82.1,
+              81.7,
+              83.4,
+              84,
+              85.1,
+              86.3,
+              85.9,
+              87.2
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:50.665Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.failuretop5",
+          "pageIndex": 0,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "failure_top5",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "设备故障率 Top5",
+            "xAxis": {
+              "field": "device",
+              "label": "设备"
+            },
+            "yAxis": {
+              "field": "failure_rate",
+              "label": "故障率 (%)"
+            },
+            "dataKey": "failure_top5",
+            "dataSlotId": "p0.chart.failuretop5",
+            "pageIndex": 0,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "device": "CNC-01",
+                "failure_rate": 14.2
+              },
+              {
+                "device": "Robot-03",
+                "failure_rate": 11.5
+              },
+              {
+                "device": "Conveyor-02",
+                "failure_rate": 9.8
+              },
+              {
+                "device": "AGV-05",
+                "failure_rate": 7.3
+              },
+              {
+                "device": "CNC-04",
+                "failure_rate": 5.6
+              },
+              {
+                "device": "Robot-01",
+                "failure_rate": 4.1
+              },
+              {
+                "device": "Conveyor-01",
+                "failure_rate": 2.8
+              },
+              {
+                "device": "AGV-03",
+                "failure_rate": 1.5
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:52.032Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.orderdonut",
+          "pageIndex": 0,
+          "widgetType": "DonutChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "order_completion_dist",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "DonutChart",
+            "title": "订单完成率分布",
+            "dataKey": "order_completion_dist",
+            "dataSlotId": "p0.chart.orderdonut",
+            "pageIndex": 0,
+            "showLegend": true,
+            "legendPosition": "right"
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "category": "已完成",
+                "value": 45
+              },
+              {
+                "category": "进行中",
+                "value": 20
+              },
+              {
+                "category": "未开始",
+                "value": 12
+              },
+              {
+                "category": "延迟",
+                "value": 8
+              },
+              {
+                "category": "部分完成",
+                "value": 6
+              },
+              {
+                "category": "已取消",
+                "value": 4
+              },
+              {
+                "category": "待审核",
+                "value": 3
+              },
+              {
+                "category": "返工中",
+                "value": 2
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:52.497Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.table.alerts",
+          "pageIndex": 0,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "alerts",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "title": "实时告警列表",
+            "columns": [
+              {
+                "field": "time",
+                "label": "时间",
+                "width": 120
+              },
+              {
+                "field": "device",
+                "label": "设备",
+                "width": 100
+              },
+              {
+                "field": "metric",
+                "label": "指标",
+                "width": 80
+              },
+              {
+                "field": "level",
+                "label": "级别",
+                "width": 70
+              },
+              {
+                "field": "status",
+                "label": "状态",
+                "width": 80
+              }
+            ],
+            "dataKey": "alerts",
+            "dataSlotId": "p0.table.alerts",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "time": "2025-01-15 14:23:45",
+                "device": "CNC-01",
+                "metric": "温度",
+                "level": "严重",
+                "status": "未处理"
+              },
+              {
+                "time": "2025-01-15 14:22:10",
+                "device": "Robot-03",
+                "metric": "振动",
+                "level": "警告",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-01-15 14:20:33",
+                "device": "传送带-07",
+                "metric": "速度",
+                "level": "信息",
+                "status": "已恢复"
+              },
+              {
+                "time": "2025-01-15 14:18:57",
+                "device": "AGV-12",
+                "metric": "电量",
+                "level": "警告",
+                "status": "未处理"
+              },
+              {
+                "time": "2025-01-15 14:15:22",
+                "device": "CNC-05",
+                "metric": "压力",
+                "level": "严重",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-01-15 14:12:08",
+                "device": "Robot-02",
+                "metric": "位置偏差",
+                "level": "警告",
+                "status": "未处理"
+              },
+              {
+                "time": "2025-01-15 14:09:44",
+                "device": "传送带-03",
+                "metric": "张力",
+                "level": "信息",
+                "status": "已恢复"
+              },
+              {
+                "time": "2025-01-15 14:06:30",
+                "device": "AGV-08",
+                "metric": "导航异常",
+                "level": "严重",
+                "status": "未处理"
+              },
+              {
+                "time": "2025-01-15 14:03:15",
+                "device": "CNC-02",
+                "metric": "刀具寿命",
+                "level": "警告",
+                "status": "已确认"
+              },
+              {
+                "time": "2025-01-15 14:00:01",
+                "device": "Robot-01",
+                "metric": "扭矩",
+                "level": "信息",
+                "status": "已恢复"
+              },
+              {
+                "time": "2025-01-15 13:57:48",
+                "device": "传送带-05",
+                "metric": "电流",
+                "level": "警告",
+                "status": "未处理"
+              },
+              {
+                "time": "2025-01-15 13:54:20",
+                "device": "AGV-15",
+                "metric": "刹车距离",
+                "level": "严重",
+                "status": "已确认"
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:44:55.986Z",
+          "source": "agent"
+        }
+      ]
+    },
+    {
+      "pageIndex": 1,
+      "components": [
+        {
+          "slotId": "p1.chart.outputbystation",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "station_output",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "各工位产出率分布",
+            "xAxis": {
+              "field": "station",
+              "label": "工位"
+            },
+            "yAxis": {
+              "field": "output_rate",
+              "label": "产出率 (件/h)"
+            },
+            "dataKey": "station_output",
+            "dataSlotId": "p1.chart.outputbystation",
+            "pageIndex": 1,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "station": "工位A",
+                "output_rate": 112
+              },
+              {
+                "station": "工位B",
+                "output_rate": 98
+              },
+              {
+                "station": "工位C",
+                "output_rate": 135
+              },
+              {
+                "station": "工位D",
+                "output_rate": 87
+              },
+              {
+                "station": "工位E",
+                "output_rate": 124
+              },
+              {
+                "station": "工位F",
+                "output_rate": 106
+              },
+              {
+                "station": "工位G",
+                "output_rate": 143
+              },
+              {
+                "station": "工位H",
+                "output_rate": 79
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:08.794Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.yieldvoutput",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "yield_output_scatter",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "良品率 vs 产出率分布",
+            "xAxis": {
+              "field": "output_rate",
+              "label": "产出率"
+            },
+            "yAxis": {
+              "field": "yield_rate",
+              "label": "良品率 (%)"
+            },
+            "dataKey": "yield_output_scatter",
+            "dataSlotId": "p1.chart.yieldvoutput",
+            "pageIndex": 1,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "output_rate": 0.82,
+                "yield_rate": 95.3
+              },
+              {
+                "output_rate": 0.85,
+                "yield_rate": 96.1
+              },
+              {
+                "output_rate": 0.78,
+                "yield_rate": 93.7
+              },
+              {
+                "output_rate": 0.91,
+                "yield_rate": 97.8
+              },
+              {
+                "output_rate": 0.88,
+                "yield_rate": 94.5
+              },
+              {
+                "output_rate": 0.76,
+                "yield_rate": 92
+              },
+              {
+                "output_rate": 0.93,
+                "yield_rate": 98.2
+              },
+              {
+                "output_rate": 0.8,
+                "yield_rate": 95
+              },
+              {
+                "output_rate": 0.86,
+                "yield_rate": 96.5
+              },
+              {
+                "output_rate": 0.84,
+                "yield_rate": 94.8
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:08.851Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.outputbyline",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "line_output_rank",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "各产线产出率排名",
+            "xAxis": {
+              "field": "line",
+              "label": "产线"
+            },
+            "yAxis": {
+              "field": "output_rate",
+              "label": "产出率 (件/h)"
+            },
+            "dataKey": "line_output_rank",
+            "dataSlotId": "p1.chart.outputbyline",
+            "pageIndex": 1,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "line": "产线A",
+                "output_rate": 128.5
+              },
+              {
+                "line": "产线B",
+                "output_rate": 145.2
+              },
+              {
+                "line": "产线C",
+                "output_rate": 112.3
+              },
+              {
+                "line": "产线D",
+                "output_rate": 137.8
+              },
+              {
+                "line": "产线E",
+                "output_rate": 98.6
+              },
+              {
+                "line": "产线F",
+                "output_rate": 152.1
+              },
+              {
+                "line": "产线G",
+                "output_rate": 119.4
+              },
+              {
+                "line": "产线H",
+                "output_rate": 104.7
+              },
+              {
+                "line": "产线I",
+                "output_rate": 141.9
+              },
+              {
+                "line": "产线J",
+                "output_rate": 133.2
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:10.353Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.kpi.output",
+          "pageIndex": 1,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "output_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "产出率",
+            "dataKey": "output_rate_value",
+            "dataSlotId": "p1.kpi.output",
+            "pageIndex": 1,
+            "presetIconId": "kpi-package",
+            "unit": "件/h",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_output",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 98.5,
+              "trend": "up",
+              "trendValue": "+3.2%",
+              "comparison": {
+                "label": "同比",
+                "value": "+5.1%"
+              },
+              "unit": "件/h",
+              "footerText": "目标 ≥100件/h",
+              "spark_output": [
+                85,
+                88,
+                92,
+                95,
+                93,
+                97,
+                99,
+                101,
+                98,
+                96,
+                100,
+                102
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:45:11.462Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.kpi.failure",
+          "pageIndex": 1,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "failure_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "故障率",
+            "dataKey": "failure_rate_value",
+            "dataSlotId": "p1.kpi.failure",
+            "pageIndex": 1,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_failure",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 3.2,
+              "trend": "up",
+              "trendValue": "+0.5%",
+              "comparison": {
+                "label": "目标值",
+                "value": "5%"
+              },
+              "spark_failure": [
+                2.8,
+                3.1,
+                2.9,
+                3.4,
+                3.6,
+                3.3,
+                3.7,
+                3.5,
+                3.8,
+                4,
+                3.9,
+                3.2
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:45:12.987Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.failuretopbyline",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_failure_rank",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "设备故障率排行榜",
+            "xAxis": {
+              "field": "device",
+              "label": "设备"
+            },
+            "yAxis": {
+              "field": "failure_rate",
+              "label": "故障率 (%)"
+            },
+            "dataKey": "device_failure_rank",
+            "dataSlotId": "p1.chart.failuretopbyline",
+            "pageIndex": 1,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "device": "设备A",
+                "failure_rate": 2.3
+              },
+              {
+                "device": "设备B",
+                "failure_rate": 5.8
+              },
+              {
+                "device": "设备C",
+                "failure_rate": 1.2
+              },
+              {
+                "device": "设备D",
+                "failure_rate": 8.4
+              },
+              {
+                "device": "设备E",
+                "failure_rate": 3.6
+              },
+              {
+                "device": "设备F",
+                "failure_rate": 6.1
+              },
+              {
+                "device": "设备G",
+                "failure_rate": 4.5
+              },
+              {
+                "device": "设备H",
+                "failure_rate": 7.9
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:13.390Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.kpi.yield",
+          "pageIndex": 1,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "yield_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "良品率",
+            "dataKey": "yield_rate_value",
+            "dataSlotId": "p1.kpi.yield",
+            "pageIndex": 1,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_yield",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 94.2,
+              "trend": "down",
+              "trendValue": "-0.8%",
+              "comparison": {
+                "label": "目标",
+                "value": "95%"
+              },
+              "unit": "%",
+              "spark_yield": [
+                92.1,
+                93.5,
+                94,
+                93.8,
+                94.5,
+                94.1,
+                93.6,
+                94.2,
+                93.9,
+                94.4,
+                94.3,
+                94.6
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:45:17.130Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.yieldbyprodtype",
+          "pageIndex": 1,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "product_yield",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "产品类型良品率对比",
+            "xAxis": {
+              "field": "product_type",
+              "label": "产品类型"
+            },
+            "yAxis": {
+              "field": "yield_rate",
+              "label": "良品率 (%)"
+            },
+            "dataKey": "product_yield",
+            "dataSlotId": "p1.chart.yieldbyprodtype",
+            "pageIndex": 1,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "product_type": "集成电路",
+                "yield_rate": 96.5
+              },
+              {
+                "product_type": "传感器",
+                "yield_rate": 94.2
+              },
+              {
+                "product_type": "执行器",
+                "yield_rate": 91.8
+              },
+              {
+                "product_type": "控制器",
+                "yield_rate": 97.1
+              },
+              {
+                "product_type": "连接器",
+                "yield_rate": 93.5
+              },
+              {
+                "product_type": "继电器",
+                "yield_rate": 88.4
+              },
+              {
+                "product_type": "变压器",
+                "yield_rate": 95
+              },
+              {
+                "product_type": "电源模块",
+                "yield_rate": 92.3
+              },
+              {
+                "product_type": "滤波器",
+                "yield_rate": 89.7
+              },
+              {
+                "product_type": "电感器",
+                "yield_rate": 90.6
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:17.825Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.table.batchquality",
+          "pageIndex": 1,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "batch_quality",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "title": "物料批次质量明细",
+            "columns": [
+              {
+                "field": "batch",
+                "label": "批次号",
+                "width": 120
+              },
+              {
+                "field": "product_type",
+                "label": "产品类型",
+                "width": 100
+              },
+              {
+                "field": "line",
+                "label": "产线",
+                "width": 100
+              },
+              {
+                "field": "yield_rate",
+                "label": "良品率 (%)",
+                "width": 100
+              },
+              {
+                "field": "time",
+                "label": "时间",
+                "width": 120
+              }
+            ],
+            "dataKey": "batch_quality",
+            "dataSlotId": "p1.table.batchquality",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "batch": "B24001",
+                "product_type": "电子元件",
+                "line": "产线A",
+                "yield_rate": 98.3,
+                "time": "2025-03-10 08:30:00"
+              },
+              {
+                "batch": "B24002",
+                "product_type": "机械组件",
+                "line": "产线B",
+                "yield_rate": 95.6,
+                "time": "2025-03-10 08:45:00"
+              },
+              {
+                "batch": "B24003",
+                "product_type": "电子元件",
+                "line": "产线C",
+                "yield_rate": 97.1,
+                "time": "2025-03-10 09:00:00"
+              },
+              {
+                "batch": "B24004",
+                "product_type": "塑料件",
+                "line": "产线A",
+                "yield_rate": 93.8,
+                "time": "2025-03-10 09:15:00"
+              },
+              {
+                "batch": "B24005",
+                "product_type": "机械组件",
+                "line": "产线C",
+                "yield_rate": 96.2,
+                "time": "2025-03-10 09:30:00"
+              },
+              {
+                "batch": "B24006",
+                "product_type": "电子元件",
+                "line": "产线B",
+                "yield_rate": 99,
+                "time": "2025-03-10 09:45:00"
+              },
+              {
+                "batch": "B24007",
+                "product_type": "塑料件",
+                "line": "产线A",
+                "yield_rate": 94.5,
+                "time": "2025-03-10 10:00:00"
+              },
+              {
+                "batch": "B24008",
+                "product_type": "机械组件",
+                "line": "产线C",
+                "yield_rate": 97.8,
+                "time": "2025-03-10 10:15:00"
+              },
+              {
+                "batch": "B24009",
+                "product_type": "电子元件",
+                "line": "产线A",
+                "yield_rate": 96.7,
+                "time": "2025-03-10 10:30:00"
+              },
+              {
+                "batch": "B24010",
+                "product_type": "塑料件",
+                "line": "产线B",
+                "yield_rate": 92.1,
+                "time": "2025-03-10 10:45:00"
+              },
+              {
+                "batch": "B24011",
+                "product_type": "机械组件",
+                "line": "产线B",
+                "yield_rate": 98.6,
+                "time": "2025-03-10 11:00:00"
+              },
+              {
+                "batch": "B24012",
+                "product_type": "电子元件",
+                "line": "产线C",
+                "yield_rate": 95.3,
+                "time": "2025-03-10 11:15:00"
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:25.754Z",
+          "source": "agent"
+        }
+      ]
+    },
+    {
+      "pageIndex": 2,
+      "components": [
+        {
+          "slotId": "p2.chart.energytrend",
+          "pageIndex": 2,
+          "widgetType": "AreaChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "energy_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "AreaChart",
+            "title": "能耗按车间趋势与基准",
+            "xAxis": {
+              "field": "date",
+              "label": "时间(日)"
+            },
+            "yAxis": [
+              {
+                "field": "energy_workshopA",
+                "label": "车间A (kWh)",
+                "color": "#22D3EE"
+              },
+              {
+                "field": "energy_workshopB",
+                "label": "车间B (kWh)",
+                "color": "#38BDF8"
+              }
+            ],
+            "dataKey": "energy_trend",
+            "dataSlotId": "p2.chart.energytrend",
+            "pageIndex": 2,
+            "showLegend": true
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "date": "2025-03-01",
+                "energy_workshopA": 320,
+                "energy_workshopB": 285
+              },
+              {
+                "date": "2025-03-02",
+                "energy_workshopA": 345,
+                "energy_workshopB": 276
+              },
+              {
+                "date": "2025-03-03",
+                "energy_workshopA": 318,
+                "energy_workshopB": 302
+              },
+              {
+                "date": "2025-03-04",
+                "energy_workshopA": 332,
+                "energy_workshopB": 295
+              },
+              {
+                "date": "2025-03-05",
+                "energy_workshopA": 356,
+                "energy_workshopB": 310
+              },
+              {
+                "date": "2025-03-06",
+                "energy_workshopA": 340,
+                "energy_workshopB": 288
+              },
+              {
+                "date": "2025-03-07",
+                "energy_workshopA": 327,
+                "energy_workshopB": 301
+              },
+              {
+                "date": "2025-03-08",
+                "energy_workshopA": 361,
+                "energy_workshopB": 315
+              },
+              {
+                "date": "2025-03-09",
+                "energy_workshopA": 350,
+                "energy_workshopB": 298
+              },
+              {
+                "date": "2025-03-10",
+                "energy_workshopA": 338,
+                "energy_workshopB": 290
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:34.377Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.autotrend",
+          "pageIndex": 2,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "auto_rate_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "自动化控制率趋势",
+            "xAxis": {
+              "field": "date",
+              "label": "时间(日)"
+            },
+            "yAxis": {
+              "field": "auto_control",
+              "label": "控制率 (%)"
+            },
+            "dataKey": "auto_rate_trend",
+            "dataSlotId": "p2.chart.autotrend",
+            "pageIndex": 2,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "date": "2025-03-01",
+                "auto_control": 85.2
+              },
+              {
+                "date": "2025-03-02",
+                "auto_control": 87.6
+              },
+              {
+                "date": "2025-03-03",
+                "auto_control": 83.1
+              },
+              {
+                "date": "2025-03-04",
+                "auto_control": 90.4
+              },
+              {
+                "date": "2025-03-05",
+                "auto_control": 88.7
+              },
+              {
+                "date": "2025-03-06",
+                "auto_control": 91.3
+              },
+              {
+                "date": "2025-03-07",
+                "auto_control": 86.9
+              },
+              {
+                "date": "2025-03-08",
+                "auto_control": 89.5
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:34.845Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.healthscore",
+          "pageIndex": 2,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "health_score_rank",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "设备健康度评分排行榜",
+            "xAxis": {
+              "field": "device",
+              "label": "设备"
+            },
+            "yAxis": {
+              "field": "health_score",
+              "label": "健康评分 (0-100)"
+            },
+            "dataKey": "health_score_rank",
+            "dataSlotId": "p2.chart.healthscore",
+            "pageIndex": 2,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "device": "CNC-001",
+                "health_score": 92
+              },
+              {
+                "device": "CNC-002",
+                "health_score": 78
+              },
+              {
+                "device": "ROB-001",
+                "health_score": 85
+              },
+              {
+                "device": "ROB-002",
+                "health_score": 63
+              },
+              {
+                "device": "CON-001",
+                "health_score": 71
+              },
+              {
+                "device": "CON-002",
+                "health_score": 88
+              },
+              {
+                "device": "AGV-001",
+                "health_score": 54
+              },
+              {
+                "device": "AGV-002",
+                "health_score": 69
+              },
+              {
+                "device": "LAS-001",
+                "health_score": 96
+              },
+              {
+                "device": "LAS-002",
+                "health_score": 45
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:35.091Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.kpi.energy",
+          "pageIndex": 2,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "energy_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "能耗",
+            "dataKey": "energy_value",
+            "dataSlotId": "p2.kpi.energy",
+            "pageIndex": 2,
+            "presetIconId": "kpi-insight-badge",
+            "unit": "kWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_energy",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 1234.5,
+              "unit": "kWh",
+              "trend": "up",
+              "trendValue": "+5.2%",
+              "comparison": {
+                "label": "行业基准",
+                "value": "1100 kWh"
+              },
+              "spark_energy": [
+                1200,
+                1180,
+                1220,
+                1240,
+                1230,
+                1250,
+                1260,
+                1245,
+                1235,
+                1248
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:45:38.470Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.kpi.failure",
+          "pageIndex": 2,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "failure_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "故障率",
+            "dataKey": "failure_rate_value",
+            "dataSlotId": "p2.kpi.failure",
+            "pageIndex": 2,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_failure",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 4.12,
+              "trend": "up",
+              "trendValue": "+0.56%",
+              "comparison": {
+                "label": "环比昨日",
+                "value": "+0.56%"
+              },
+              "spark_failure": [
+                3.56,
+                3.62,
+                3.78,
+                3.85,
+                3.91,
+                4.02,
+                4.08,
+                4.15,
+                4.09,
+                4.22,
+                4.18,
+                4.12
+              ]
+            }
+          },
+          "filledAt": "2026-05-10T05:45:38.725Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.chart.energymom",
+          "pageIndex": 2,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "energy_mom",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "单位能耗环比下降率",
+            "xAxis": {
+              "field": "workshop",
+              "label": "车间"
+            },
+            "yAxis": {
+              "field": "change_rate",
+              "label": "环比变化率 (%)"
+            },
+            "dataKey": "energy_mom",
+            "dataSlotId": "p2.chart.energymom",
+            "pageIndex": 2,
+            "showLegend": false
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "workshop": "一车间",
+                "change_rate": 3.2
+              },
+              {
+                "workshop": "二车间",
+                "change_rate": -1.5
+              },
+              {
+                "workshop": "三车间",
+                "change_rate": 5.8
+              },
+              {
+                "workshop": "四车间",
+                "change_rate": -2.1
+              },
+              {
+                "workshop": "五车间",
+                "change_rate": 0.4
+              },
+              {
+                "workshop": "六车间",
+                "change_rate": -4.7
+              },
+              {
+                "workshop": "七车间",
+                "change_rate": 7.3
+              },
+              {
+                "workshop": "八车间",
+                "change_rate": -0.9
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:40.586Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.kpi.auto_control",
+          "pageIndex": 2,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "auto_control_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "自动化控制率",
+            "dataKey": "auto_control_value",
+            "dataSlotId": "p2.kpi.auto_control",
+            "pageIndex": 2,
+            "presetIconId": "kpi-capsule",
+            "unit": "%",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            },
+            "miniChart": {
+              "seriesKey": "spark_auto",
+              "kind": "line",
+              "height": 32
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 93.2,
+              "trend": "up",
+              "trendValue": "+2.1%",
+              "comparison": {
+                "label": "环比上月",
+                "value": "+2.1%"
+              },
+              "unit": "%"
+            },
+            "spark_auto": [
+              92.1,
+              93,
+              91.5,
+              92.8,
+              93.5,
+              92.3,
+              93.1,
+              92.9,
+              93.4,
+              93.2,
+              93,
+              92.7
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:46.083Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p2.table.batchtrace",
+          "pageIndex": 2,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "batch_trace",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "title": "物料批次质量追溯表",
+            "columns": [
+              {
+                "field": "batch",
+                "label": "批次号",
+                "width": 120
+              },
+              {
+                "field": "product_type",
+                "label": "产品类型",
+                "width": 100
+              },
+              {
+                "field": "line",
+                "label": "产线",
+                "width": 100
+              },
+              {
+                "field": "yield_rate",
+                "label": "良品率 (%)",
+                "width": 80
+              },
+              {
+                "field": "faults",
+                "label": "故障记录",
+                "width": 120
+              },
+              {
+                "field": "time",
+                "label": "时间",
+                "width": 120
+              }
+            ],
+            "dataKey": "batch_trace",
+            "dataSlotId": "p2.table.batchtrace",
+            "pageIndex": 2
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "batch": "B202501001",
+                "product_type": "A型轴承",
+                "line": "产线1",
+                "yield_rate": 98.5,
+                "faults": "无",
+                "time": "2025-01-15 08:30"
+              },
+              {
+                "batch": "B202501002",
+                "product_type": "B型齿轮",
+                "line": "产线2",
+                "yield_rate": 96.2,
+                "faults": "表面划痕",
+                "time": "2025-01-15 09:15"
+              },
+              {
+                "batch": "B202501003",
+                "product_type": "C型法兰",
+                "line": "产线1",
+                "yield_rate": 93.8,
+                "faults": "尺寸偏差",
+                "time": "2025-01-16 10:00"
+              },
+              {
+                "batch": "B202501004",
+                "product_type": "A型轴承",
+                "line": "产线3",
+                "yield_rate": 97.1,
+                "faults": "无",
+                "time": "2025-01-16 11:20"
+              },
+              {
+                "batch": "B202501005",
+                "product_type": "D型密封圈",
+                "line": "产线2",
+                "yield_rate": 99,
+                "faults": "无",
+                "time": "2025-01-17 14:00"
+              },
+              {
+                "batch": "B202501006",
+                "product_type": "B型齿轮",
+                "line": "产线1",
+                "yield_rate": 92.5,
+                "faults": "热处理不均",
+                "time": "2025-01-17 15:30"
+              },
+              {
+                "batch": "B202501007",
+                "product_type": "A型轴承",
+                "line": "产线2",
+                "yield_rate": 96.8,
+                "faults": "无",
+                "time": "2025-01-18 08:00"
+              },
+              {
+                "batch": "B202501008",
+                "product_type": "C型法兰",
+                "line": "产线3",
+                "yield_rate": 94.3,
+                "faults": "气孔缺陷",
+                "time": "2025-01-18 09:45"
+              },
+              {
+                "batch": "B202501009",
+                "product_type": "D型密封圈",
+                "line": "产线1",
+                "yield_rate": 98.9,
+                "faults": "无",
+                "time": "2025-01-19 10:30"
+              },
+              {
+                "batch": "B202501010",
+                "product_type": "B型齿轮",
+                "line": "产线3",
+                "yield_rate": 95.6,
+                "faults": "齿面磨损",
+                "time": "2025-01-19 11:10"
+              },
+              {
+                "batch": "B202501011",
+                "product_type": "A型轴承",
+                "line": "产线2",
+                "yield_rate": 97.4,
+                "faults": "无",
+                "time": "2025-01-20 13:00"
+              },
+              {
+                "batch": "B202501012",
+                "product_type": "C型法兰",
+                "line": "产线1",
+                "yield_rate": 91.2,
+                "faults": "毛刺超标",
+                "time": "2025-01-20 14:20"
+              }
+            ]
+          },
+          "filledAt": "2026-05-10T05:45:52.058Z",
+          "source": "agent"
+        }
+      ]
+    }
+  ]
+}

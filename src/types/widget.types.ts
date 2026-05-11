@@ -171,12 +171,36 @@ export interface DataBinding {
 // KPI 组件配置
 // ============================================================================
 
+/** L5 微型图（KPI 内 ECharts；数据取自 data[seriesKey]） */
+export interface KPIMiniChartConfig {
+  seriesKey: string;
+  kind?: "line" | "bar";
+  xField?: string;
+  yField?: string;
+  height?: number;
+}
+
 export interface KPIProps extends BaseWidgetProps, DataBinding {
   /**
-   * 看板预设矢量图标（与 `BoardPresetIcon` 一致），取值 `preset-icon-1` … `preset-icon-6`。
-   * 若设置则显示在卡片右上角（栅格图标）；与 `icon` 字符串并存时 **以此为准**。
+   * 看板预设矢量图标（与 `BoardPresetIcon`、`src/components/dv-assets/kpi-preset-icons` 内联 SVG 一致）。
+   * 优先使用语义 id：`kpi-sync-refresh`、`kpi-analytics-bars`、`kpi-insight-badge`、`kpi-capsule`、`kpi-pharmacy`、`kpi-package`；
+   * 仍兼容旧值 `preset-icon-1` … `preset-icon-6`。
+   * 若设置则显示在卡片右上角；与 `icon` 字符串并存时 **以此为准**。
    */
-  presetIconId?: "preset-icon-1" | "preset-icon-2" | "preset-icon-3" | "preset-icon-4" | "preset-icon-5" | "preset-icon-6" | (string & {});
+  presetIconId?:
+    | "kpi-sync-refresh"
+    | "kpi-analytics-bars"
+    | "kpi-insight-badge"
+    | "kpi-capsule"
+    | "kpi-pharmacy"
+    | "kpi-package"
+    | "preset-icon-1"
+    | "preset-icon-2"
+    | "preset-icon-3"
+    | "preset-icon-4"
+    | "preset-icon-5"
+    | "preset-icon-6"
+    | (string & {});
 
   /** 数值字段 */
   valueKey?: string;
@@ -217,6 +241,67 @@ export interface KPIProps extends BaseWidgetProps, DataBinding {
   
   /** 背景渐变 */
   gradient?: [string, string];
+
+  /**
+   * 呈现：表面形态与布局；主数值发光跟随主题 `--kpi-glow-base`（颜色），可用 valueGlow: off 关闭。
+   */
+  presentation?: {
+    surface?: "none" | "card" | "hairline";
+    layout?:
+      | "classic"
+      | "header-inline"
+      | "sidebar-stack"
+      | "pedestal-row"
+      | "metric-group-inline";
+    valueGlow?: "inherit" | "off";
+  };
+
+  /** 脚注文案；可被 data.footerText 覆盖 */
+  footer?: string;
+
+  /** 并列第二指标（数据取自 data[valueKey] 或 comparison） */
+  secondaryStatistic?: {
+    label: string;
+    valueKey?: string;
+    format?: "number" | "currency" | "percentage" | "decimal";
+    precision?: number;
+    prefix?: string;
+    suffix?: string;
+  };
+
+  /** L5 微型序列（ECharts）；序列数据在 data[miniChart.seriesKey] */
+  miniChart?: KPIMiniChartConfig;
+
+  /**
+   * 指标组：每项独立拉取数据（预览 mock 槽位为 `props.dataSlotId` + `.__` + `item.id`）；
+   * 渲染仍按各条目的 valueKey 从对应 data 取值。
+   */
+  groupItems?: KPIWidgetGroupItem[];
+}
+
+/** 指标组内单项（与 KPIProps 配合；presetIconId 与 KPI 一致） */
+export interface KPIWidgetGroupItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  valueKey: string;
+  unit?: string;
+  prefix?: string;
+  suffix?: string;
+  format?: "number" | "currency" | "percentage" | "decimal";
+  precision?: number;
+  presetIconId?: KPIProps["presetIconId"];
+  trend?: boolean;
+  trendDirection?: "up" | "down" | "flat";
+  trendValue?: string | number;
+  trendValueKey?: string;
+  comparison?: {
+    type: "yoy" | "mom" | "wow" | "target";
+    label?: string;
+    value?: string | number;
+    valueKey?: string;
+  };
+  miniChart?: KPIMiniChartConfig;
 }
 
 // ============================================================================
@@ -299,7 +384,7 @@ export interface ChartCommonProps extends BaseWidgetProps, DataBinding {
   dataLabelColor?: string;
 
   /**
-   * 合并进 ECharts option（置于内置映射之后）；`series` 若提供则整体替换内置 series。
+   * 合并进 ECharts option（置于内置映射之后）；`series` 若为数组则按索引与内置 series 合并（保留内置 `data`）。
    * 画布内颜色请用 hex/rgb（可与 colorScheme 一致），勿写 var()。
    */
   echartsOptionOverrides?: EChartsOption;
@@ -310,6 +395,12 @@ export interface ChartCommonProps extends BaseWidgetProps, DataBinding {
 // ============================================================================
 
 export interface LineChartProps extends ChartCommonProps {
+  /**
+   * 多条 `yAxis` 配置时使用多个 ECharts 数值轴（如左右 Y 轴、不同量纲）。
+   * 未设置时：若 `echartsOptionOverrides.series` 中某条含 `yAxisIndex >= 1` 也会自动启用。
+   */
+  dualYAxis?: boolean;
+
   /** 是否填充区域 */
   area?: boolean;
   

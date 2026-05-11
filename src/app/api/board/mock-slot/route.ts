@@ -50,7 +50,38 @@ kind 与 value 规则：
 约束：
 - 只输出合法 JSON，字符串使用双引号。
 - 业务含义与「页面故事」摘要一致；若无摘要则生成通用中文业务名。
-- 禁止在 JSON 外输出任何字符。`;
+- 禁止在 JSON 外输出任何字符。
+
+【KPI】widgetType 为 KPI / Metric / StatCard 时：value 为单指标对象（含 value、trend、comparison 等）；含 miniChart.seriesKey 时根级须有同名数组（≥10 点）；含 footer 时在 value 中带 footerText。`;
+}
+
+function buildKpiMockAppendix(widgetType: string, propsSnapshot: Record<string, unknown>): string {
+  const t = widgetType.trim().toLowerCase();
+  if (!["kpi", "metric", "statcard"].includes(t)) return "";
+  let s =
+    "\n\n【本槽 KPI 形状约束】payload.kind=kpiValue；value 为单指标对象（非多指标合并对象）。";
+  const mc = propsSnapshot.miniChart as { seriesKey?: string } | undefined;
+  if (mc?.seriesKey) {
+    s += ` 必须包含根字段 "${mc.seriesKey}" 为非空数组（迷你图）。`;
+  }
+  if (typeof propsSnapshot.footer === "string" && propsSnapshot.footer.trim()) {
+    s += " 含 footerText 脚注文案。";
+  }
+  return s;
+}
+
+function buildPieMockAppendix(widgetType: string, propsSnapshot: Record<string, unknown>): string {
+  const t = widgetType.trim().toLowerCase();
+  if (!["piechart", "donutchart", "funnel"].includes(t)) return "";
+  const nf =
+    typeof propsSnapshot.nameField === "string" && propsSnapshot.nameField.trim()
+      ? propsSnapshot.nameField.trim()
+      : "name";
+  const vf =
+    typeof propsSnapshot.valueField === "string" && propsSnapshot.valueField.trim()
+      ? propsSnapshot.valueField.trim()
+      : "value";
+  return `\n\n【本槽饼/环图形状约束】payload.kind=seriesRows；value 为对象数组（≥5 项）。每一项必须同时包含字段 "${nf}"（分类名，字符串）与 "${vf}"（非负数值，扇区大小）；禁止只用 category/value 等与上述字段不一致的键名。`;
 }
 
 export async function POST(request: Request) {
@@ -98,10 +129,13 @@ export async function POST(request: Request) {
         ? "\n\n【强制】当前 role 为 filter-options，payload.kind 必须是 selectOptions，value 为 {label,value}[]。"
         : "";
 
+    const kpiHint = buildKpiMockAppendix(widgetType.trim(), propsSnapshot);
+    const pieHint = buildPieMockAppendix(widgetType.trim(), propsSnapshot);
+
     const { text } = await generateText({
       model,
       system: buildSystemPrompt(),
-      prompt: `请根据以下输入生成 payload：\n${JSON.stringify(userPayload, null, 2)}${roleHint}`,
+      prompt: `请根据以下输入生成 payload：\n${JSON.stringify(userPayload, null, 2)}${roleHint}${kpiHint}${pieHint}`,
       temperature: 0.4,
     });
 

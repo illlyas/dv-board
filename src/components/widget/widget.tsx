@@ -82,6 +82,12 @@ export function Widget({
     props as Record<string, unknown>
   );
 
+  const groupItems = (props as { groupItems?: unknown }).groupItems;
+  const isKpiMetricGroup =
+    (type === "KPI" || type === "Metric" || type === "StatCard") &&
+    Array.isArray(groupItems) &&
+    groupItems.length > 0;
+
   // 获取数据（将 widget type 一并传入，以便根据 type 生成正确形状的 mock 数据）
   const { data, loading, error, refresh } = useWidgetData({
     dataKey: props.dataKey,
@@ -89,7 +95,7 @@ export function Widget({
     query: props.query,
     staticData: props.staticData,
     widgetType: type,
-    enabled: enableData,
+    enabled: enableData && !isKpiMetricGroup,
     dataSlotId: resolvedSlotId,
     pageIndex: resolvedPageIndex,
     filterHasStaticOptions,
@@ -124,10 +130,11 @@ export function Widget({
     >
       <Component
         config={resolvedConfig}
-        data={data}
-        loading={loading}
+        data={isKpiMetricGroup ? null : data}
+        loading={isKpiMetricGroup ? false : loading}
         error={error}
         onRefresh={refresh}
+        enableWidgetData={enableData}
       />
     </div>
   );

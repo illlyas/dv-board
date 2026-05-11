@@ -1,0 +1,8 @@
+{
+  "id": "wind-easyv-hud",
+  "title": "EASYV 风电智慧运营（2560×760）",
+  "description": "超宽低高度三列 HUD：左发电量与项目/装机图，中 KPI 与地图预留，右物流与运维图；深色霓虹绿主色，图表走 CSS token。",
+  "tags": ["风电", "能源", "2560×760", "三列", "深色"],
+  "dashboardFile": "dashboard.jsx",
+  "screenPresetId": "2560x760"
+}

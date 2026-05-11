@@ -1,0 +1,48 @@
+/**
+ * KPI 指标域 Token（--kpi-* 扩展）
+ * - 主数值「霓虹发光」：请只使用 --kpi-glow-base（颜色语义）。勿将 var(--color-border) 等颜色赋给 text-shadow 变量，会导致整条声明非法。
+ * - 多层 blur 由组件内固定公式 + color-mix 生成；transparent = 关闭发光。
+ */
+
+:root {
+  /* 主数值字号（台阶，禁止组件内写死 px） */
+  --kpi-font-size-value: var(--font-size-3xl, 1.875rem);
+  --kpi-font-size-value-compact: var(--font-size-2xl, 1.5rem);
+  --kpi-font-size-label: var(--font-size-sm, 0.8125rem);
+  --kpi-font-size-footnote: var(--font-size-xs, 0.75rem);
+
+  /**
+   * 发光色相（仅颜色）。大屏霓虹示例：var(--color-primary)
+   * 默认 transparent = 无发光；勿再使用「整条 text-shadow 字符串」以外的边框色映射到此键以外的 shadow 变量。
+   */
+  --kpi-glow-base: transparent;
+
+  /** 发光几何（合法 shadow 参数，可与 VI 微调强弱） */
+  --kpi-glow-offset-y: 2px;
+  --kpi-glow-blur-inner: 16px;
+  --kpi-glow-blur-outer: 30px;
+  /** color-mix 中发光色的占比（越高越亮，建议 0.72～0.85） */
+  --kpi-glow-alpha-inner: 78%;
+  --kpi-glow-alpha-outer: 46%;
+
+  /* 涨跌语义（回落到全局语义色） */
+  --kpi-delta-up: var(--color-success, #22c55e);
+  --kpi-delta-down: var(--color-danger, #ef4444);
+  --kpi-delta-flat: var(--kpi-text-muted, rgba(255, 255, 255, 0.45));
+
+  /* 指标组分隔（hairline surface） */
+  --kpi-group-divider: color-mix(
+    in srgb,
+    var(--color-border, rgba(255, 255, 255, 0.12)) 80%,
+    transparent
+  );
+}
+
+@keyframes kpi-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

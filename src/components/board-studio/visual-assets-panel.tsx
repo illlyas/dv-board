@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BoardFooterBackdrop, BoardHeroBackdrop, BoardPageBackdrop, ChartLabelBackdrop } from "@/components/dv-assets";
 import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
-import type { VisualAssetItem, VisualAssetsBlock } from "@/lib/visual-assets/types";
+import type { VisualAssetItem, VisualAssetRoleDefinition, VisualAssetsBlock } from "@/lib/visual-assets/types";
 import {
   ITEM_KEY_CHART_TITLE_GLOBAL,
   ITEM_KEY_FOOTER_MAIN,
@@ -11,7 +11,8 @@ import {
   ITEM_KEY_PAGE_MAIN,
 } from "@/lib/visual-assets/types";
 import { createDefaultVisualAssetsBlock } from "@/lib/visual-assets/defaults";
-import type { VisualAssetRoleDefinition } from "@/lib/visual-assets/registry-static";
+import { BUILTIN_ICON_VISUAL_SPECS } from "@/lib/visual-assets/visual-assets-builtin-icons";
+import { VisualBuiltInIconPreview } from "@/components/board-studio/visual-asset-icon-preview";
 
 type RegistryPayload = { roles: Record<string, VisualAssetRoleDefinition> };
 
@@ -142,13 +143,21 @@ export function VisualAssetsPanel({
     return Array.from(map.entries());
   }, [draft.items, registry]);
 
+  const iconPreviewGroups = useMemo(
+    () =>
+      (["看板图标", "工作台图标"] as const)
+        .map((g) => ({ group: g, specs: BUILTIN_ICON_VISUAL_SPECS.filter((s) => s.displayGroup === g) }))
+        .filter((x) => x.specs.length > 0),
+    []
+  );
+
   return (
     <div className="flex h-full min-h-0 w-full bg-white">
       <div
         className="flex-1 min-w-0 border-r border-gray-200 flex flex-col bg-gray-950 p-4 gap-4 overflow-auto"
         style={(cssVariables ?? {}) as React.CSSProperties}
       >
-        <p className="text-xs text-gray-400 shrink-0">预览（未保存的草稿也会反映在此）</p>
+        <p className="text-xs text-gray-400 shrink-0">预览（未保存的草稿也会反映在此）。图标均为标准 SVG，色值走 CSS 变量，不经 canvas。</p>
         <VisualAssetsProvider block={draft}>
           <div className="rounded-lg border border-gray-700 overflow-hidden shrink-0 bg-gray-900 max-w-md">
             <div className="text-[10px] text-gray-500 px-2 py-1 border-b border-gray-800">整页画布（1920×1080 纹理预览）</div>
@@ -203,6 +212,22 @@ export function VisualAssetsPanel({
               <div className="relative z-10 text-sm font-semibold text-gray-100">示例图表标题</div>
             </div>
           </div>
+          {iconPreviewGroups.map(({ group, specs }) => (
+            <div key={group} className="rounded-lg border border-gray-700 overflow-hidden shrink-0 bg-gray-900 p-3 max-w-md">
+              <div className="text-[10px] text-gray-500 mb-2">{group}（SVG）</div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {specs.map((s) => (
+                  <div
+                    key={s.implementationId}
+                    className="flex flex-col items-center gap-1 rounded border border-gray-800 bg-gray-950/80 p-2"
+                  >
+                    <VisualBuiltInIconPreview implementationId={s.implementationId} size={36} />
+                    <span className="text-[9px] text-gray-500 text-center leading-tight line-clamp-2">{s.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </VisualAssetsProvider>
       </div>
 
@@ -238,17 +263,23 @@ export function VisualAssetsPanel({
                       <p className="text-[11px] text-gray-500 leading-snug">{it.description}</p>
                       <div className="flex flex-col gap-1">
                         <span className="text-[10px] text-gray-500">实现 id</span>
-                        <select
-                          className="text-xs border border-gray-200 rounded px-2 py-1.5 bg-white"
-                          value={it.implementationId}
-                          onChange={(e) => updateItem(it.itemKey, { implementationId: e.target.value })}
-                        >
-                          {ids.map((id) => (
-                            <option key={id} value={id}>
-                              {def?.implementations[id]?.title ?? id}
-                            </option>
-                          ))}
-                        </select>
+                        {ids.length <= 1 ? (
+                          <span className="text-xs text-gray-700 py-1">
+                            {def?.implementations[it.implementationId]?.title ?? it.implementationId}
+                          </span>
+                        ) : (
+                          <select
+                            className="text-xs border border-gray-200 rounded px-2 py-1.5 bg-white"
+                            value={it.implementationId}
+                            onChange={(e) => updateItem(it.itemKey, { implementationId: e.target.value })}
+                          >
+                            {ids.map((id) => (
+                              <option key={id} value={id}>
+                                {def?.implementations[id]?.title ?? id}
+                              </option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                       <div className="text-[10px] text-gray-400 font-mono">itemKey: {it.itemKey}</div>
                     </div>

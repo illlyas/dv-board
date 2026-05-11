@@ -14,6 +14,7 @@ import {
 } from "@/lib/projects/project-config";
 import {
   parseProjectConfigJson,
+  ensureProjectBoardDefaults,
   ensureProjectVisualAssets,
   withPersistedDefaults,
 } from "@/lib/projects/parse-project-config";
@@ -53,7 +54,7 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
     if (!cfg || cfg.id !== id) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    const ensured = ensureProjectVisualAssets(cfg);
+    const ensured = ensureProjectBoardDefaults(ensureProjectVisualAssets(cfg));
     const needsWrite = !cfg.visualAssets?.items?.length || cfg.configVersion < 2;
     if (needsWrite) {
       await writeFile(cfgPath, JSON.stringify(ensured, null, 2), "utf-8");

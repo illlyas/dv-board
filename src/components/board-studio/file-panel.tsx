@@ -53,6 +53,8 @@ interface FilePanelProps {
   onVisualAssetsSaved: (next: VisualAssetsBlock) => void;
   /** 画布与 Markdown 演示区注入的 CSS 变量（含 chart、color-scheme） */
   previewCssVariables: Record<string, string> | undefined;
+  boardCanvasWidth: number;
+  boardCanvasHeight: number;
   tweaksOpen: boolean;
   setTweaksOpen: (open: boolean) => void;
   dashboardTweaks: DashboardTweaksPanelData;
@@ -82,6 +84,8 @@ export function FilePanel({
   onRetryVisualAssetsConfig,
   onVisualAssetsSaved,
   previewCssVariables,
+  boardCanvasWidth,
+  boardCanvasHeight,
   tweaksOpen,
   setTweaksOpen,
   dashboardTweaks,
@@ -115,6 +119,7 @@ export function FilePanel({
   );
   const jsxToolbar = isJsxTab && activeTab && !isVisualAssetsTab && (
     <DashboardToolbar
+      projectName={projectName}
       file={activeTab.file}
       isEditing={editingTabId === activeTabId}
       onStartEdit={() => onStartEdit(activeTab.file)}
@@ -143,6 +148,8 @@ export function FilePanel({
           mdAgentTabId === tab.id && isMarkdownAgentFile(tab.file) ? onMdAgentSelectText : undefined
         }
         visualAssetsBlock={visualAssetsBlock}
+        boardCanvasWidth={boardCanvasWidth}
+        boardCanvasHeight={boardCanvasHeight}
       />
     );
 

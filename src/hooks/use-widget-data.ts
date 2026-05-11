@@ -186,7 +186,11 @@ export function useWidgetData<T = any>(
         const needBinding =
           role === "data" || (role === "filter-options" && !oc.filterHasStaticOptions);
         if (needBinding && (sid || oc.dataKey || oc.query || oc.dataSource)) {
-          result = generateMockData(String(oc.dataKey || oc.query?.metric || sid || "slot"), oc.widgetType);
+          result = generateMockData(
+            String(oc.dataKey || oc.query?.metric || sid || "slot"),
+            oc.widgetType,
+            oc.propsSnapshot as Record<string, unknown> | undefined
+          );
         }
       }
 
@@ -250,7 +254,7 @@ async function fetchByDataKey(dataKey: string, widgetType?: string): Promise<any
   await new Promise(resolve => setTimeout(resolve, 100));
 
   // 返回模拟数据
-  return generateMockData(dataKey, widgetType);
+  return generateMockData(dataKey, widgetType, undefined);
 }
 
 /**
@@ -262,7 +266,7 @@ async function fetchByDataSource(sourceName: string, widgetType?: string): Promi
 
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  return generateMockData(sourceName, widgetType);
+  return generateMockData(sourceName, widgetType, undefined);
 }
 
 /**
@@ -274,14 +278,14 @@ async function fetchByQuery(query: any, widgetType?: string): Promise<any> {
 
   await new Promise(resolve => setTimeout(resolve, 100));
 
-  return generateMockData(query.metric, widgetType);
+  return generateMockData(query.metric, widgetType, undefined);
 }
 
 /**
  * 生成模拟数据
  * 优先按 widget type 决定形状，其次才按 key 关键词匹配，确保图表类组件拿到的始终是数组。
  */
-function generateMockData(key: string, widgetType?: string): any {
+function generateMockData(key: string, widgetType?: string, propsSnapshot?: Record<string, unknown>): any {
   console.log("[generateMockData] key=", key, "type=", widgetType);
 
   const typeLc = (widgetType || "").toLowerCase();
@@ -289,7 +293,7 @@ function generateMockData(key: string, widgetType?: string): any {
   // ========= 按 widget type 优先判断 =========
   // KPI / Metric / StatCard → 单个指标对象
   if (["kpi", "metric", "statcard"].includes(typeLc)) {
-    return buildKpiObject();
+    return buildKpiObjectEnhanced(propsSnapshot);
   }
   // 时序图：LineChart / AreaChart
   if (["linechart", "areachart", "timeseries"].includes(typeLc)) {
@@ -341,9 +345,28 @@ function buildKpiObject() {
   return {
     value,
     trend: trendDirection,
+    trendDirection,
     trendValue: `${trendValue}%`,
     comparison: { value: `${trendValue}%`, label: "同比" },
   };
+}
+
+function buildKpiObjectEnhanced(snapshot?: Record<string, unknown>): Record<string, unknown> {
+  const base = { ...buildKpiObject() } as Record<string, unknown>;
+  if (!snapshot) return base;
+  const mc = snapshot.miniChart as { seriesKey?: string; xField?: string; yField?: string } | undefined;
+  if (mc?.seriesKey) {
+    const xf = mc.xField || "x";
+    const yf = mc.yField || "y";
+    base[mc.seriesKey] = Array.from({ length: 14 }, (_, i) => ({
+      [xf]: i,
+      [yf]: Math.floor(Math.random() * 80) + 15,
+    }));
+  }
+  if (typeof snapshot.footer === "string" && snapshot.footer.trim()) {
+    base.footerText = snapshot.footer.trim();
+  }
+  return base;
 }
 
 function buildTimeSeriesArray() {

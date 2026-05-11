@@ -13,6 +13,11 @@
 import { streamText } from "ai";
 import { createDeepSeekModel, toTextStreamResponse } from "@/lib/board-stream-utils";
 import { generateWidgetTypesDocs } from "@/lib/widget-metadata";
+import { loadProjectConfigResolved } from "@/lib/projects/load-project-config";
+import {
+  formatGenerateJsxLayoutDirective,
+  formatGenerateJsxScreenCanvasBlock,
+} from "@/lib/projects/project-board-context";
 
 export const maxDuration = 300;
 
@@ -88,11 +93,12 @@ const widgets = {
       pageIndex: 0,
       title: "销售额",
       dataKey: "sales_total",
-      // KPI 组件已有独立深色 Token 体系（--kpi-bg-from/to/--kpi-text-*），
-      // **不要**给 KPI 传 backgroundColor / gradient / titleColor / textColor，
-      // 否则会破坏"深色卡 + 浅色字"的跨模式一致性。
-      // 顶部 KPI 横条每张卡须 presetIconId: "preset-icon-1" … "preset-icon-6" 之一（与 token-demo 循环一致）。
-      // 可选：icon（无 presetIconId 时）、format、trend、trendDirection、trendValue、comparison、unit、prefix、suffix
+      // KPI：深色 Token（--kpi-* / dv-kpi-tokens）；主数值发光由 --kpi-glow-base（颜色，如 var(--color-primary)）控制，勿把边框色当作 text-shadow；presentation.valueGlow: off 可关闭。
+      // 勿传 backgroundColor / titleColor / textColor；gradient 仅当需要品牌渐变卡底时可选。
+      // layout: classic | header-inline（顶栏 inline）| sidebar-stack | pedestal-row | metric-group-inline（组）。
+      // surface: card | none（无卡底）| hairline；指标组 groupItems：声明一处父级 dataSlotId，运行时每项映射为「父槽.__成员 id」独立 mock。
+      // miniChart: seriesKey + kind line/bar，序列在同一 data 对象的数组字段（ECharts）。
+      // presetIconId 仍必须；可选 footer、secondaryStatistic、format、trend、comparison。
       format: "currency",
       trend: true,
       trendDirection: "up",
@@ -124,7 +130,7 @@ const widgets = {
       tooltipTextColor: "var(--dv-chart-tooltip-fg)",
       textColor: "var(--color-text-muted)",
       // 可选：合并进 ECharts option（置于内置映射之上）。画布内请勿使用 var()，颜色用 chartPalette 的 hex；
-      // 若提供 series 则整体替换内置 series，慎用。
+      // series 数组按索引与内置 series 合并，可只补 markLine/样式而无需重复 data。
       echartsOptionOverrides: {
         animationDuration: 600,
       },
@@ -135,6 +141,13 @@ const widgets = {
 \`\`\`
 
 **数据槽位 dataSlotId（强制）**：凡需要拉取/展示动态数据的 Widget（KPI、各类图表、Table、以及需由 mock 生成选项的 Select/MultiSelect 等），必须在对应 \`props\` 中填写 **全局唯一的 \`dataSlotId\`**，格式 **\`p{页码从0起}.{语义}\`**（例如 \`p0.chart.revenue\`、\`p1.table.orders\`），并同时填写 **\`pageIndex\`** 与该页码一致。多分页时：第 n 页上的组件使用 \`p{n}.\` 前缀且 \`pageIndex: n\`。无动态数据的装饰性 Widget 可省略。**\`<Widget />\` 不要写 import**（运行时已注入）；\`dataSlotId\` / \`pageIndex\` 只写在 \`widgets.*.props\` 内即可。
+
+========================
+【Design Story / Pages Story → KPI（全链路对齐）】
+========================
+1. **design-story.md**：「核心指标」表中的 **metricId**（英文蛇形）、**呈现意图**（layout + surface + 是否需要迷你序列/脚注）须在生成的 KPI 上落地：title 用指标中文名；presentation.layout / presentation.surface / presentation.valueGlow 与文档一致；miniChart.seriesKey、footer 与文档字段名一致。
+2. **pages-story.md**：组件清单类型为 **pixel** 时，「数据说明」列建议写成键值对（分号分隔）：metricId=m_xxx；layout=header-inline；surface=none；miniChart.seriesKey=spark_xxx。若为单 Widget 多指标：**mode=group；members=m_a+m_b+m_c；layout=metric-group-inline；surface=none**，生成 JSX 时转为 **groupItems**（每项 id/title/valueKey 与 design-story 指标对应），**父级 props 仅保留一处 dataSlotId**（每名成员独立 mock，勿合并为一包 value）。
+3. **数据形状**：指标组内每项为独立 kpiValue mock；单卡含 miniChart 时 value 根级须有对应数组字段；发光仅依赖主题 CSS 变量，勿写死 hex。
 
 ========================
 【视觉样式硬性规则】
@@ -152,15 +165,15 @@ const widgets = {
    - color: "var(--color-text-primary)"
    - fontFamily: "var(--font-body)"
    - **整页画布底纹（与 token-demo 一致）**：在根容器内、**先于** \`<header>\`，用 \`position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none"\` 包裹 \`<BoardPageBackdrop id="page-default" style={{ width: "100%", height: "100%", display: "block" }} />\`。\`<header>\`、\`<main>\`、若存在的 \`<footer>\` 均须带 \`position: "relative", zIndex: 1\`（或等价保证内容叠在底纹之上）。
-5. **非图表 KPI/说明等卡片容器**：背景 var(--color-surface)，边框 1px solid var(--color-border)，圆角 var(--radius-lg)，阴影 var(--shadow-md）。
-5a. **KPI 预设图标（与 token-demo 一致）**：main 顶部 **每一张** KPI 的 \`props\` **必须**含 \`presetIconId\`，取值 \`preset-icon-1\` … \`preset-icon-6\` 之一；从左到右第 i 张（0 起）建议 \`preset-icon-{\${(i % 6) + 1}}\` 式循环。图标由 **KPI Widget 内部**绘制，**禁止**在 \`<header>\` 内再摆 \`BoardPresetIcon\` 装饰行。
+5. **非图表 KPI/说明等卡片容器（cardStyle）**：背景 var(--color-surface)，圆角 var(--radius-lg)，阴影 var(--shadow-md）。**\`cardStyle\` 默认不得包含 \`border\`**（也不要 \`outline\` / 用 boxShadow 模拟描边）；仅当 boardStory **明确要求**卡片描边时再增加 \`border: "1px solid var(--color-border)"\`。
+5a. **KPI 预设图标（与 token-demo 一致）**：main 顶部 **每一张** KPI 的 \`props\` **必须**含 \`presetIconId\`，取以下 **语义 id** 之一（从左到右第 i 张 0 起建议按序循环）：\`kpi-sync-refresh\`、\`kpi-analytics-bars\`、\`kpi-insight-badge\`、\`kpi-capsule\`、\`kpi-pharmacy\`、\`kpi-package\`（等价于旧版 \`preset-icon-1\`…\`6\`）。图标由 **KPI Widget 内部**绘制，**禁止**在 \`<header>\` 内再摆 \`BoardPresetIcon\` 装饰行。
 5b. **图表/表格类 Widget（LineChart、BarChart、PieChart、DonutChart、AreaChart、Table）**：必须在 props 中设置 \`titleBackdrop: true\`（启用图表标题区矢量底纹；当前实现为内置 ChartLabelBackdrop，后续若支持多种标题底纹素材将扩展为独立 props，届时仍以 \`titleBackdrop\` 为开关）。并设置 \`style\` 对象且仅含以下四键（值必须全部为 var，与 token-demo 一致）：\`border: "var(--dv-chart-panel-border)"\`、\`padding: "var(--dv-chart-panel-padding)"\`、\`borderRadius: "var(--dv-chart-panel-radius)"\`、\`background: "var(--dv-chart-panel-bg)"\`。**禁止**再给这类图表传外层 \`backgroundColor: "var(--color-surface)"\` 或 cardStyle 式的白卡片底。
 5c. **图表/表格标题区排版**：主标题、副标题的字号/字重/行高/字体/间距/底色纹上的字色均由运行时读取 \`--dv-chart-title-*\` 并回退到全局 \`--font-*\`、\`--space-*\`、\`--color-text-*\`，**禁止**在生成的 JSX 里对图表/表格 Widget 再套自定义 div 并写死 \`fontSize\`/\`fontWeight\`/\`lineHeight\`/\`margin\`/\`padding\` 等数值常量覆盖标题区；若需微调只能在 Tokens 的 \`cssVariables\` 中覆盖对应的 \`--dv-chart-title-*\`（必要时可同时覆写 \`--font-size-*\`）。\`titleColor\`/\`subtitleColor\` 仅当语义需要与默认对比度不符时再传，且**必须为** \`var(--...)\`。
-6. **顶栏 header（必须，与 token-demo 一致）**：\`position: "relative"\`、\`zIndex: 1\`，高度 **96**（固定数字 px），\`padding: "0 var(--space-8)"\`，\`display: "flex"\`，\`alignItems: "stretch"\`，\`justifyContent: "center"\`，\`borderBottom: "1px solid var(--color-border)"\`，\`background: "var(--color-surface)"\`，\`overflow: "hidden"\`。在 header 最底层渲染 \`<BoardHeroBackdrop id="hero-default" style={{ width: "100%", height: "100%", display: "block" }} />\`（包在 \`position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none"\` 的 div 内）。主标题 \`<h1>\` 使用 \`position: "absolute"\` + 水平居中 + \`top: "50%"\` + \`transform: "translateY(-50%)"\`，字号 \`var(--font-size-2xl)\`、字重 \`var(--font-weight-bold)\`、字体 \`var(--font-display)\`、字色 \`var(--color-text-primary)\`，并加与 token-demo 类似的 \`textShadow\`（仅用 var 与 color-mix 组合，禁止裸 hex）。**筛选区**：\`role="group"\` \`aria-label="筛选"\`，\`position: "absolute"\`、\`zIndex: 1\`、\`right: "calc(-1 * var(--space-3))"\`、\`bottom: 0\`，\`display: "flex"\`、\`alignItems: "center"\`、\`gap: "var(--space-3)"\`，上内边距 \`var(--space-1)\` 左右 \`var(--space-3)\`，仅上侧圆角 \`var(--radius-md)\`，边框 \`1px solid var(--color-border)"\` 且 \`borderBottom: "none"\`。筛选区内用 \`<Widget />\` 配置 DateRangePicker、Select 等（\`enableData: false\` + \`staticData\` 若需要）。**\`header\` 内禁止**放置页面切换 tab/分页按钮（不得贴顶、不得与筛选组并列占位）；多分页时的切换控件**必须**放在画布底部 \`<footer>\`（见「多分页规则」）。
+6. **顶栏 header（必须，与 token-demo 一致）**：\`position: "relative"\`、\`zIndex: 1\`，高度 **96**（固定数字 px），\`padding: "0 var(--space-8)"\`，\`display: "flex"\`，\`alignItems: "stretch"\`，\`justifyContent: "center"\`，\`borderBottom: "1px solid var(--color-border)"\`，\`background: "var(--color-surface)"\`，\`overflow: "hidden"\`。在 header 最底层渲染 \`<BoardHeroBackdrop id="hero-default" style={{ width: "100%", height: "100%", display: "block" }} />\`（包在 \`position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none"\` 的 div 内）。主标题 \`<h1>\` 使用 \`position: "absolute"\` + 水平居中 + \`top: "50%"\` + \`transform: "translateY(-50%)"\`，字号 \`var(--font-size-2xl)\`、字重 \`var(--font-weight-bold)\`、字体 \`var(--font-display)\`、字色 \`var(--color-text-primary)\`，并加与 token-demo 类似的 \`textShadow\`（仅用 var 与 color-mix 组合，禁止裸 hex）。**筛选区**（外容器与 token-demo 一致，**无任何围框**）：\`role="group"\` \`aria-label="筛选"\`，\`position: "absolute"\`、\`zIndex: 1\`、\`right: "calc(-1 * var(--space-3))"\`、\`bottom: 0\`，\`display: "flex"\`、\`alignItems: "center"\`、\`gap: "var(--space-3)"\`，\`padding: "var(--space-1) var(--space-3) 0"\`；**禁止** \`border\` / \`outline\` / \`boxShadow\` / 外壳圆角 / 用 inset shadow 模拟描边。筛选区内用 \`<Widget />\` 配置 DateRangePicker、Select 等（\`enableData: false\` + \`staticData\` 若需要）。**\`header\` 内禁止**放置页面切换 tab/分页按钮（不得贴顶、不得与筛选组并列占位）；多分页时的切换控件**必须**放在画布底部 \`<footer>\`（见「多分页规则」）。
 7. **标题/副标题/文本**：按层级使用 var(--font-size-*) + var(--font-weight-*) + var(--color-text-*)。
 8. **Widget 配色属性**（backgroundColor、titleColor、textColor、gridColor、axisTextColor、legendTextColor、tooltipBackgroundColor 等）必须填 var(--...) 字符串。
 9. **容器高度控制**：每个包裹 Widget 的 div 必须设置固定高度（具体 px），防止内容撑大布局。
-10. **ECharts 逃逸配置**：LineChart/BarChart/PieChart/DonutChart/AreaChart 可选 \`echartsOptionOverrides\`（对象），与内置 option 合并；\`xAxis\`/\`yAxis\`/\`grid\`/\`tooltip\`/\`legend\` 等与内置同名字段做一层浅合并；若提供 \`series\` 则**整体替换**内置 series。Overrides 内**禁止**使用 \`var(...)\` 表示画布颜色（须用 chartPalette 的 hex 或 rgb）。
+10. **ECharts 逃逸配置**：LineChart/BarChart/PieChart/DonutChart/AreaChart 可选 \`echartsOptionOverrides\`（对象），与内置 option 合并；\`xAxis\`/\`yAxis\`/\`grid\`/\`tooltip\`/\`legend\` 等与内置同名字段做一层浅合并；\`series\` 若为数组则**按索引与内置 series 浅合并**（保留内置 \`data\`，可只加 markLine/线宽等）。**双 Y 轴**（不同量纲）：\`yAxis\` 用数组配置两条序列时，要么在 overrides 的对应 \`series\` 项写 \`yAxisIndex: 1\`（第二条及以后），要么显式 \`dualYAxis: true\`。Overrides 内**禁止**使用 \`var(...)\` 表示画布颜色（须用 chartPalette 的 hex 或 rgb）。
 
 ========================
 【布局重叠防护规则（强制，违反即错）】
@@ -170,11 +183,11 @@ const widgets = {
 2. **main 区域**（紧挨 header 下方、若有分页 footer 则在其上方）必须同时声明 \`flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden", boxSizing: "border-box"\`。缺 \`minHeight: 0\` 会导致 flex 子项按内容自然高度展开撑破画布。
 3. **所有 grid / flex 容器**必须 \`overflow: "hidden"\`；凡声明 \`flex: 1\` 或 \`flex: "1 1 0"\` 的子项必须**同时**声明 \`minHeight: 0\` 和 \`minWidth: 0\`。
 4. **gridTemplateColumns**：默认使用 \`repeat(N, minmax(0, 1fr))\`；**三栏主视觉区**允许使用 \`minmax(0, 2fr) minmax(0, 5fr) minmax(0, 2fr)\`（或对称三等分 \`repeat(3, minmax(0, 1fr))\`），每一列**必须**带 \`minmax(0, …)\`。严禁裸 \`1fr 1fr\`、裸 \`repeat(N, 1fr)\`。
-5. **gridTemplateRows** 只允许具体 px 或 \`minmax(0, 1fr)\` 的组合；**禁止混用 \`auto\` 与 \`1fr\`**，禁止使用 \`auto\` 行（auto 行会被图表 SVG 无限撑大）。
+5. **gridTemplateRows** 只允许 **具体 px** 或 **\`fr\` / \`minmax(0, 1fr)\` / \`minmax(0, Nfr)\`** 的组合；**禁止**在 \`gridTemplateRows\` 里写 **百分比**（如 \`40%\`、\`minmax(0,42%)\`）：父级常为 flex 推导的「不定高」时，**% 轨会塌成近 0**，主区图表被压成一条线、**下方大片假空白**。**禁止混用 \`auto\` 与 \`1fr\`**，禁止使用 \`auto\` 行（auto 行会被图表 SVG 无限撑大）。
 6. **垂直高度预算（必须 ≤ 1080）**：单页时 **header 96px** + main 内网格行高/gap/padding 之和 ≤ 1080（main 可用约 **984px** 量级）。**多分页（≥2 页）时**还须底部 **footer 切换栏固定 56px**（\`flexShrink: 0\`，\`height: 56\`，\`boxSizing: "border-box"\`），故 **96 + 56 + main 内网格行高/gap/padding ≤ 1080**（main 可用约 **928px** 量级）；禁止把分页栏塞进 header 省高度。
-7. **包裹 \`<Widget>\` 的 div** 必须位于已定义固定 px 高度的 grid cell 中，**禁止 \`height: "auto"\`**；若需继承 cell 高度，写 \`height: "100%", minHeight: 0, overflow: "hidden"\`。
-8. **cardStyle / 图表面板壳合并**：KPI 等非图表卡用 \`...cardStyle\` 后追加 \`minHeight: 0, minWidth: 0, overflow: "hidden"\`。**图表/表格 Widget** 外层包裹 div 使用 \`height: "100%", minHeight: 0, minWidth: 0, overflow: "hidden"\`，**不要**对图表再套一层 cardStyle（图表本体 style 已由 dv-chart-panel token 控制）。
-9. **ECharts 图表**外层包裹 div 必须给一个**具体 px 高度**（或在 grid cell 里 height:100% + minHeight:0），**禁止让图表容器自身决定父高度**。
+7. **main 内 content 高度链（防「一条线 + 空底」）**：\`<main>\` 在 \`flex:1, minHeight:0\` 之外，其**直接承载主区 grid 的子节点**还须 **\`height: "100%", width: "100%", boxSizing: "border-box"\`**。**包裹图表/表格 \`<Widget>\` 的 div** 放在 **\`minmax(0,1fr)\` / \`fr\`** 行内时须 **\`height: "100%", minHeight: 0, minWidth: 0, overflow: "hidden"\`** 继承行高；**禁止 \`height: "auto"\`**；**禁止**给主区唯一大图再套 **过小固定 px**（如整栏仅 \`height: 120\`）。**KPI 行**仍用**具体 px**行高（见画布契约）。
+8. **cardStyle / 图表面板壳合并**：**图表/表格 Widget** 外层包裹 div 使用 \`height: "100%", minHeight: 0, minWidth: 0, overflow: "hidden"\`，**不要**对图表再套一层 cardStyle。**KPI**：在 KPI 行高已按「画布像素」**下限**给足的前提下，包裹 div 用 \`height: "100%", minWidth: 0, overflow: "hidden"\` 即可，**不要**对 KPI 套用与图表相同的 \`minHeight: 0\` 收缩组合以免与过矮行高叠加导致字叠；若使用 \`...cardStyle\`，仅追加 \`minWidth: 0, overflow: "hidden"\`（KPI 行内可省略 \`minHeight: 0\`）。
+9. **ECharts 图表**：外层 div **优先** \`height: "100%", minHeight: 0\` 与 **第 7 条** 链式配合；**禁止**仅写极小 **固定 px** 作为全页主图区唯一高度；**禁止**让图表在无高度的父级里单靠内容撑开。
 
 ========================
 【多分页规则（重要）】
@@ -200,10 +213,12 @@ const widgets = {
 1. **指标卡区（唯一例外）**  
    - 紧贴 main **顶部**一行 **全宽** KPI 横条：\`gridTemplateColumns: repeat(N, minmax(0, 1fr))\`（N 为 KPI 个数，通常 3–6）。  
    - **仅此行**放置 KPI；不要把 LineChart/BarChart/PieChart/Table 等非 KPI 图表塞进这一行。  
-   - 每张 KPI **必须**在 \`widgets.*.props\` 中设置 \`presetIconId\`（\`preset-icon-1\`…\`6\`，从左到右循环），与 token-demo 一致；**不要**在 header 再放 \`BoardPresetIcon\`。
+   - 每张 KPI **必须**在 \`widgets.*.props\` 中设置 \`presetIconId\`（\`kpi-sync-refresh\` … \`kpi-package\` 六选一从左到右循环），与 token-demo 一致；**不要**在 header 再放 \`BoardPresetIcon\`。  
+   - **行高（防挤压）**：\`main\` 的 \`gridTemplateRows\` **第一行**（KPI 独占行）须用 **足够大的具体 px**，数值 **≥** 上文「当前项目：画布像素」中的 **KPI 横条下限**；**禁止**照搬示例里的过小数字（如 130px）、也禁止让 KPI 行用 \`minmax(0,1fr)\` 当首行吸收高度。多成员 **metric-group-inline** 时按同节说明提高行高或拆 Widget。  
+   - **禁止**在顶栏 **header（96px）** 内塞 KPI / pixel 指标（只放标题与筛选）。
 
 2. **三栏主视觉区（KPI 以下占满剩余高度）**  
-   - KPI 行之下 **仅此一行**占满剩余垂直空间，例如 \`gridTemplateRows: "{kpiRowPx} minmax(0, 1fr)"\`（\`{kpiRowPx}\` 为具体 px，第二行必须是 \`minmax(0, 1fr)\`，禁止 auto）。  
+   - KPI 行之下 **仅此一行**占满剩余垂直空间，例如 \`gridTemplateRows: "{kpiRowPx} minmax(0, 1fr)"\`（\`{kpiRowPx}\` 为具体 px，第二行必须是 \`minmax(0, 1fr)\`，禁止 auto）。承载左·中·右的那一层 **content** 容器还须 **\`height: "100%", width: "100%", boxSizing: "border-box"\`**（与「布局重叠防护」第 7 条一致），否则第二行 \`1fr\` 吃不到高度。  
    - 该行内 **唯一** 结构：**左 | 中 | 右** 三列：  
      \`gridTemplateColumns: "minmax(0, 2fr) minmax(0, 5fr) minmax(0, 2fr)"\`（中栏略宽；若 boardStory 明确要求对称，可改为 \`repeat(3, minmax(0, 1fr))\`，但仍须 **中栏放唯一主视觉**、左右放其它组件）。  
    - **中栏**：**仅一个**主视觉 Widget（主力趋势/对比等大图），外层 \`height: "100%", minHeight: 0\` 撑满中栏。**必须与页面结构设计文档对齐**：优先使用该页 **「主视觉组件」** 所列序号/标签对应的图表；若文档以表格呈现，取 **「主视觉」列唯一 ★** 所在行的组件。若文档未标注（旧稿），则退化为：该页组件清单中 **analyticRole 为 evidence 且 priority 为 high** 的**第一个图表类**（非 pixel/text/select）作为主视觉放入中栏。  
@@ -229,11 +244,10 @@ export default function Dashboard() {
     // ...参见上方 Widget 使用方式
   };
 
-  // ⚠ 关键：cardStyle 不含 height/width；每次 ...cardStyle 之后必须追加
+  // ⚠ 关键：cardStyle 不含 height/width，且默认无边框；每次 ...cardStyle 之后必须追加
   //   minHeight: 0, minWidth: 0, overflow: "hidden"（见 Page1 内示例）
   const cardStyle = {
     background: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
     borderRadius: "var(--radius-lg)",
     boxShadow: "var(--shadow-md)",
     padding: "var(--space-4)",
@@ -281,9 +295,9 @@ export default function Dashboard() {
   );
 
   // ⚠ 防重叠黄金姿态：main 同时给 flex:1 / minHeight:0 / minWidth:0 / overflow:hidden
-  //   多分页时 gridTemplateRows 行高总和 + gap + padding ≤ 1080 - 96(header) - 56(footer)
+  //   多分页时 gridTemplateRows 行高总和 + gap + padding ≤ 画布高 - 96(header) - 56(footer)
   //   gridTemplateColumns 用 repeat(N, minmax(0, 1fr)) 而不是 1fr
-  //   每个包裹 <Widget> 的 div 用 ...cardStyle 后追加 minHeight:0 / minWidth:0 / overflow:hidden
+  //   KPI 行首段高度须 ≥「当前项目：画布像素」KPI 横条下限（禁止照搬本示例数字）
   const Page1 = () => (
     <main style={{
       position: "relative",
@@ -293,9 +307,11 @@ export default function Dashboard() {
       minWidth: 0,
       overflow: "hidden",
       boxSizing: "border-box",
+      height: "100%",
+      width: "100%",
       display: "grid",
-      // 顶 KPI + 下单层三栏占满剩余高度；总行高 + gap + padding 须 ≤ 928（多分页含 footer）或 ≤984（单页）
-      gridTemplateRows: "130px minmax(0, 1fr)",
+      // 顶 KPI + 下单层三栏占满剩余高度；首行 KPI 的 px 须按项目画布契约取足（2160p 常需 300px 量级）
+      gridTemplateRows: "200px minmax(0, 1fr)",
       gap: "var(--space-4)",
       padding: "var(--space-4)",
     }}>
@@ -304,8 +320,8 @@ export default function Dashboard() {
         display: "grid",
         gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
         gap: "var(--space-3)",
-        minHeight: 0,
         minWidth: 0,
+        height: "100%",
         overflow: "hidden",
       }}>
         <Widget config={widgets.kpi1} />
@@ -313,14 +329,17 @@ export default function Dashboard() {
         <Widget config={widgets.kpi3} />
         <Widget config={widgets.kpi4} />
       </div>
-      {/* ② 三栏主视觉区：左/右栏内 repeat(M, minmax(0,1fr)) 均分；中栏单一主图 */}
+      {/* ② 三栏主视觉区：左/右栏内 repeat(M, minmax(0,1fr)) 均分；中栏单一主图；须 height:100% 让 minmax(0,1fr) 吃到 main 剩余高 */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "minmax(0, 2fr) minmax(0, 5fr) minmax(0, 2fr)",
         gap: "var(--space-4)",
+        height: "100%",
+        width: "100%",
         minHeight: 0,
         minWidth: 0,
         overflow: "hidden",
+        boxSizing: "border-box",
       }}>
         <div style={{
           display: "grid",
@@ -368,8 +387,10 @@ export default function Dashboard() {
       minWidth: 0,
       overflow: "hidden",
       boxSizing: "border-box",
+      height: "100%",
+      width: "100%",
       display: "grid",
-      gridTemplateRows: "130px minmax(0, 1fr)",
+      gridTemplateRows: "200px minmax(0, 1fr)",
       gap: "var(--space-4)",
       padding: "var(--space-4)",
     }}>
@@ -459,13 +480,6 @@ export default function Dashboard() {
               gap: "var(--space-3)",
               flexShrink: 0,
               padding: "var(--space-1) var(--space-3) 0",
-              borderTopLeftRadius: "var(--radius-md)",
-              borderTopRightRadius: "var(--radius-md)",
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-              border: "1px solid var(--color-border)",
-              borderBottom: "none",
-              boxSizing: "border-box",
             }}
           >
             <Widget config={{ type: "DateRangePicker", props: { label: "时间范围", defaultValue: "last_30_days" } }} enableData={false} />
@@ -526,7 +540,7 @@ export default function Dashboard() {
 ========================
 【禁止事项】
 ========================
-- 禁止写 import 语句（React、Widget、**BoardHeroBackdrop**、**BoardFooterBackdrop**、**BoardPageBackdrop**、**BoardPresetIcon** 已由运行时注入；直接在 JSX 中使用 \`<BoardHeroBackdrop />\` / \`<BoardFooterBackdrop />\` / \`<BoardPageBackdrop />\` / \`<BoardPresetIcon />\`，禁止 import）
+- 禁止写 import 语句（React、Widget、**BoardHeroBackdrop**、**BoardFooterBackdrop**、**BoardPageBackdrop**、**BoardPresetIcon** 已由运行时注入；直接在 JSX 中使用 \`<BoardHeroBackdrop />\` / \`<BoardFooterBackdrop />\` / \`<BoardPageBackdrop />\` / \`<BoardPresetIcon id="kpi-sync-refresh" />\`（\`id\` 为上述六类语义 id 或兼容旧 \`preset-icon-*\`），禁止 import）
 - 禁止业务逻辑、数据请求
 - 禁止硬编码颜色/字号/间距/圆角/阴影
 - 禁止使用占位符 div 替代 Widget
@@ -557,6 +571,7 @@ export async function POST(request: Request) {
     tokens?: Tokens;
     existingDashboard?: string;
     viSystemExcerpt?: string;
+    projectKey?: string;
   };
 
   if (!body.boardStory) {
@@ -576,7 +591,15 @@ export async function POST(request: Request) {
         : String(body.boardStory ?? "");
 
     const tokens: Tokens = body.tokens;
-    const systemPrompt = generateSystemPrompt(tokens);
+    let systemPrompt = generateSystemPrompt(tokens);
+    const pk = typeof body.projectKey === "string" ? body.projectKey.trim() : "";
+    if (pk) {
+      const projectCfg = await loadProjectConfigResolved(process.cwd(), pk);
+      if (projectCfg) {
+        systemPrompt += `\n\n【优先级覆盖】若上文「Agent / JSX 主区板式」与本节 project preset 冲突，**本节为准**。\n\n${formatGenerateJsxLayoutDirective(projectCfg)}`;
+        systemPrompt += `\n\n【优先级覆盖】若上文固定画布 1920×1080、垂直预算 984/928 等数字与本节冲突，**本节为准**。\n\n${formatGenerateJsxScreenCanvasBlock(projectCfg)}`;
+      }
+    }
 
     const existingDashboard =
       typeof body.existingDashboard === "string" ? body.existingDashboard.trim() : "";
@@ -621,9 +644,9 @@ ${existingDashboard || "(未提供 — 仅依据页面结构设计生成)"}
 8. 输出严格 JSON：{ code, metadata, description }，不要 markdown 围栏。
 9. **防重叠强制三件套（违反即错）**：所有 grid / flex 容器必须声明 \`overflow: "hidden"\`；所有 \`flex: 1\` 子项必须**同时**声明 \`minHeight: 0\` 和 \`minWidth: 0\`；外层画布与 main 必须 \`boxSizing: "border-box"\`。
 10. **Grid 强制规范**：\`gridTemplateColumns\` 默认为 \`repeat(N, minmax(0, 1fr))\`；**三栏主区**可用 \`minmax(0, 2fr) minmax(0, 5fr) minmax(0, 2fr)\`（每列必有 minmax(0,…)）。\`gridTemplateRows\` 只允许具体 px 或 \`minmax(0, 1fr)\`，**禁止使用 \`auto\` 或与 1fr 混用**；单页时 main 内行高 + gap + padding ≤ **984**（1080 − **96**）；**多分页**时另减 footer **56**，main 预算 ≤ **928**。
-11. **Widget 容器强制规范**：包裹 \`<Widget>\` 的 div 必须位于固定 px 高度的 grid cell 中，**禁止 \`height: "auto"\`**；每处 \`...cardStyle\` 解构后必须追加 \`minHeight: 0, minWidth: 0, overflow: "hidden"\`。
-12. **KPI 组件专属规则**：KPI 组件已有独立深色 Token 体系，**不要**给 KPI 传 \`backgroundColor / gradient / titleColor / textColor\` 属性；须配 \`presetIconId\`（\`preset-icon-1\`…\`6\`，见上文第 5a 条）以及 \`title / dataKey / format / trend / trendDirection / trendValue / icon / unit / prefix / suffix / comparison\` 等业务属性（\`icon\` 仅当不设 \`presetIconId\` 时作为 emoji 兜底）。
-13. **顶栏与图表外观**：根容器须含 **BoardPageBackdrop**（整页弱纹理底，与 token-demo 一致）。header 必须按系统提示中的 token-demo 结构（96px 高、BoardHeroBackdrop、居中主标题 textShadow、右下角筛选条），**header 内不放分页切换**；多分页切换仅在底部 footer，且 footer 须含 **BoardFooterBackdrop**（见「多分页规则」第 6 条）。所有 LineChart/BarChart/PieChart/DonutChart/AreaChart/Table 的 Widget 必须 \`titleBackdrop: true\` 且 props.style 含四键 \`--dv-chart-panel-*\`；标题区视觉跟随 \`--dv-chart-title-*\` / \`--font-*\`，勿写死标题 typography。图表由 **ECharts** 渲染；外层**不要**再用 cardStyle 包图表。可选 \`echartsOptionOverrides\` 增强动效与 series 样式（遵守画布内禁用 var() 色值）。
+11. **Widget 容器强制规范**：包裹 \`<Widget>\` 的 div 必须位于固定 px 高度的 grid cell 中，**禁止 \`height: "auto"\`**；每处 \`...cardStyle\` 解构后必须追加 \`minHeight: 0, minWidth: 0, overflow: "hidden"\`。**\`cardStyle\` 默认不写 \`border\`**（除非 boardStory 明确要求卡片描边），与系统提示「视觉样式」第 5 条一致。
+12. **KPI 组件专属规则**：KPI 组件已有独立深色 Token 体系，**不要**给 KPI 传 \`backgroundColor / gradient / titleColor / textColor\` 属性；须配 \`presetIconId\`（六类语义 id \`kpi-sync-refresh\` … \`kpi-package\`，见上文第 5a 条）以及 \`title / dataKey / format / trend / trendDirection / trendValue / icon / unit / prefix / suffix / comparison\` 等业务属性（\`icon\` 仅当不设 \`presetIconId\` 时作为 emoji 兜底）。
+13. **顶栏与图表外观**：根容器须含 **BoardPageBackdrop**（整页弱纹理底，与 token-demo 一致）。header 必须按系统提示中的 token-demo 结构（96px 高、BoardHeroBackdrop、居中主标题 textShadow、右下角筛选区且**筛选组外容器无描边围框**），**header 内不放分页切换**；多分页切换仅在底部 footer，且 footer 须含 **BoardFooterBackdrop**（见「多分页规则」第 6 条）。所有 LineChart/BarChart/PieChart/DonutChart/AreaChart/Table 的 Widget 必须 \`titleBackdrop: true\` 且 props.style 含四键 \`--dv-chart-panel-*\`；标题区视觉跟随 \`--dv-chart-title-*\` / \`--font-*\`，勿写死标题 typography。图表由 **ECharts** 渲染；外层**不要**再用 cardStyle 包图表。可选 \`echartsOptionOverrides\` 增强动效与 series 样式（遵守画布内禁用 var() 色值）。
 14. **视觉素材（运行时）**：项目 \`project.config.json\` 中的 \`visualAssets\` 可在**预览/运行时**覆盖主标题底纹、**整页画布底纹**、**底栏分页条底纹**与图表标题底纹的显示，**不要求**为覆盖而改写本 JSX；仍按约定写默认 \`BoardPageBackdrop id\`、\`BoardHeroBackdrop id\`、多页时 \`BoardFooterBackdrop id\` 与 \`titleBackdrop: true\` 即可。
 15. **连贯演进（长期记忆）**：若「当前 dashboard.jsx 摘录」非空，必须在 **分页（footer）、header 筛选区、main 网格骨架、widgets 对象命名习惯** 等方面优先继承现有实现，只按页面结构设计文档做必要的 Widget 增删与配置调整；**禁止**在无文档明确要求时整体推翻重写另一套布局。若摘录为空，则从零生成但仍须严格服从页面结构设计。
 16. **Agent 三栏主区（强制）**：每一页 \`<main>\` 在 KPI 指标卡横条之下，**仅允许一层**左·中·右三栏主视觉区（中栏唯一主图、左右栏其余图表）；左右栏内多图须 \`gridTemplateRows: repeat(M, minmax(0, 1fr))\` **垂直均分**。禁止 KPI 下再增加脱离三栏的通栏底带。细则见系统提示「Agent / JSX 主区板式」。

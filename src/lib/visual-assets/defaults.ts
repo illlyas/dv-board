@@ -14,6 +14,7 @@ import {
   VISUAL_ROLE_PAGE_BACKGROUND,
 } from "@/lib/visual-assets/types";
 import { VISUAL_ASSET_ROLE_REGISTRY } from "@/lib/visual-assets/registry-static";
+import { builtinIconDefaultItems } from "@/lib/visual-assets/visual-assets-builtin-icons";
 
 function defaultItem(
   itemKey: string,
@@ -44,6 +45,7 @@ export function createDefaultVisualAssetsBlock(): VisualAssetsBlock {
       ),
       defaultItem(ITEM_KEY_FOOTER_MAIN, VISUAL_ROLE_FOOTER_NAV, IMPLEMENTATION_FOOTER_DEFAULT),
       defaultItem(ITEM_KEY_PAGE_MAIN, VISUAL_ROLE_PAGE_BACKGROUND, IMPLEMENTATION_PAGE_DEFAULT),
+      ...builtinIconDefaultItems(),
     ],
   };
 }

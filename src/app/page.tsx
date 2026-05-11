@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CreateProjectDialog, type CreateProjectPayload } from "@/components/create-project-dialog";
@@ -48,13 +49,21 @@ export default function Home() {
     setDialogOpen(true);
   };
 
-  const handleCreateProject = async ({ name, style }: CreateProjectPayload) => {
-    const finalName = computeUniqueName(name);
+  const handleCreateProject = async (payload: CreateProjectPayload) => {
+    const finalName = computeUniqueName(payload.name);
     try {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: finalName, style }),
+        body: JSON.stringify({
+          name: finalName,
+          style: payload.style,
+          themeMode: payload.themeMode,
+          boardKind: payload.boardKind,
+          screenPresetId: payload.screenPresetId,
+          layoutPresetId: payload.layoutPresetId,
+          assetKitId: payload.assetKitId,
+        }),
       });
       if (!res.ok) {
         const err = (await res.json().catch(() => ({}))) as { error?: string };
@@ -136,6 +145,12 @@ export default function Home() {
             >
               最近
             </button>
+            <Link
+              href="/templates"
+              className="ml-2 px-3 py-1.5 rounded text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              模板市场
+            </Link>
           </div>
         </div>
 

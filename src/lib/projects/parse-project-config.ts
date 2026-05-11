@@ -1,4 +1,7 @@
 import type { ProjectConfig } from "@/lib/projects/project-config";
+import { getLayoutPreset } from "@/lib/board/board-layout-presets";
+import { getAssetKit } from "@/lib/projects/asset-kits";
+import { getScreenPreset } from "@/lib/board/screen-presets";
 import { createDefaultVisualAssetsBlock } from "@/lib/visual-assets/defaults";
 import type { VisualAssetItem, VisualAssetsBlock } from "@/lib/visual-assets/types";
 import {
@@ -25,13 +28,36 @@ function appendMissingDefaultVisualItems(items: VisualAssetItem[]): VisualAssetI
 export function parseProjectConfigJson(raw: string): ProjectConfig | null {
   try {
     const o = JSON.parse(raw) as ProjectConfig;
-    if ((o.configVersion !== 1 && o.configVersion !== 2) || typeof o.id !== "string" || typeof o.name !== "string") {
+    if (
+      (o.configVersion !== 1 && o.configVersion !== 2 && o.configVersion !== 3) ||
+      typeof o.id !== "string" ||
+      typeof o.name !== "string"
+    ) {
       return null;
     }
     return o;
   } catch {
     return null;
   }
+}
+
+/** 补齐 themeMode / boardKind / layoutPresetId / assetKitId / screenPresetId（内存默认值，不抬升磁盘 configVersion） */
+export function ensureProjectBoardDefaults(cfg: ProjectConfig): ProjectConfig {
+  const themeMode = cfg.themeMode === "light" || cfg.themeMode === "dark" ? cfg.themeMode : "dark";
+  const boardKind =
+    cfg.boardKind === "wallboard" || cfg.boardKind === "dashboard" ? cfg.boardKind : "dashboard";
+  const layoutPresetId = getLayoutPreset(cfg.layoutPresetId).id;
+  const assetKitId = getAssetKit(cfg.assetKitId).id;
+  const screenPresetId = getScreenPreset(cfg.screenPresetId).id;
+
+  return {
+    ...cfg,
+    themeMode,
+    boardKind,
+    layoutPresetId,
+    assetKitId,
+    screenPresetId,
+  };
 }
 
 /** 若无 visualAssets 则补默认块；可将 configVersion 升为 2 */
@@ -43,25 +69,27 @@ export function ensureProjectVisualAssets(cfg: ProjectConfig): ProjectConfig {
       next = {
         ...cfg,
         visualAssets: { ...cfg.visualAssets, items: mergedItems },
-        configVersion: 2,
+        configVersion: Math.min(3, Math.max(cfg.configVersion ?? 1, 2)) as ProjectConfig["configVersion"],
       };
     }
-    if (next.configVersion < 2) {
-      return { ...next, configVersion: 2 };
+    if ((next.configVersion ?? 1) < 2) {
+      const cv = Math.min(3, Math.max(next.configVersion ?? 1, 2)) as ProjectConfig["configVersion"];
+      return { ...next, configVersion: cv };
     }
     return next;
   }
   const visualAssets = createDefaultVisualAssetsBlock();
+  const cv = Math.min(3, Math.max(cfg.configVersion ?? 1, 2)) as ProjectConfig["configVersion"];
   return {
     ...cfg,
-    configVersion: 2,
+    configVersion: cv,
     visualAssets,
   };
 }
 
 /** 写回磁盘前确保结构存在 */
 export function withPersistedDefaults(cfg: ProjectConfig): ProjectConfig {
-  return ensureProjectVisualAssets(cfg);
+  return ensureProjectBoardDefaults(ensureProjectVisualAssets(cfg));
 }
 
 /**

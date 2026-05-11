@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gen:kpi-icons": "node scripts/gen-kpi-preset-icon-components.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.53",

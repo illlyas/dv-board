@@ -34,12 +34,12 @@ const CHART_PALETTE = [
 // ================= Mock 数据 =================
 
 const KPI_PRESET_ICON_IDS = [
-  "preset-icon-1",
-  "preset-icon-2",
-  "preset-icon-3",
-  "preset-icon-4",
-  "preset-icon-5",
-  "preset-icon-6",
+  "kpi-sync-refresh",
+  "kpi-analytics-bars",
+  "kpi-insight-badge",
+  "kpi-capsule",
+  "kpi-pharmacy",
+  "kpi-package",
 ] as const satisfies readonly KPIProps["presetIconId"][];
 
 const KPI_ITEMS = [
@@ -112,7 +112,6 @@ function DashboardContent() {
   const [demoPage, setDemoPage] = useState(0);
   const cardStyle: React.CSSProperties = {
     background: "var(--color-surface, #ffffff)",
-    border: "1px solid var(--color-border, #e5e7eb)",
     borderRadius: "var(--radius-lg, 12px)",
     boxShadow: "var(--shadow-md, 0 4px 6px rgba(0,0,0,0.05))",
     padding: "var(--space-5, 20px)",
@@ -303,9 +302,25 @@ function DashboardContent() {
                   trend: true,
                   trendValue: k.trendValue,
                   trendDirection: k.trendDirection,
-                  staticData: { value: k.value },
+                  staticData:
+                    i === 0
+                      ? {
+                          value: k.value,
+                          spark: Array.from({ length: 10 }).map((_, j) => ({
+                            x: j,
+                            y: Math.round(Number(k.value) * (0.88 + j * 0.015)),
+                          })),
+                        }
+                      : { value: k.value },
                   presetIconId: KPI_PRESET_ICON_IDS[i % KPI_PRESET_ICON_IDS.length],
                   shadow: true,
+                  presentation:
+                    i === 1
+                      ? { surface: "none", layout: "header-inline", valueGlow: "inherit" }
+                      : i === 0
+                        ? { surface: "card", layout: "classic", valueGlow: "inherit" }
+                        : undefined,
+                  miniChart: i === 0 ? { seriesKey: "spark", kind: "line", xField: "x", yField: "y", height: 36 } : undefined,
                   gradient: [
                     `color-mix(in srgb, ${CHART_PALETTE[i % CHART_PALETTE.length]} 85%, transparent)`,
                     `color-mix(in srgb, ${CHART_PALETTE[(i + 1) % CHART_PALETTE.length]} 55%, transparent)`,

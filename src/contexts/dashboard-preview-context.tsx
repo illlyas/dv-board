@@ -10,6 +10,7 @@ import React, {
   useState,
 } from "react";
 import { readFile } from "@/lib/pipeline/file-operations";
+import { isBoardTemplatePreviewProject } from "@/lib/board-templates/template-project-name";
 import {
   getCachedDashboardStore,
   loadDashboardStoreOnce,
@@ -63,6 +64,10 @@ export function DashboardPreviewProvider({
   }, [projectName, dashboardFile]);
 
   useEffect(() => {
+    if (isBoardTemplatePreviewProject(projectName)) {
+      pagesStoryRef.current = "";
+      return;
+    }
     readFile(`.dv/${projectName}/页面结构/pages-story.md`)
       .then((t) => {
         pagesStoryRef.current = t;

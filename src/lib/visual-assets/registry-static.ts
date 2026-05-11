@@ -1,6 +1,6 @@
 /**
  * 视觉素材注册表（纯数据，供服务端校验与 GET /api/visual-assets/registry）
- * 新增 role 时在此追加条目。
+ * 新增 role 时在此追加条目；内建图标见 visual-assets-builtin-icons。
  */
 import {
   IMPLEMENTATION_CHART_LABEL_DEFAULT,
@@ -12,20 +12,10 @@ import {
   VISUAL_ROLE_HERO_HEADER,
   VISUAL_ROLE_PAGE_BACKGROUND,
 } from "@/lib/visual-assets/types";
+import type { VisualAssetRoleDefinition } from "@/lib/visual-assets/types";
+import { builtinIconRoleRegistry } from "@/lib/visual-assets/visual-assets-builtin-icons";
 
-export type VisualAssetRoleDefinition = {
-  displayGroup: string;
-  defaultImplementationId: string;
-  allowedImplementationIds: readonly string[];
-  /** 各 implementation 的展示文案 */
-  implementations: Record<
-    string,
-    {
-      title: string;
-      description: string;
-    }
-  >;
-};
+export type { VisualAssetRoleDefinition };
 
 export const VISUAL_ASSET_ROLE_REGISTRY: Record<string, VisualAssetRoleDefinition> = {
   [VISUAL_ROLE_HERO_HEADER]: {
@@ -72,6 +62,7 @@ export const VISUAL_ASSET_ROLE_REGISTRY: Record<string, VisualAssetRoleDefinitio
       },
     },
   },
+  ...builtinIconRoleRegistry(),
 };
 
 export function listRegisteredRoles(): string[] {

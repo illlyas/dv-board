@@ -1,8 +1,10 @@
 /**
  * 浏览器端仪表盘 store 单例缓存：同一 project + dashboardFile 全应用共享一份数据，
  * GET /api/board/dashboard-store 只发起一次网络请求，后续 slot 只读内存。
+ * 模板预览使用虚拟 projectName（见 board-templates/template-project-name），走 /api/board-templates/.../dashboard-store。
  */
 
+import { parseBoardTemplateIdFromProjectName } from "@/lib/board-templates/template-project-name";
 import type { DashboardStoreFile } from "@/types/dashboard-store.types";
 
 export function dashboardStoreCacheKey(
@@ -46,9 +48,14 @@ export function loadDashboardStoreOnce(
   let p = inflight.get(key);
   if (!p) {
     p = (async () => {
-      const res = await fetch(
-        `/api/board/dashboard-store?projectName=${encodeURIComponent(projectName)}&dashboardFile=${encodeURIComponent(dashboardFile)}`
-      );
+      const templateId = parseBoardTemplateIdFromProjectName(projectName);
+      const res = templateId
+        ? await fetch(
+            `/api/board-templates/${encodeURIComponent(templateId)}/dashboard-store?dashboardFile=${encodeURIComponent(dashboardFile)}`
+          )
+        : await fetch(
+            `/api/board/dashboard-store?projectName=${encodeURIComponent(projectName)}&dashboardFile=${encodeURIComponent(dashboardFile)}`
+          );
       if (!res.ok) throw new Error(await res.text());
       const j = (await res.json()) as { store: DashboardStoreFile };
       cache.set(key, j.store);

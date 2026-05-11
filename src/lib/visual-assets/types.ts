@@ -1,5 +1,19 @@
 /** 与 docs/visual-assets.md 一致 */
 
+/** 视觉素材 role 元数据（注册表条目） */
+export type VisualAssetRoleDefinition = {
+  displayGroup: string;
+  defaultImplementationId: string;
+  allowedImplementationIds: readonly string[];
+  implementations: Record<
+    string,
+    {
+      title: string;
+      description: string;
+    }
+  >;
+};
+
 export type VisualAssetScope = {
   pageIndex?: number;
   slotId?: string;

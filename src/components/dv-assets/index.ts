@@ -36,7 +36,13 @@ export {
   type BoardPresetIconProps,
   BOARD_PRESET_ICON_IDS,
   type BoardPresetIconId,
+  DEFAULT_BOARD_PRESET_ICON_ID,
 } from "./board/board-preset-icon";
+export {
+  KPI_PRESET_ICON_IDS_SEMANTIC,
+  KPI_PRESET_ICON_IDS_LEGACY,
+  KpiPresetIconById,
+} from "./kpi-preset-icons";
 export { buildHeroTitleSvgMarkup } from "./titles/hero-title-backdrop-markup";
 export { buildChartLabelSvgMarkup } from "./titles/chart-label-backdrop-markup";
 export { buildFooterBarSvgMarkup } from "./titles/footer-bar-backdrop-markup";

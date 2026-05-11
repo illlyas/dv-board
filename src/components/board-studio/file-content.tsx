@@ -34,6 +34,9 @@ interface FileTabContentProps {
   onMdAgentSelectText?: (text: string) => void;
   /** dashboard.jsx 预览运行时覆盖 */
   visualAssetsBlock?: VisualAssetsBlock | null;
+  /** 与 project screenPreset 一致的设计画布像素，用于等比缩放进预览区 */
+  boardCanvasWidth?: number;
+  boardCanvasHeight?: number;
 }
 
 export const FileTabContent = memo(function FileTabContent({
@@ -47,6 +50,8 @@ export const FileTabContent = memo(function FileTabContent({
   mdAgentMode = false,
   onMdAgentSelectText,
   visualAssetsBlock = null,
+  boardCanvasWidth,
+  boardCanvasHeight,
 }: FileTabContentProps) {
   const [content, setContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,14 +115,20 @@ export const FileTabContent = memo(function FileTabContent({
           onSelectionChange={onSelectionChange}
           cssVariables={cssVariables}
           visualAssetsBlock={visualAssetsBlock}
+          canvasWidth={boardCanvasWidth}
+          canvasHeight={boardCanvasHeight}
         />
       ) : (
         <ScaledBoardPreview
           code={content}
           cssVariables={cssVariables}
           visualAssetsBlock={visualAssetsBlock}
+          canvasWidth={boardCanvasWidth}
+          canvasHeight={boardCanvasHeight}
         />
       );
+
+    const jsxShell = <div className="flex h-full min-h-0 w-full flex-1 flex-col">{previewBody}</div>;
 
     if (dashboardPreview) {
       return (
@@ -125,11 +136,11 @@ export const FileTabContent = memo(function FileTabContent({
           projectName={dashboardPreview.projectName}
           dashboardFile={dashboardPreview.dashboardFile}
         >
-          {previewBody}
+          {jsxShell}
         </DashboardPreviewProvider>
       );
     }
-    return previewBody;
+    return jsxShell;
   }
 
   if (isViSystem) {

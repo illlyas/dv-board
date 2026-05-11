@@ -4,6 +4,7 @@ import type {
   DashboardStorePayload,
   DashboardStoreSlotRole,
 } from "@/types/dashboard-store.types";
+import type { KPIWidgetGroupItem } from "@/types/widget.types";
 
 /** dashboard.jsx → dashboard.store.json */
 export function dashboardStoreFilename(dashboardJsxName: string): string {
@@ -116,11 +117,19 @@ const MOCK_SNAPSHOT_KEYS = new Set([
   "dataSlotId",
   "pageIndex",
   "valueKey",
+  "presetIconId",
   "precision",
   "unit",
   "multiple",
   "showLegend",
   "legendPosition",
+  "nameField",
+  "valueField",
+  "presentation",
+  "groupItems",
+  "miniChart",
+  "footer",
+  "secondaryStatistic",
 ]);
 
 export function buildPropsSnapshotForMock(
@@ -134,4 +143,27 @@ export function buildPropsSnapshotForMock(
     }
   }
   return out;
+}
+
+/** 指标组内单列：合并父级 props 与单项，去掉 groupItems，供 mock-slot / 本地 mock 按「单卡」形状生成 */
+export function buildKpiGroupItemPropsSnapshot(
+  widgetType: string,
+  props: Record<string, unknown>,
+  item: KPIWidgetGroupItem
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...props };
+  delete merged.groupItems;
+
+  merged.title = item.title;
+  if (item.subtitle !== undefined) merged.subtitle = item.subtitle;
+  merged.valueKey = item.valueKey;
+  if (item.unit !== undefined) merged.unit = item.unit;
+  if (item.prefix !== undefined) merged.prefix = item.prefix;
+  if (item.suffix !== undefined) merged.suffix = item.suffix;
+  if (item.format !== undefined) merged.format = item.format;
+  if (item.precision !== undefined) merged.precision = item.precision;
+  if (item.presetIconId !== undefined) merged.presetIconId = item.presetIconId;
+  merged.miniChart = item.miniChart ?? merged.miniChart;
+
+  return buildPropsSnapshotForMock(widgetType, merged);
 }

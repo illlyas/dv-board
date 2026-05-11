@@ -27,6 +27,7 @@ export async function executeDesignStory(
   const body: Record<string, unknown> = { brief, ...(answers ? { answers } : {}) };
   const ex = opts?.existingStory?.trim();
   if (ex) body.existingStory = ex;
+  if (ctx.projectName) body.projectKey = ctx.projectName;
 
   const designStory = await callPipelineStepText("/api/board/design-story", body, ctx.onProgress, ctx.signal);
 
@@ -48,6 +49,7 @@ export async function executePagesStory(
   const body: Record<string, unknown> = { designStory };
   const ex = opts?.existingPages?.trim();
   if (ex) body.existingPages = ex;
+  if (ctx.projectName) body.projectKey = ctx.projectName;
 
   const pagesStory = await callPipelineStepText("/api/board/design-pages", body, ctx.onProgress, ctx.signal);
 
@@ -206,6 +208,7 @@ export async function executeJSXGeneration(
     boardStory: pagesStory,
     tokens,
   };
+  if (ctx.projectName) payload.projectKey = ctx.projectName;
   if (existingDashboard.trim()) {
     payload.existingDashboard =
       existingDashboard.length <= JSX_CTX_TRUNC

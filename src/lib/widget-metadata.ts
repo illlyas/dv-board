@@ -42,23 +42,39 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
   KPI: {
     type: "KPI",
     name: "KPI 卡片",
-    description: "展示关键指标数值，支持趋势和对比",
+    description:
+      "关键指标：支持经典卡片 / 顶栏 inline / 侧栏竖排 / 展台居中；presentation.surface 可无卡片底（none）；指标组 groupItems 下每项独立请求数据（mock 槽 `父 dataSlotId.__成员 id`）；主数值发光由主题 --kpi-glow-base（颜色）驱动（presentation.valueGlow off 可关）；L5 迷你趋势用 miniChart（内部 ECharts）。",
     category: "data-display",
-    useCases: ["展示核心指标", "显示实时数据", "对比同环比"],
+    useCases: ["展示核心指标", "显示实时数据", "对比同环比", "顶栏无卡指标组", "带微型趋势"],
     requiredProps: ["title", "dataKey"],
-    optionalProps: ["subtitle", "icon", "presetIconId", "unit", "trend", "comparison", "format", "gradient"],
+    optionalProps: [
+      "subtitle",
+      "icon",
+      "presetIconId",
+      "unit",
+      "trend",
+      "comparison",
+      "format",
+      "gradient",
+      "presentation",
+      "footer",
+      "secondaryStatistic",
+      "miniChart",
+      "groupItems",
+      "valueKey",
+    ],
     example: `{
   type: "KPI",
   props: {
     title: "住院人数",
     subtitle: "当前在院",
-    presetIconId: "preset-icon-3",
-    icon: "🏥",
+    presetIconId: "kpi-insight-badge",
     dataKey: "inpatient_count",
     unit: "人",
     trend: true,
     comparison: { type: "yoy", label: "同比" },
-    gradient: ["#3b82f6", "#8b5cf6"],
+    presentation: { surface: "card", layout: "classic", valueGlow: "inherit" },
+    miniChart: { seriesKey: "inpatient_sparkline", kind: "line", height: 40 },
   }
 }`,
   },
@@ -92,7 +108,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["时间序列分析", "趋势对比", "多指标对比"],
     requiredProps: ["title", "dataKey", "xAxis", "yAxis"],
-    optionalProps: ["subtitle", "titleBackdrop", "style", "showLegend", "showGrid", "smooth", "area", "colorScheme", "gridColor", "axisColor", "axisTextColor", "tooltipBackgroundColor", "tooltipTextColor", "echartsOptionOverrides"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "dualYAxis", "showLegend", "showGrid", "smooth", "area", "colorScheme", "gridColor", "axisColor", "axisTextColor", "tooltipBackgroundColor", "tooltipTextColor", "echartsOptionOverrides"],
     example: `{
   type: "LineChart",
   props: {
@@ -179,7 +195,7 @@ export const widgetMetadataRegistry: Record<string, WidgetMetadata> = {
     category: "chart",
     useCases: ["趋势分析", "累积展示"],
     requiredProps: ["title", "dataKey", "xAxis", "yAxis"],
-    optionalProps: ["subtitle", "titleBackdrop", "style", "showLegend", "showGrid", "smooth", "area", "colorScheme", "echartsOptionOverrides"],
+    optionalProps: ["subtitle", "titleBackdrop", "style", "dualYAxis", "showLegend", "showGrid", "smooth", "area", "colorScheme", "echartsOptionOverrides"],
     example: "同 LineChart，会自动设置 area: true",
   },
   

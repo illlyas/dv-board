@@ -17,6 +17,8 @@ import { useTabManager } from "./board-studio/use-tab-manager";
 import type { SelectedWidget } from "./board-studio/editable-preview";
 import type { PipelineStep } from "@/types/pipeline.types";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
+import { getScreenPreset } from "@/lib/board/screen-presets";
+import type { ProjectConfig } from "@/lib/projects/project-config";
 
 interface BoardStudioProps {
   projectName?: string;
@@ -60,12 +62,17 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
   const [visualAssetsBlock, setVisualAssetsBlock] = useState<VisualAssetsBlock | null>(null);
   const [visualAssetsLoading, setVisualAssetsLoading] = useState(() => Boolean(projectName.trim()));
   const [visualAssetsFetchError, setVisualAssetsFetchError] = useState<string | null>(null);
+  const defaultScreen = useMemo(() => getScreenPreset(undefined), []);
+  const [boardCanvasWidth, setBoardCanvasWidth] = useState(defaultScreen.width);
+  const [boardCanvasHeight, setBoardCanvasHeight] = useState(defaultScreen.height);
 
   useEffect(() => {
     if (!projectName.trim()) {
       setVisualAssetsBlock(null);
       setVisualAssetsLoading(false);
       setVisualAssetsFetchError(null);
+      setBoardCanvasWidth(defaultScreen.width);
+      setBoardCanvasHeight(defaultScreen.height);
       return;
     }
     let cancelled = false;
@@ -74,10 +81,14 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
     fetch(`/api/projects/${encodeURIComponent(projectName)}`)
       .then((r) => {
         if (!r.ok) throw new Error(`project fetch failed (${r.status})`);
-        return r.json() as Promise<{ project: { visualAssets?: VisualAssetsBlock } }>;
+        return r.json() as Promise<{ project: ProjectConfig }>;
       })
       .then((d) => {
-        if (!cancelled) setVisualAssetsBlock(d.project.visualAssets ?? null);
+        if (cancelled) return;
+        setVisualAssetsBlock(d.project.visualAssets ?? null);
+        const sp = getScreenPreset(d.project.screenPresetId);
+        setBoardCanvasWidth(sp.width);
+        setBoardCanvasHeight(sp.height);
       })
       .catch((e) => {
         if (!cancelled) {
@@ -91,7 +102,7 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
     return () => {
       cancelled = true;
     };
-  }, [projectName, fileRefreshTrigger]);
+  }, [projectName, fileRefreshTrigger, defaultScreen]);
 
   const retryVisualAssetsConfig = useCallback(() => {
     setVisualAssetsFetchError(null);
@@ -308,6 +319,8 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
           onRetryVisualAssetsConfig={retryVisualAssetsConfig}
           onVisualAssetsSaved={handleVisualAssetsSaved}
           previewCssVariables={viTweaks.injectVars}
+          boardCanvasWidth={boardCanvasWidth}
+          boardCanvasHeight={boardCanvasHeight}
           tweaksOpen={tweaksOpen}
           setTweaksOpen={setTweaksOpen}
           dashboardTweaks={dashboardTweaks}

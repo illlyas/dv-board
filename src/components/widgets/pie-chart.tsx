@@ -22,6 +22,42 @@ const FALLBACK_PALETTE = [
   "var(--chart-1, #3b82f6)",
 ];
 
+function coerceFiniteNumber(v: unknown): number | null {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string" && v.trim() !== "") {
+    const n = Number(v);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+/** 与 mock-slot / 手写数据对齐：优先 props 字段，再回退常见键名（避免 value 全为 0） */
+function pickPieSliceValue(item: Record<string, unknown>, primary: string | undefined): number {
+  if (primary && item[primary] !== undefined && item[primary] !== null) {
+    const n = coerceFiniteNumber(item[primary]);
+    if (n != null) return n;
+  }
+  for (const f of ["value", "count", "amount", "total", "val", "qty"]) {
+    if (!f || f === primary) continue;
+    if (item[f] === undefined || item[f] === null) continue;
+    const n = coerceFiniteNumber(item[f]);
+    if (n != null) return n;
+  }
+  return 0;
+}
+
+function pickPieSliceName(item: Record<string, unknown>, primary: string | undefined): string {
+  if (primary && item[primary] != null && String(item[primary]).trim() !== "") {
+    return String(item[primary]);
+  }
+  for (const f of ["name", "category", "type", "label", "status"]) {
+    if (!f || f === primary) continue;
+    const v = item[f];
+    if (v != null && String(v).trim() !== "") return String(v);
+  }
+  return "";
+}
+
 function PieChartWidget({ config, data, loading }: WidgetComponentProps<{ type: "PieChart"; props: PieChartProps }>) {
   const props = config.props;
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -111,8 +147,8 @@ function PieChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
           radius: props.donut ? [`${innerPct}%`, `${outerPct}%`] : [`0%`, `${outerPct}%`],
           center: legendOnSide ? ["42%", "50%"] : ["50%", "52%"],
           data: chartData.map((item: Record<string, unknown>) => ({
-            name: String(item[props.nameField] ?? ""),
-            value: Number(item[props.valueField] ?? 0),
+            name: pickPieSliceName(item, props.nameField),
+            value: pickPieSliceValue(item, props.valueField),
           })),
           label: {
             show: true,
