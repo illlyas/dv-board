@@ -69,6 +69,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
         const { Widget } = await import("@/components/widget/widget");
         const { BoardHeroBackdrop, BoardFooterBackdrop, BoardPageBackdrop, BoardPresetIcon } =
           await import("@/components/dv-assets");
+        const { useStoreData } = await import("@/hooks/use-store-data");
         await import("@/components/widgets"); // 自动注册所有组件
 
         // 1. 移除所有 import 语句
@@ -115,6 +116,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           "BoardFooterBackdrop",
           "BoardPageBackdrop",
           "BoardPresetIcon",
+          "useStoreData",
           fullCode
         );
         
@@ -129,7 +131,8 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           BoardHeroBackdrop,
           BoardFooterBackdrop,
           BoardPageBackdrop,
-          BoardPresetIcon
+          BoardPresetIcon,
+          useStoreData
         );
         
         console.log("[JsxRenderer] Component created:", typeof GeneratedComponent);

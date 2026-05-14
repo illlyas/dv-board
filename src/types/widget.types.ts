@@ -25,6 +25,7 @@ export type WidgetType =
   | "RadarChart"
   | "GaugeChart"
   | "FunnelChart"
+  | "GeoMap"
   
   // 表格和列表
   | "Table"
@@ -576,6 +577,15 @@ export interface TableProps extends BaseWidgetProps, DataBinding {
   
   /** 边框颜色 */
   borderColor?: string;
+
+  /** 是否自动滚动 */
+  autoScroll?: boolean;
+
+  /** 自动滚动速度（px/s），默认 30 */
+  autoScrollSpeed?: number;
+
+  /** 是否显示页脚（分页区域），默认 true */
+  showFooter?: boolean;
 }
 
 // ============================================================================

@@ -11,6 +11,7 @@ import "./pie-chart";
 import "./table";
 import "./filters/date-range-picker";
 import "./filters/select";
+import "./geo-map";
 
 // 导出组件（可选）
 export { default as KPICard } from "./kpi-card";

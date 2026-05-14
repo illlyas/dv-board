@@ -1,8 +1,0 @@
-{
-  "id": "industrial-nebula-ops",
-  "title": "工业星云运营指挥",
-  "description": "深色霓虹工业风，多 KPI 与产线趋势、设备故障等模块，适合制造运营指挥中心场景预览。",
-  "tags": ["工业", "深色", "多图表", "1920×1080"],
-  "dashboardFile": "dashboard.jsx",
-  "screenPresetId": "1920x1080"
-}

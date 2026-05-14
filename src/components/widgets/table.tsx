@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { TableProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
@@ -15,6 +15,36 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 自动滚动
+  useEffect(() => {
+    if (!props.autoScroll) return;
+    const speed = props.autoScrollSpeed || 30; // px/s
+    let animId: number;
+    let lastTime = performance.now();
+
+    function step(now: number) {
+      const el = scrollRef.current;
+      if (!el) {
+        animId = requestAnimationFrame(step);
+        return;
+      }
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      const maxScroll = el.scrollHeight - el.clientHeight;
+      if (maxScroll > 1) {
+        el.scrollTop += speed * dt;
+        if (el.scrollTop >= maxScroll) {
+          el.scrollTop = 0;
+        }
+      }
+      animId = requestAnimationFrame(step);
+    }
+
+    animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [props.autoScroll, props.autoScrollSpeed]);
 
   // 排序数据
   const sortedData = useMemo(() => {
@@ -310,10 +340,10 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
       )}
 
       {/* 表格容器 */}
-      <div style={{
+      <div ref={scrollRef} style={{
         flex: 1,
         minHeight: 0,
-        overflow: "auto",
+        overflow: props.autoScroll ? "hidden" : "auto",
         borderRadius: 8,
         border: props.bordered ? `1px solid ${defaultColors.borderColor}` : "none",
       }}>
@@ -446,7 +476,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
       </div>
 
       {/* 分页 */}
-      {props.pagination && totalPages > 1 && (
+      {props.showFooter !== false && props.pagination && totalPages > 1 && (
         <div style={{
           marginTop: 16,
           display: "flex",

@@ -1,0 +1,205 @@
+{
+  "mode": "dark",
+  "cssVariables": {
+    "--color-bg": "#03120B",
+    "--color-surface": "#081C16",
+    "--color-surface-2": "#0F2A20",
+    "--color-muted": "#163529",
+    "--color-primary": "#5FE48C",
+    "--color-primary-hover": "#8CF0AE",
+    "--color-accent": "#3AFF9B",
+    "--color-accent-gold": "#D4B86A",
+    "--color-success": "#22C55E",
+    "--color-warning": "#FACC15",
+    "--color-danger": "#F87171",
+    "--color-info": "#38BDF8",
+    "--color-text-primary": "#E8FFE8",
+    "--color-text-secondary": "#9BE5B5",
+    "--color-text-muted": "#5FA37E",
+    "--color-text-inverse": "#03120B",
+    "--color-border": "rgba(95,228,140,0.22)",
+    "--color-border-strong": "rgba(95,228,140,0.55)",
+    "--color-grid": "rgba(95,228,140,0.08)",
+    "--color-overlay": "rgba(0,0,0,0.65)",
+    "--dv-chart-panel-bg": "transparent",
+    "--dv-chart-panel-padding": "0",
+    "--dv-chart-panel-border": "none",
+    "--dv-chart-panel-radius": "0",
+    "--dv-chart-plot-bg": "transparent",
+    "--font-display": "\"Rajdhani\",\"Bahnschrift\",\"DIN Alternate\",system-ui,sans-serif",
+    "--font-body": "system-ui,\"Segoe UI\",sans-serif",
+    "--font-mono": "ui-monospace,\"JetBrains Mono\",monospace",
+    "--font-size-xs": "12px",
+    "--font-size-sm": "14px",
+    "--font-size-md": "16px",
+    "--font-size-lg": "18px",
+    "--font-size-xl": "22px",
+    "--font-size-2xl": "28px",
+    "--font-size-3xl": "34px",
+    "--font-weight-regular": "400",
+    "--font-weight-medium": "500",
+    "--font-weight-semibold": "600",
+    "--font-weight-bold": "700",
+    "--line-height-tight": "1.15",
+    "--line-height-normal": "1.45",
+    "--line-height-relaxed": "1.55",
+    "--letter-spacing-tight": "-0.01em",
+    "--letter-spacing-normal": "0",
+    "--letter-spacing-wide": "0.08em",
+    "--space-1": "8px",
+    "--space-2": "12px",
+    "--space-3": "16px",
+    "--space-4": "24px",
+    "--space-5": "32px",
+    "--space-6": "48px",
+    "--space-8": "64px",
+    "--space-10": "96px",
+    "--space-12": "128px",
+    "--radius-sm": "4px",
+    "--radius-md": "6px",
+    "--radius-lg": "8px",
+    "--radius-xl": "12px",
+    "--radius-pill": "9999px",
+    "--shadow-sm": "0 0 2px rgba(95,228,140,0.4)",
+    "--shadow-md": "0 0 6px rgba(95,228,140,0.35)",
+    "--shadow-lg": "0 0 12px rgba(95,228,140,0.45)",
+    "--shadow-xl": "0 0 20px rgba(95,228,140,0.55)",
+    "--motion-fast": "150ms",
+    "--motion-normal": "200ms",
+    "--motion-slow": "240ms",
+    "--motion-easing": "ease-out",
+    "--border-width-thin": "1px",
+    "--border-width-normal": "2px",
+    "--backdrop-blur": "0px",
+    "--dv-chart-grid-stroke": "rgba(95,228,140,0.08)",
+    "--dv-chart-grid-dash": "2 8",
+    "--dv-chart-axis-line": "#34684F",
+    "--dv-chart-axis-tick-stroke": "#34684F",
+    "--dv-chart-tick-label": "#9BE5B5",
+    "--dv-chart-axis-title": "#E8FFE8",
+    "--dv-chart-legend-text": "#9BE5B5",
+    "--dv-chart-legend-inactive": "rgba(155,229,181,0.35)",
+    "--dv-chart-tooltip-bg": "#081C16",
+    "--dv-chart-tooltip-border": "rgba(95,228,140,0.5)",
+    "--dv-chart-tooltip-fg": "#E8FFE8",
+    "--dv-chart-label-line": "rgba(155,229,181,0.5)",
+    "--dv-chart-reference-stroke": "#FACC15",
+    "--kpi-bg-from": "#081C16",
+    "--kpi-bg-to": "#0F2A20",
+    "--kpi-text-primary": "#E8FFE8",
+    "--kpi-text-secondary": "rgba(232,255,232,0.72)",
+    "--kpi-text-muted": "rgba(232,255,232,0.42)",
+    "--kpi-glow-base": "var(--color-primary)"
+  },
+  "chartPalette": [
+    "#5FE48C",
+    "#3AFF9B",
+    "#22C55E",
+    "#86EFAC",
+    "#FACC15",
+    "#F87171"
+  ],
+  "raw": {
+    "color": {
+      "primary": {
+        "name": "主色",
+        "hex": "#5FE48C",
+        "usage": "核心强调、主数据线、发光勾边"
+      },
+      "secondary": [
+        { "name": "主色悬停", "hex": "#8CF0AE", "usage": "交互高亮" },
+        { "name": "accent", "hex": "#3AFF9B", "usage": "次级高亮、图例次要系列" },
+        { "name": "accent-gold", "hex": "#D4B86A", "usage": "工单环形指标、金属高亮" }
+      ],
+      "accent": [],
+      "surface": [
+        { "name": "主背景", "hex": "#03120B", "usage": "整屏最深底" },
+        { "name": "表面", "hex": "#081C16", "usage": "顶栏、模块衬底" },
+        { "name": "次级表面", "hex": "#0F2A20", "usage": "hover/选中模块" },
+        { "name": "弱衬", "hex": "#163529", "usage": "分割线内侧、图表绘图区弱底" }
+      ],
+      "text": [
+        { "name": "主文案", "hex": "#E8FFE8", "usage": "正文标题、数值" },
+        { "name": "次级文案", "hex": "#9BE5B5", "usage": "次要文字" },
+        { "name": "弱化文案", "hex": "#5FA37E", "usage": "辅助、占位" },
+        { "name": "反色文案", "hex": "#03120B", "usage": "用于主色实心按钮上" }
+      ],
+      "border": [
+        { "name": "边框", "hex": "rgba(95,228,140,0.22)", "usage": "模块分割边界" },
+        { "name": "强边框", "hex": "rgba(95,228,140,0.55)", "usage": "强调边框、发光勾边" }
+      ],
+      "semantic": {
+        "success": { "name": "成功", "hex": "#22C55E", "usage": "正向指标" },
+        "warning": { "name": "警告", "hex": "#FACC15", "usage": "警示数据" },
+        "danger": { "name": "危险", "hex": "#F87171", "usage": "警戒值、错误" },
+        "info": { "name": "信息", "hex": "#38BDF8", "usage": "辅助提示" },
+        "grid": { "name": "网格线", "hex": "rgba(95,228,140,0.08)", "usage": "图表网格背景" }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "display": "\"Rajdhani\",\"Bahnschrift\",\"DIN Alternate\",system-ui,sans-serif",
+        "body": "system-ui,\"Segoe UI\",sans-serif",
+        "mono": "ui-monospace,\"JetBrains Mono\",monospace"
+      },
+      "scale": [
+        { "size": "12px", "usage": "xs" },
+        { "size": "14px", "usage": "sm" },
+        { "size": "16px", "usage": "md" },
+        { "size": "18px", "usage": "lg" },
+        { "size": "22px", "usage": "xl" },
+        { "size": "28px", "usage": "2xl" },
+        { "size": "34px", "usage": "3xl" }
+      ],
+      "weights": [
+        { "weight": 400, "name": "regular" },
+        { "weight": 500, "name": "medium" },
+        { "weight": 600, "name": "semibold" },
+        { "weight": 700, "name": "bold" }
+      ]
+    },
+    "spacing": {
+      "baseUnit": "8px",
+      "scale": ["8px","12px","16px","24px","32px","48px","64px","96px","128px"]
+    },
+    "radius": {
+      "sm": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "xl": "12px",
+      "pill": "9999px"
+    },
+    "shadow": {
+      "sm": "0 0 2px rgba(95,228,140,0.4)",
+      "md": "0 0 6px rgba(95,228,140,0.35)",
+      "lg": "0 0 12px rgba(95,228,140,0.45)",
+      "xl": "0 0 20px rgba(95,228,140,0.55)"
+    },
+    "motion": {
+      "fast": "150ms",
+      "normal": "200ms",
+      "slow": "240ms",
+      "easing": "ease-out"
+    },
+    "components": {
+      "button": {
+        "background": "var(--color-surface-2) or transparent",
+        "border": "var(--color-border)",
+        "active": "var(--color-primary) fill or border"
+      },
+      "card": {
+        "background": "var(--color-surface)",
+        "border": "var(--color-border)",
+        "radius": "var(--radius-lg, 8px)"
+      },
+      "input": {
+        "background": "var(--color-surface-2)",
+        "border": "var(--color-border-strong)",
+        "focus": "var(--color-primary) glow"
+      },
+      "navigation": {
+        "tab": "semi-transparent background, primary color selection"
+      }
+    }
+  }
+}

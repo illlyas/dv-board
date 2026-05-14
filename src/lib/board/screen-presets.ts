@@ -67,6 +67,15 @@ const PRESETS: ScreenPreset[] = [
     description: "略增高纵向空间，可多排一行辅助模块。",
   },
   {
+    id: "2560x900",
+    label: "超宽 900",
+    tag: "2560×900",
+    width: 2560,
+    height: 900,
+    category: "ultrawide",
+    description: "加宽低高度带布局，适合顶栏 + 三列的紧凑 HUD 场景。",
+  },
+  {
     id: "2560x1080",
     label: "带鱼入门",
     tag: "2560×1080",

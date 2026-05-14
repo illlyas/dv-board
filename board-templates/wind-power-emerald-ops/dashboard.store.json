@@ -1,0 +1,2350 @@
+{
+  "version": 1,
+  "dashboardFile": "dashboard.jsx",
+  "updatedAt": "2026-05-11T00:00:00.000Z",
+  "pages": [
+    {
+      "pageIndex": 0,
+      "components": [
+        {
+          "slotId": "p0.kpi.wind_farms",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_farms_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "风电场数量",
+            "dataKey": "wind_farms_value",
+            "dataSlotId": "p0.kpi.wind_farms",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "个",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 345,
+              "unit": "个",
+              "trend": "up",
+              "trendValue": "+12",
+              "comparison": {
+                "label": "目标",
+                "value": "360个"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.wind_units",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_units_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "风电机组数量",
+            "dataKey": "wind_units_value",
+            "dataSlotId": "p0.kpi.wind_units",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "台",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 1157,
+              "unit": "台",
+              "trend": "up",
+              "trendValue": "+24",
+              "comparison": {
+                "label": "去年",
+                "value": "1133台"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.availability",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "availability_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "平均可利用率",
+            "dataKey": "availability_value",
+            "dataSlotId": "p0.kpi.availability",
+            "pageIndex": 0,
+            "presetIconId": "kpi-insight-badge",
+            "unit": "%",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 88,
+              "unit": "%",
+              "trend": "up",
+              "trendValue": "+1.5%",
+              "comparison": {
+                "label": "目标",
+                "value": "≥90%"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.emission",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "emission_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "年减排量",
+            "dataKey": "emission_value",
+            "dataSlotId": "p0.kpi.emission",
+            "pageIndex": 0,
+            "presetIconId": "kpi-capsule",
+            "unit": "万kWh",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 838,
+              "unit": "万kWh",
+              "trend": "up",
+              "trendValue": "+6.4%",
+              "comparison": {
+                "label": "同比",
+                "value": "+52"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.clean_gen",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "clean_gen_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "清洁能源发电",
+            "dataKey": "clean_gen_value",
+            "dataSlotId": "p0.kpi.clean_gen",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "万kW",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 1259,
+              "unit": "万kW",
+              "trend": "up",
+              "trendValue": "+3.8%",
+              "comparison": {
+                "label": "目标",
+                "value": "1300万kW"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.gen_year",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_year_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当年",
+            "dataKey": "gen_year_value",
+            "dataSlotId": "p0.kpi.gen_year",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "MWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 1235,
+              "unit": "MWh",
+              "trend": "up",
+              "trendValue": "+8.2%",
+              "comparison": {
+                "label": "目标",
+                "value": "1500MWh"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.gen_month",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_month_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当月",
+            "dataKey": "gen_month_value",
+            "dataSlotId": "p0.kpi.gen_month",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "MWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 123,
+              "unit": "MWh",
+              "trend": "up",
+              "trendValue": "+3.1%",
+              "comparison": {
+                "label": "目标",
+                "value": "140MWh"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.gen_day",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_day_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当日",
+            "dataKey": "gen_day_value",
+            "dataSlotId": "p0.kpi.gen_day",
+            "pageIndex": 0,
+            "presetIconId": "kpi-insight-badge",
+            "unit": "MWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 24,
+              "unit": "MWh",
+              "trend": "down",
+              "trendValue": "-1.4%",
+              "comparison": {
+                "label": "昨日",
+                "value": "24.3MWh"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.chart.hours_trend",
+          "pageIndex": 0,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "hours_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "近五年等效小时数与业界平均发电小时数",
+            "xAxis": {
+              "field": "year",
+              "label": "年度"
+            },
+            "yAxis": [
+              {
+                "field": "series_1",
+                "label": "系列一",
+                "color": "#5FE48C"
+              },
+              {
+                "field": "series_2",
+                "label": "系列二",
+                "color": "#D4B86A"
+              }
+            ],
+            "dataKey": "hours_trend",
+            "dataSlotId": "p0.chart.hours_trend",
+            "pageIndex": 0,
+            "showLegend": true
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "year": "2014",
+                "series_1": 165,
+                "series_2": 140
+              },
+              {
+                "year": "2015",
+                "series_1": 190,
+                "series_2": 155
+              },
+              {
+                "year": "2016",
+                "series_1": 230,
+                "series_2": 180
+              },
+              {
+                "year": "2017",
+                "series_1": 175,
+                "series_2": 165
+              },
+              {
+                "year": "2018",
+                "series_1": 195,
+                "series_2": 170
+              },
+              {
+                "year": "2019",
+                "series_1": 170,
+                "series_2": 150
+              },
+              {
+                "year": "2020",
+                "series_1": 210,
+                "series_2": 175
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.capacity_rate",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "capacity_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "年生产能力",
+            "dataKey": "capacity_rate_value",
+            "dataSlotId": "p0.kpi.capacity_rate",
+            "pageIndex": 0,
+            "presetIconId": "kpi-capsule",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 50,
+              "unit": "%",
+              "trend": "up",
+              "trendValue": "+2.5%",
+              "comparison": {
+                "label": "实际/目标",
+                "value": "600 / 1200"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.plan_rate",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "plan_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "计划排产量",
+            "dataKey": "plan_rate_value",
+            "dataSlotId": "p0.kpi.plan_rate",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 50,
+              "unit": "%",
+              "trend": "flat",
+              "trendValue": "0%",
+              "comparison": {
+                "label": "实际/计划",
+                "value": "600 / 1200"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.chart.capacity",
+          "pageIndex": 0,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "capacity_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "装机容量 (万kW)",
+            "xAxis": {
+              "field": "year",
+              "label": "年度"
+            },
+            "yAxis": [
+              {
+                "field": "series_1",
+                "label": "系列一",
+                "color": "#5FE48C"
+              },
+              {
+                "field": "series_2",
+                "label": "系列二",
+                "color": "#D4B86A"
+              }
+            ],
+            "dataKey": "capacity_trend",
+            "dataSlotId": "p0.chart.capacity",
+            "pageIndex": 0,
+            "showLegend": true
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "year": "2016",
+                "series_1": 120,
+                "series_2": 95
+              },
+              {
+                "year": "2017",
+                "series_1": 230,
+                "series_2": 185
+              },
+              {
+                "year": "2018",
+                "series_1": 180,
+                "series_2": 160
+              },
+              {
+                "year": "2019",
+                "series_1": 260,
+                "series_2": 210
+              },
+              {
+                "year": "2020",
+                "series_1": 285,
+                "series_2": 240
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.running_orders",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "running_orders_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当前在运单数",
+            "dataKey": "running_orders_value",
+            "dataSlotId": "p0.kpi.running_orders",
+            "pageIndex": 0,
+            "presetIconId": "kpi-package",
+            "unit": "个",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 1235,
+              "unit": "个",
+              "trend": "up",
+              "trendValue": "+6.2%",
+              "comparison": {
+                "label": "昨日",
+                "value": "1163个"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.abnormal_orders",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "abnormal_orders_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "异常运单数量",
+            "dataKey": "abnormal_orders_value",
+            "dataSlotId": "p0.kpi.abnormal_orders",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "个",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 123,
+              "unit": "个",
+              "trend": "down",
+              "trendValue": "-4.5%",
+              "comparison": {
+                "label": "昨日",
+                "value": "129个"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.chart.device_donut",
+          "pageIndex": 0,
+          "widgetType": "DonutChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_donut",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "DonutChart",
+            "title": "在途设备占比图",
+            "nameField": "name",
+            "valueField": "value",
+            "dataKey": "device_donut",
+            "dataSlotId": "p0.chart.device_donut",
+            "pageIndex": 0,
+            "showLegend": true,
+            "donut": true,
+            "innerRadius": 52,
+            "outerRadius": 78
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "name": "设备名称1",
+                "value": 42
+              },
+              {
+                "name": "设备名称2",
+                "value": 28
+              },
+              {
+                "name": "设备名称3",
+                "value": 18
+              },
+              {
+                "name": "设备名称4",
+                "value": 12
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.util_hours",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "util_hours_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "等效利用小时数",
+            "dataKey": "util_hours_value",
+            "dataSlotId": "p0.kpi.util_hours",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "小时",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 12,
+              "unit": "小时",
+              "trend": "up",
+              "trendValue": "+0.3",
+              "comparison": {
+                "label": "目标",
+                "value": "≥10h"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.mldt",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "mldt_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "平均故障相应时间 (MLDT)",
+            "dataKey": "mldt_value",
+            "dataSlotId": "p0.kpi.mldt",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "小时",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 2,
+              "unit": "小时",
+              "trend": "down",
+              "trendValue": "-0.5",
+              "comparison": {
+                "label": "目标",
+                "value": "≤3h"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.kpi.mttr",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "mttr_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "平均故障修复时间 (MTTR)",
+            "dataKey": "mttr_value",
+            "dataSlotId": "p0.kpi.mttr",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "小时",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 0.5,
+              "unit": "小时",
+              "trend": "down",
+              "trendValue": "-0.2",
+              "comparison": {
+                "label": "目标",
+                "value": "≤1h"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.gen_progress",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_progress",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "gen_progress",
+            "dataSlotId": "p0.config.gen_progress",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "当年",
+                  "value": 1235,
+                  "max": 1500,
+                  "unit": "MWh",
+                  "dir": "up",
+                  "iconId": "kpi-sync-refresh"
+                },
+                {
+                  "label": "当月",
+                  "value": 123,
+                  "max": 140,
+                  "unit": "MWh",
+                  "dir": "up",
+                  "iconId": "kpi-analytics-bars"
+                },
+                {
+                  "label": "当日",
+                  "value": 24,
+                  "max": 30,
+                  "unit": "MWh",
+                  "dir": "down",
+                  "iconId": "kpi-insight-badge"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.production_base",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "production_base",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "production_base",
+            "dataSlotId": "p0.config.production_base",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "capacity": {
+                "label": "年生产能力",
+                "current": 600,
+                "total": 1200
+              },
+              "capacityBars": [
+                {
+                  "label": "实际出质保项目",
+                  "value": 3830,
+                  "max": 5000,
+                  "unit": "个",
+                  "dir": "up"
+                },
+                {
+                  "label": "预计出质保项目",
+                  "value": 2200,
+                  "max": 5000,
+                  "unit": "个",
+                  "dir": "up"
+                }
+              ],
+              "plan": {
+                "label": "计划排产量",
+                "current": 600,
+                "total": 1200
+              },
+              "planBars": [
+                {
+                  "label": "已签署项目",
+                  "value": 18200,
+                  "max": 20000,
+                  "unit": "个",
+                  "dir": "up"
+                },
+                {
+                  "label": "已开工项目",
+                  "value": 12200,
+                  "max": 20000,
+                  "unit": "个",
+                  "dir": "up"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.transit_summary",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "transit_summary",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "transit_summary",
+            "dataSlotId": "p0.config.transit_summary",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "running": {
+                "iconId": "kpi-package",
+                "title": "当前在运项目数",
+                "value": "1235",
+                "unit": "个"
+              },
+              "abnormal": {
+                "iconId": "kpi-insight-badge",
+                "title": "异常运单数量",
+                "value": "123",
+                "unit": "个"
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.daily_orders",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "daily_orders",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "daily_orders",
+            "dataSlotId": "p0.config.daily_orders",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "title": "当日运单数情况",
+              "bars": [
+                {
+                  "label": "当日新发运单数",
+                  "value": 4000,
+                  "max": 5000,
+                  "unit": "个",
+                  "dir": "up"
+                },
+                {
+                  "label": "当日到达运单数",
+                  "value": 2849,
+                  "max": 5000,
+                  "unit": "个",
+                  "dir": "up"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.maintenance_metrics",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "maintenance_metrics",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "maintenance_metrics",
+            "dataSlotId": "p0.config.maintenance_metrics",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "iconId": "kpi-sync-refresh",
+                  "title": "等效利用小时数",
+                  "value": "12.0",
+                  "unit": "小时",
+                  "tone": "success"
+                },
+                {
+                  "iconId": "kpi-analytics-bars",
+                  "title": "平均故障相应时间 (MLDT)",
+                  "value": "2.0",
+                  "unit": "小时",
+                  "tone": "success"
+                },
+                {
+                  "iconId": "kpi-pharmacy",
+                  "title": "平均故障修复时间 (MTTR)",
+                  "value": "0.5",
+                  "unit": "小时",
+                  "tone": "success"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.work_orders",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "work_orders",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "work_orders",
+            "dataSlotId": "p0.config.work_orders",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "当日新生成的工单数量",
+                  "value": 24,
+                  "unit": "个",
+                  "tone": "success"
+                },
+                {
+                  "label": "当前尚未关闭的工单数量",
+                  "value": 8,
+                  "unit": "个",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "当日完成的工单数量",
+                  "value": 16,
+                  "unit": "个",
+                  "tone": "warning"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.province_data",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "province_data",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "province_data",
+            "dataSlotId": "p0.config.province_data",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "defaultProvince": "四川省",
+              "provinces": {
+                "北京市": {
+                  "power": 186,
+                  "capacity": 1200,
+                  "farms": 3,
+                  "rate": 97
+                },
+                "天津市": {
+                  "power": 95,
+                  "capacity": 800,
+                  "farms": 2,
+                  "rate": 94
+                },
+                "河北省": {
+                  "power": 312,
+                  "capacity": 3500,
+                  "farms": 8,
+                  "rate": 95
+                },
+                "山西省": {
+                  "power": 245,
+                  "capacity": 2800,
+                  "farms": 6,
+                  "rate": 93
+                },
+                "内蒙古自治区": {
+                  "power": 580,
+                  "capacity": 6200,
+                  "farms": 15,
+                  "rate": 96
+                },
+                "辽宁省": {
+                  "power": 320,
+                  "capacity": 3100,
+                  "farms": 7,
+                  "rate": 94
+                },
+                "吉林省": {
+                  "power": 275,
+                  "capacity": 2600,
+                  "farms": 6,
+                  "rate": 92
+                },
+                "黑龙江省": {
+                  "power": 410,
+                  "capacity": 4500,
+                  "farms": 10,
+                  "rate": 93
+                },
+                "上海市": {
+                  "power": 68,
+                  "capacity": 500,
+                  "farms": 1,
+                  "rate": 98
+                },
+                "江苏省": {
+                  "power": 380,
+                  "capacity": 4100,
+                  "farms": 9,
+                  "rate": 96
+                },
+                "浙江省": {
+                  "power": 210,
+                  "capacity": 2200,
+                  "farms": 5,
+                  "rate": 95
+                },
+                "安徽省": {
+                  "power": 195,
+                  "capacity": 1900,
+                  "farms": 4,
+                  "rate": 94
+                },
+                "福建省": {
+                  "power": 265,
+                  "capacity": 2900,
+                  "farms": 7,
+                  "rate": 96
+                },
+                "江西省": {
+                  "power": 145,
+                  "capacity": 1500,
+                  "farms": 3,
+                  "rate": 93
+                },
+                "山东省": {
+                  "power": 420,
+                  "capacity": 4800,
+                  "farms": 11,
+                  "rate": 95
+                },
+                "河南省": {
+                  "power": 230,
+                  "capacity": 2400,
+                  "farms": 5,
+                  "rate": 94
+                },
+                "湖北省": {
+                  "power": 198,
+                  "capacity": 2100,
+                  "farms": 5,
+                  "rate": 93
+                },
+                "湖南省": {
+                  "power": 175,
+                  "capacity": 1800,
+                  "farms": 4,
+                  "rate": 92
+                },
+                "广东省": {
+                  "power": 350,
+                  "capacity": 3800,
+                  "farms": 8,
+                  "rate": 97
+                },
+                "广西壮族自治区": {
+                  "power": 165,
+                  "capacity": 1700,
+                  "farms": 4,
+                  "rate": 91
+                },
+                "海南省": {
+                  "power": 88,
+                  "capacity": 900,
+                  "farms": 2,
+                  "rate": 95
+                },
+                "重庆市": {
+                  "power": 120,
+                  "capacity": 1300,
+                  "farms": 3,
+                  "rate": 92
+                },
+                "四川省": {
+                  "power": 222,
+                  "capacity": 2773,
+                  "farms": 5,
+                  "rate": 96
+                },
+                "贵州省": {
+                  "power": 185,
+                  "capacity": 2000,
+                  "farms": 5,
+                  "rate": 93
+                },
+                "云南省": {
+                  "power": 290,
+                  "capacity": 3200,
+                  "farms": 7,
+                  "rate": 94
+                },
+                "西藏自治区": {
+                  "power": 45,
+                  "capacity": 400,
+                  "farms": 1,
+                  "rate": 88
+                },
+                "陕西省": {
+                  "power": 215,
+                  "capacity": 2300,
+                  "farms": 5,
+                  "rate": 94
+                },
+                "甘肃省": {
+                  "power": 480,
+                  "capacity": 5500,
+                  "farms": 12,
+                  "rate": 95
+                },
+                "青海省": {
+                  "power": 155,
+                  "capacity": 1600,
+                  "farms": 4,
+                  "rate": 91
+                },
+                "宁夏回族自治区": {
+                  "power": 260,
+                  "capacity": 2700,
+                  "farms": 6,
+                  "rate": 96
+                },
+                "新疆维吾尔自治区": {
+                  "power": 620,
+                  "capacity": 7100,
+                  "farms": 18,
+                  "rate": 94
+                },
+                "台湾省": {
+                  "power": 78,
+                  "capacity": 700,
+                  "farms": 2,
+                  "rate": 93
+                },
+                "香港特别行政区": {
+                  "power": 12,
+                  "capacity": 100,
+                  "farms": 1,
+                  "rate": 97
+                },
+                "澳门特别行政区": {
+                  "power": 5,
+                  "capacity": 50,
+                  "farms": 1,
+                  "rate": 96
+                }
+              }
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p0.config.map_scatter",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "map_scatter",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "map_scatter",
+            "dataSlotId": "p0.config.map_scatter",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "name": "北京",
+                "value": [
+                  116.46,
+                  39.92,
+                  3
+                ]
+              },
+              {
+                "name": "天津",
+                "value": [
+                  117.2,
+                  39.13,
+                  2
+                ]
+              },
+              {
+                "name": "石家庄",
+                "value": [
+                  114.48,
+                  38.03,
+                  4
+                ]
+              },
+              {
+                "name": "唐山",
+                "value": [
+                  118.18,
+                  39.63,
+                  3
+                ]
+              },
+              {
+                "name": "太原",
+                "value": [
+                  112.55,
+                  37.87,
+                  3
+                ]
+              },
+              {
+                "name": "大同",
+                "value": [
+                  113.3,
+                  40.08,
+                  2
+                ]
+              },
+              {
+                "name": "呼和浩特",
+                "value": [
+                  111.65,
+                  40.82,
+                  5
+                ]
+              },
+              {
+                "name": "包头",
+                "value": [
+                  109.84,
+                  40.66,
+                  4
+                ]
+              },
+              {
+                "name": "鄂尔多斯",
+                "value": [
+                  109.99,
+                  39.82,
+                  3
+                ]
+              },
+              {
+                "name": "沈阳",
+                "value": [
+                  123.38,
+                  41.8,
+                  3
+                ]
+              },
+              {
+                "name": "大连",
+                "value": [
+                  121.62,
+                  38.92,
+                  4
+                ]
+              },
+              {
+                "name": "长春",
+                "value": [
+                  125.35,
+                  43.88,
+                  3
+                ]
+              },
+              {
+                "name": "哈尔滨",
+                "value": [
+                  126.63,
+                  45.75,
+                  4
+                ]
+              },
+              {
+                "name": "齐齐哈尔",
+                "value": [
+                  123.97,
+                  47.33,
+                  3
+                ]
+              },
+              {
+                "name": "上海",
+                "value": [
+                  121.47,
+                  31.23,
+                  1
+                ]
+              },
+              {
+                "name": "南京",
+                "value": [
+                  118.78,
+                  32.04,
+                  4
+                ]
+              },
+              {
+                "name": "盐城",
+                "value": [
+                  120.13,
+                  33.38,
+                  3
+                ]
+              },
+              {
+                "name": "连云港",
+                "value": [
+                  119.16,
+                  34.59,
+                  2
+                ]
+              },
+              {
+                "name": "杭州",
+                "value": [
+                  120.19,
+                  30.26,
+                  2
+                ]
+              },
+              {
+                "name": "宁波",
+                "value": [
+                  121.55,
+                  29.87,
+                  3
+                ]
+              },
+              {
+                "name": "合肥",
+                "value": [
+                  117.27,
+                  31.86,
+                  2
+                ]
+              },
+              {
+                "name": "福州",
+                "value": [
+                  119.3,
+                  26.08,
+                  3
+                ]
+              },
+              {
+                "name": "莆田",
+                "value": [
+                  119.01,
+                  25.44,
+                  2
+                ]
+              },
+              {
+                "name": "南昌",
+                "value": [
+                  115.89,
+                  28.68,
+                  2
+                ]
+              },
+              {
+                "name": "济南",
+                "value": [
+                  117,
+                  36.65,
+                  4
+                ]
+              },
+              {
+                "name": "烟台",
+                "value": [
+                  121.39,
+                  37.52,
+                  5
+                ]
+              },
+              {
+                "name": "威海",
+                "value": [
+                  122.1,
+                  37.5,
+                  3
+                ]
+              },
+              {
+                "name": "郑州",
+                "value": [
+                  113.65,
+                  34.76,
+                  3
+                ]
+              },
+              {
+                "name": "武汉",
+                "value": [
+                  114.31,
+                  30.52,
+                  3
+                ]
+              },
+              {
+                "name": "长沙",
+                "value": [
+                  112.94,
+                  28.23,
+                  2
+                ]
+              },
+              {
+                "name": "广州",
+                "value": [
+                  113.23,
+                  23.16,
+                  3
+                ]
+              },
+              {
+                "name": "汕头",
+                "value": [
+                  116.69,
+                  23.39,
+                  2
+                ]
+              },
+              {
+                "name": "南宁",
+                "value": [
+                  108.33,
+                  22.84,
+                  2
+                ]
+              },
+              {
+                "name": "海口",
+                "value": [
+                  110.35,
+                  20.02,
+                  2
+                ]
+              },
+              {
+                "name": "重庆",
+                "value": [
+                  106.54,
+                  29.59,
+                  2
+                ]
+              },
+              {
+                "name": "成都",
+                "value": [
+                  104.06,
+                  30.67,
+                  3
+                ]
+              },
+              {
+                "name": "凉山",
+                "value": [
+                  102.27,
+                  27.9,
+                  2
+                ]
+              },
+              {
+                "name": "贵阳",
+                "value": [
+                  106.71,
+                  26.57,
+                  2
+                ]
+              },
+              {
+                "name": "昆明",
+                "value": [
+                  102.73,
+                  25.04,
+                  3
+                ]
+              },
+              {
+                "name": "大理",
+                "value": [
+                  100.23,
+                  25.59,
+                  2
+                ]
+              },
+              {
+                "name": "拉萨",
+                "value": [
+                  91.11,
+                  29.97,
+                  1
+                ]
+              },
+              {
+                "name": "西安",
+                "value": [
+                  108.95,
+                  34.27,
+                  3
+                ]
+              },
+              {
+                "name": "兰州",
+                "value": [
+                  103.73,
+                  36.03,
+                  4
+                ]
+              },
+              {
+                "name": "酒泉",
+                "value": [
+                  98.51,
+                  39.74,
+                  5
+                ]
+              },
+              {
+                "name": "西宁",
+                "value": [
+                  101.74,
+                  36.56,
+                  2
+                ]
+              },
+              {
+                "name": "银川",
+                "value": [
+                  106.27,
+                  38.47,
+                  3
+                ]
+              },
+              {
+                "name": "乌鲁木齐",
+                "value": [
+                  87.68,
+                  43.77,
+                  5
+                ]
+              },
+              {
+                "name": "哈密",
+                "value": [
+                  93.51,
+                  42.83,
+                  6
+                ]
+              },
+              {
+                "name": "达坂城",
+                "value": [
+                  88.31,
+                  43.36,
+                  4
+                ]
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        }
+      ]
+    },
+    {
+      "pageIndex": 1,
+      "components": [
+        {
+          "slotId": "p1.table.alarm_list",
+          "pageIndex": 1,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "alarm_list",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "dataSlotId": "p1.table.alarm_list",
+            "pageIndex": 1,
+            "dataKey": "alarm_list",
+            "columns": [
+              {
+                "field": "triggered_at",
+                "label": "时间",
+                "width": 120
+              },
+              {
+                "field": "name",
+                "label": "设备",
+                "width": 100
+              },
+              {
+                "field": "metric",
+                "label": "告警类型"
+              },
+              {
+                "field": "trend",
+                "label": "等级"
+              }
+            ]
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "triggered_at": "2023-08-11 16:58",
+                "name": "风机A-03",
+                "metric": "振动超限",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 16:52",
+                "name": "风机B-12",
+                "metric": "温度过高",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 16:47",
+                "name": "风机C-07",
+                "metric": "功率偏低",
+                "trend": "下降"
+              },
+              {
+                "triggered_at": "2023-08-11 16:41",
+                "name": "风机A-09",
+                "metric": "叶片结冰",
+                "trend": "持平"
+              },
+              {
+                "triggered_at": "2023-08-11 16:35",
+                "name": "风机D-01",
+                "metric": "偏航异常",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 16:30",
+                "name": "风机B-05",
+                "metric": "齿轮箱油温",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 16:24",
+                "name": "风机C-11",
+                "metric": "发电机过热",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 16:18",
+                "name": "风机A-06",
+                "metric": "振动超限",
+                "trend": "下降"
+              },
+              {
+                "triggered_at": "2023-08-11 16:12",
+                "name": "风机D-08",
+                "metric": "通信中断",
+                "trend": "持平"
+              },
+              {
+                "triggered_at": "2023-08-11 16:05",
+                "name": "风机B-02",
+                "metric": "液压系统",
+                "trend": "下降"
+              },
+              {
+                "triggered_at": "2023-08-11 15:58",
+                "name": "风机C-04",
+                "metric": "变桨故障",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 15:51",
+                "name": "风机A-10",
+                "metric": "电网波动",
+                "trend": "持平"
+              },
+              {
+                "triggered_at": "2023-08-11 15:44",
+                "name": "风机D-06",
+                "metric": "温度过高",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2023-08-11 15:37",
+                "name": "风机B-09",
+                "metric": "功率偏低",
+                "trend": "下降"
+              },
+              {
+                "triggered_at": "2023-08-11 15:30",
+                "name": "风机C-01",
+                "metric": "振动超限",
+                "trend": "上升"
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p1.table.device_log",
+          "pageIndex": 1,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_log_list",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "dataSlotId": "p1.table.device_log",
+            "pageIndex": 1,
+            "dataKey": "device_log_list",
+            "columns": [
+              {
+                "field": "triggered_at",
+                "label": "时间",
+                "width": 120
+              },
+              {
+                "field": "department",
+                "label": "风场"
+              },
+              {
+                "field": "name",
+                "label": "事件"
+              },
+              {
+                "field": "value",
+                "label": "功率"
+              }
+            ]
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "triggered_at": "2023-08-11 17:00",
+                "department": "华东风场",
+                "name": "风机A-03启动",
+                "value": 2450
+              },
+              {
+                "triggered_at": "2023-08-11 16:58",
+                "department": "华北风场",
+                "name": "风机B-12停机检修",
+                "value": 0
+              },
+              {
+                "triggered_at": "2023-08-11 16:55",
+                "department": "华东风场",
+                "name": "风机A-07功率调整",
+                "value": 1820
+              },
+              {
+                "triggered_at": "2023-08-11 16:52",
+                "department": "西北风场",
+                "name": "风机C-05并网成功",
+                "value": 3100
+              },
+              {
+                "triggered_at": "2023-08-11 16:48",
+                "department": "华南风场",
+                "name": "风机D-01偏航校正",
+                "value": 2680
+              },
+              {
+                "triggered_at": "2023-08-11 16:45",
+                "department": "华北风场",
+                "name": "风机B-08限功率运行",
+                "value": 1500
+              },
+              {
+                "triggered_at": "2023-08-11 16:42",
+                "department": "西北风场",
+                "name": "风机C-11恢复运行",
+                "value": 2900
+              },
+              {
+                "triggered_at": "2023-08-11 16:38",
+                "department": "华东风场",
+                "name": "风机A-01切入风速",
+                "value": 850
+              },
+              {
+                "triggered_at": "2023-08-11 16:35",
+                "department": "华南风场",
+                "name": "风机D-04满发运行",
+                "value": 3300
+              },
+              {
+                "triggered_at": "2023-08-11 16:32",
+                "department": "华北风场",
+                "name": "风机B-06变桨调整",
+                "value": 2100
+              },
+              {
+                "triggered_at": "2023-08-11 16:28",
+                "department": "西北风场",
+                "name": "风机C-09降功率",
+                "value": 1200
+              },
+              {
+                "triggered_at": "2023-08-11 16:25",
+                "department": "华东风场",
+                "name": "风机A-05停机待风",
+                "value": 0
+              },
+              {
+                "triggered_at": "2023-08-11 16:22",
+                "department": "华南风场",
+                "name": "风机D-07启动成功",
+                "value": 1950
+              },
+              {
+                "triggered_at": "2023-08-11 16:18",
+                "department": "华北风场",
+                "name": "风机B-03满发运行",
+                "value": 3250
+              },
+              {
+                "triggered_at": "2023-08-11 16:15",
+                "department": "西北风场",
+                "name": "风机C-02并网运行",
+                "value": 2750
+              },
+              {
+                "triggered_at": "2023-08-11 16:12",
+                "department": "华东风场",
+                "name": "风机A-08功率爬坡",
+                "value": 1680
+              },
+              {
+                "triggered_at": "2023-08-11 16:08",
+                "department": "华南风场",
+                "name": "风机D-10维护完成",
+                "value": 2400
+              },
+              {
+                "triggered_at": "2023-08-11 16:05",
+                "department": "华北风场",
+                "name": "风机B-11切出停机",
+                "value": 0
+              },
+              {
+                "triggered_at": "2023-08-11 16:02",
+                "department": "西北风场",
+                "name": "风机C-06额定运行",
+                "value": 3000
+              },
+              {
+                "triggered_at": "2023-08-11 15:58",
+                "department": "华东风场",
+                "name": "风机A-02低风速运行",
+                "value": 620
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p1.config.power_kpi",
+          "pageIndex": 1,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "power_kpi",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "power_kpi",
+            "dataSlotId": "p1.config.power_kpi",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "当前功率",
+                  "value": 856,
+                  "max": 1200,
+                  "unit": "MW",
+                  "dir": "up",
+                  "iconId": "kpi-sync-refresh"
+                },
+                {
+                  "label": "负荷率",
+                  "value": 71,
+                  "max": 100,
+                  "unit": "%",
+                  "dir": "up",
+                  "iconId": "kpi-analytics-bars"
+                },
+                {
+                  "label": "弃风率",
+                  "value": 3.2,
+                  "max": 10,
+                  "unit": "%",
+                  "dir": "down",
+                  "iconId": "kpi-insight-badge",
+                  "tone": "warning"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p1.config.wind_kpi",
+          "pageIndex": 1,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_kpi",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "wind_kpi",
+            "dataSlotId": "p1.config.wind_kpi",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "平均风速",
+                  "value": 8.6,
+                  "max": 15,
+                  "unit": "m/s",
+                  "dir": "up"
+                },
+                {
+                  "label": "最大风速",
+                  "value": 14.2,
+                  "max": 25,
+                  "unit": "m/s",
+                  "dir": "up"
+                },
+                {
+                  "label": "风向",
+                  "value": 225,
+                  "max": 360,
+                  "unit": "°SW",
+                  "dir": "up"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p1.chart.power_realtime_seed",
+          "pageIndex": 1,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "power_realtime_seed",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "power_realtime_seed",
+            "dataSlotId": "p1.chart.power_realtime_seed",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "time": "16:40",
+                "value": 632,
+                "orders": 755
+              },
+              {
+                "time": "16:41",
+                "value": 611,
+                "orders": 848
+              },
+              {
+                "time": "16:42",
+                "value": 890,
+                "orders": 764
+              },
+              {
+                "time": "16:43",
+                "value": 774,
+                "orders": 806
+              },
+              {
+                "time": "16:44",
+                "value": 776,
+                "orders": 829
+              },
+              {
+                "time": "16:45",
+                "value": 752,
+                "orders": 784
+              },
+              {
+                "time": "16:46",
+                "value": 669,
+                "orders": 799
+              },
+              {
+                "time": "16:47",
+                "value": 781,
+                "orders": 796
+              },
+              {
+                "time": "16:48",
+                "value": 604,
+                "orders": 763
+              },
+              {
+                "time": "16:49",
+                "value": 762,
+                "orders": 774
+              },
+              {
+                "time": "16:50",
+                "value": 804,
+                "orders": 768
+              },
+              {
+                "time": "16:51",
+                "value": 653,
+                "orders": 809
+              },
+              {
+                "time": "16:52",
+                "value": 665,
+                "orders": 752
+              },
+              {
+                "time": "16:53",
+                "value": 727,
+                "orders": 845
+              },
+              {
+                "time": "16:54",
+                "value": 897,
+                "orders": 762
+              },
+              {
+                "time": "16:55",
+                "value": 876,
+                "orders": 842
+              },
+              {
+                "time": "16:56",
+                "value": 880,
+                "orders": 809
+              },
+              {
+                "time": "16:57",
+                "value": 824,
+                "orders": 824
+              },
+              {
+                "time": "16:58",
+                "value": 893,
+                "orders": 823
+              },
+              {
+                "time": "16:59",
+                "value": 798,
+                "orders": 823
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        },
+        {
+          "slotId": "p1.chart.wind_speed_seed",
+          "pageIndex": 1,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_speed_seed",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "wind_speed_seed",
+            "dataSlotId": "p1.chart.wind_speed_seed",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "time": "16:40",
+                "value": 8.3
+              },
+              {
+                "time": "16:41",
+                "value": 5.9
+              },
+              {
+                "time": "16:42",
+                "value": 8.2
+              },
+              {
+                "time": "16:43",
+                "value": 9.2
+              },
+              {
+                "time": "16:44",
+                "value": 8.4
+              },
+              {
+                "time": "16:45",
+                "value": 11.6
+              },
+              {
+                "time": "16:46",
+                "value": 7.9
+              },
+              {
+                "time": "16:47",
+                "value": 12.4
+              },
+              {
+                "time": "16:48",
+                "value": 12.3
+              },
+              {
+                "time": "16:49",
+                "value": 11.2
+              },
+              {
+                "time": "16:50",
+                "value": 9.8
+              },
+              {
+                "time": "16:51",
+                "value": 6.4
+              },
+              {
+                "time": "16:52",
+                "value": 6.4
+              },
+              {
+                "time": "16:53",
+                "value": 9.2
+              },
+              {
+                "time": "16:54",
+                "value": 7.8
+              },
+              {
+                "time": "16:55",
+                "value": 13
+              },
+              {
+                "time": "16:56",
+                "value": 11.5
+              },
+              {
+                "time": "16:57",
+                "value": 12.2
+              },
+              {
+                "time": "16:58",
+                "value": 5.5
+              },
+              {
+                "time": "16:59",
+                "value": 5.3
+              }
+            ]
+          },
+          "filledAt": "2026-05-11T00:00:00.000Z",
+          "source": "template"
+        }
+      ]
+    }
+  ]
+}
