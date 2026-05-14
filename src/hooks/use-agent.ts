@@ -1,20 +1,19 @@
 /**
- * 有文件项目（Agent 模式）：意图分类 → 按需增量修订 story/pages/vi → 始终生成 dashboard.jsx。
- * 默认以磁盘上的 pages-story / vi-tokens / dashboard.jsx 为「长期记忆」；仅在为 true 的意图标志下重写叙事或页面契约。
- * JSX 排版由 /api/board/generate-jsx 约束：顶 KPI 横条 + 其下左中右三栏（中为主视觉），左右栏内多图须均分垂直空间。
+ * 有文件项目（Agent 模式）：意图分类 → 按需增量修订 story / template-fill / vi → 装配风电模板 dashboard.jsx。
+ * 默认以磁盘上的 template-fill / vi-tokens / dashboard.jsx 为「长期记忆」。
  */
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { listProjectFiles, readFile } from "@/lib/pipeline/file-operations";
+import { readFile } from "@/lib/pipeline/file-operations";
 import {
   executeDesignStory,
-  executePagesStory,
+  executeTemplateFill,
   executeVISystem,
   executeViTokensFromMarkdown,
-  executeJSXGeneration,
+  executeWindTemplateAssembly,
 } from "@/lib/pipeline/step-executors";
-import type { PipelineState, ChatMessage, AgentTask, ViTokens } from "@/types/pipeline.types";
+import type { PipelineState, ChatMessage, AgentTask } from "@/types/pipeline.types";
 import {
   createUserMessage,
   createAssistantMessage,
@@ -42,17 +41,6 @@ function toConversationHistory(messages: ChatMessage[]): Array<{ role: "user" | 
   return messages
     .filter((m) => (m.role === "user" || m.role === "assistant") && !m.streaming && m.content.trim())
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
-}
-
-async function loadTokens(projectName: string): Promise<ViTokens> {
-  const raw = await readFile(`.dv/${projectName}/品牌VI/vi-tokens.json`);
-  const parsed = JSON.parse(raw) as ViTokens & { cssVariables?: Record<string, string>; chartPalette?: string[]; raw?: unknown };
-  return {
-    mode: parsed.mode,
-    cssVariables: parsed.cssVariables ?? {},
-    chartPalette: parsed.chartPalette ?? [],
-    raw: parsed.raw ?? parsed,
-  };
 }
 
 type Intent = {
@@ -155,7 +143,7 @@ export function useAgent() {
           work.push({
             id: crypto.randomUUID(),
             skill: "pages",
-            description: "更新页面结构 (pages-story.md)",
+            description: "更新模板填空 (template-fill.json)",
             inputs: {},
             status: "pending",
           });
@@ -180,26 +168,25 @@ export function useAgent() {
         work.push({
           id: crypto.randomUUID(),
           skill: "jsx",
-          description: "生成 dashboard.jsx",
+          description: "装配 dashboard.jsx（风电模板）",
           inputs: {},
           status: "pending",
         });
         setTasks(work);
 
         let designStoryText: string | null = null;
-        let pagesStoryText: string | null = null;
-        let tokensForJsx: ViTokens | null = null;
+        let templateFillText: string | null = null;
 
-        /** 本轮开始前的磁盘快照，供 story/pages 增量合并（AI 长期记忆） */
+        /** 本轮开始前的磁盘快照，供 story / template-fill 增量合并 */
         let snapshotStory = "";
-        let snapshotPages = "";
+        let snapshotFill = "";
         try {
           snapshotStory = await readFile(`.dv/${projectName}/数据故事/design-story.md`);
         } catch {
           /* 新项目或无文件 */
         }
         try {
-          snapshotPages = await readFile(`.dv/${projectName}/页面结构/pages-story.md`);
+          snapshotFill = await readFile(`.dv/${projectName}/页面结构/template-fill.json`);
         } catch {
           /* */
         }
@@ -228,25 +215,27 @@ export function useAgent() {
             const src =
               designStoryText ??
               (await readFile(`.dv/${projectName}/数据故事/design-story.md`));
-            pagesStoryText = await executePagesStory(src, ctxBase, {
-              existingPages: snapshotPages.trim() ? snapshotPages : undefined,
+            templateFillText = await executeTemplateFill(src, ctxBase, {
+              existingFillJson: snapshotFill.trim() ? snapshotFill : undefined,
             });
           } else if (task.skill === "vi-md") {
-            const { tokens } = await executeViTokensFromMarkdown(intent.viSystemMarkdown!, {
+            await executeViTokensFromMarkdown(intent.viSystemMarkdown!, {
               ...ctxBase,
             });
-            tokensForJsx = tokens;
           } else if (task.skill === "vi-reload") {
             const st = (style || "").trim();
             if (!st) throw new Error("重装 VI 需要项目风格 style，请在侧栏或创建流程中选择风格。");
-            const { tokens } = await executeVISystem({ ...ctxBase }, st);
-            tokensForJsx = tokens;
+            await executeVISystem({ ...ctxBase }, st);
           } else if (task.skill === "jsx") {
-            const pages =
-              pagesStoryText ??
-              (await readFile(`.dv/${projectName}/页面结构/pages-story.md`));
-            const tok = tokensForJsx ?? (await loadTokens(projectName));
-            const jsx = await executeJSXGeneration(pages, tok, ctxBase, "dashboard.jsx");
+            let fillJson = templateFillText?.trim() ?? "";
+            if (!fillJson) {
+              try {
+                fillJson = (await readFile(`.dv/${projectName}/页面结构/template-fill.json`)).trim();
+              } catch {
+                fillJson = "";
+              }
+            }
+            const jsx = await executeWindTemplateAssembly(fillJson, ctxBase);
             setState((s) => ({
               ...s,
               step: "done",

@@ -345,14 +345,14 @@
             },
             "yAxis": [
               {
-                "field": "series_1",
-                "label": "系列一",
-                "color": "#5FE48C"
+                "field": "equiv_hours",
+                "label": "场站等效利用小时",
+                "color": "var(--color-primary)"
               },
               {
-                "field": "series_2",
-                "label": "系列二",
-                "color": "#D4B86A"
+                "field": "industry_avg_hours",
+                "label": "行业平均发电小时",
+                "color": "var(--color-accent-gold)"
               }
             ],
             "dataKey": "hours_trend",
@@ -365,38 +365,38 @@
             "value": [
               {
                 "year": "2014",
-                "series_1": 165,
-                "series_2": 140
+                "equiv_hours": 165,
+                "industry_avg_hours": 140
               },
               {
                 "year": "2015",
-                "series_1": 190,
-                "series_2": 155
+                "equiv_hours": 190,
+                "industry_avg_hours": 155
               },
               {
                 "year": "2016",
-                "series_1": 230,
-                "series_2": 180
+                "equiv_hours": 230,
+                "industry_avg_hours": 180
               },
               {
                 "year": "2017",
-                "series_1": 175,
-                "series_2": 165
+                "equiv_hours": 175,
+                "industry_avg_hours": 165
               },
               {
                 "year": "2018",
-                "series_1": 195,
-                "series_2": 170
+                "equiv_hours": 195,
+                "industry_avg_hours": 170
               },
               {
                 "year": "2019",
-                "series_1": 170,
-                "series_2": 150
+                "equiv_hours": 170,
+                "industry_avg_hours": 150
               },
               {
                 "year": "2020",
-                "series_1": 210,
-                "series_2": 175
+                "equiv_hours": 210,
+                "industry_avg_hours": 175
               }
             ]
           },
@@ -502,14 +502,14 @@
             },
             "yAxis": [
               {
-                "field": "series_1",
-                "label": "系列一",
-                "color": "#5FE48C"
+                "field": "operating_capacity",
+                "label": "在运装机",
+                "color": "var(--color-primary)"
               },
               {
-                "field": "series_2",
-                "label": "系列二",
-                "color": "#D4B86A"
+                "field": "committed_capacity",
+                "label": "在建及规划",
+                "color": "var(--color-accent-gold)"
               }
             ],
             "dataKey": "capacity_trend",
@@ -522,28 +522,28 @@
             "value": [
               {
                 "year": "2016",
-                "series_1": 120,
-                "series_2": 95
+                "operating_capacity": 120,
+                "committed_capacity": 95
               },
               {
                 "year": "2017",
-                "series_1": 230,
-                "series_2": 185
+                "operating_capacity": 230,
+                "committed_capacity": 185
               },
               {
                 "year": "2018",
-                "series_1": 180,
-                "series_2": 160
+                "operating_capacity": 180,
+                "committed_capacity": 160
               },
               {
                 "year": "2019",
-                "series_1": 260,
-                "series_2": 210
+                "operating_capacity": 260,
+                "committed_capacity": 210
               },
               {
                 "year": "2020",
-                "series_1": 285,
-                "series_2": 240
+                "operating_capacity": 285,
+                "committed_capacity": 240
               }
             ]
           },
@@ -1299,6 +1299,25 @@
                   "farms": 1,
                   "rate": 96
                 }
+              },
+              "header": {
+                "city": "杭州",
+                "weather": "大雨 17°~28°C"
+              },
+              "mapLegend": {
+                "on": "● 设施点位",
+                "off": "○ 监测点位"
+              },
+              "regionCard": {
+                "volumeLabel": "总发电量",
+                "volumeUnit": "kWh",
+                "scaleLabel": "区域装机",
+                "scaleUnit": "MW",
+                "sitesLabel": "场站数量",
+                "sitesUnit": "个",
+                "rateLabel": "可利用率",
+                "rateUnit": "%",
+                "logsColumnLabel": "区域"
               }
             }
           },
@@ -2139,102 +2158,102 @@
               {
                 "time": "16:40",
                 "value": 632,
-                "orders": 755
+                "plan_power": 755
               },
               {
                 "time": "16:41",
                 "value": 611,
-                "orders": 848
+                "plan_power": 848
               },
               {
                 "time": "16:42",
                 "value": 890,
-                "orders": 764
+                "plan_power": 764
               },
               {
                 "time": "16:43",
                 "value": 774,
-                "orders": 806
+                "plan_power": 806
               },
               {
                 "time": "16:44",
                 "value": 776,
-                "orders": 829
+                "plan_power": 829
               },
               {
                 "time": "16:45",
                 "value": 752,
-                "orders": 784
+                "plan_power": 784
               },
               {
                 "time": "16:46",
                 "value": 669,
-                "orders": 799
+                "plan_power": 799
               },
               {
                 "time": "16:47",
                 "value": 781,
-                "orders": 796
+                "plan_power": 796
               },
               {
                 "time": "16:48",
                 "value": 604,
-                "orders": 763
+                "plan_power": 763
               },
               {
                 "time": "16:49",
                 "value": 762,
-                "orders": 774
+                "plan_power": 774
               },
               {
                 "time": "16:50",
                 "value": 804,
-                "orders": 768
+                "plan_power": 768
               },
               {
                 "time": "16:51",
                 "value": 653,
-                "orders": 809
+                "plan_power": 809
               },
               {
                 "time": "16:52",
                 "value": 665,
-                "orders": 752
+                "plan_power": 752
               },
               {
                 "time": "16:53",
                 "value": 727,
-                "orders": 845
+                "plan_power": 845
               },
               {
                 "time": "16:54",
                 "value": 897,
-                "orders": 762
+                "plan_power": 762
               },
               {
                 "time": "16:55",
                 "value": 876,
-                "orders": 842
+                "plan_power": 842
               },
               {
                 "time": "16:56",
                 "value": 880,
-                "orders": 809
+                "plan_power": 809
               },
               {
                 "time": "16:57",
                 "value": 824,
-                "orders": 824
+                "plan_power": 824
               },
               {
                 "time": "16:58",
                 "value": 893,
-                "orders": 823
+                "plan_power": 823
               },
               {
                 "time": "16:59",
                 "value": 798,
-                "orders": 823
+                "plan_power": 823
               }
             ]
           },

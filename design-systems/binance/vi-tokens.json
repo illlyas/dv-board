@@ -1,0 +1,166 @@
+{
+  "mode": "dark",
+  "cssVariables": {
+    "--color-bg": "#0B0E11",
+    "--color-surface": "#161A1E",
+    "--color-surface-2": "#1E2329",
+    "--color-muted": "#2B3139",
+    "--color-primary": "#F0B90B",
+    "--color-primary-hover": "#F8D24A",
+    "--color-accent": "#38BDF8",
+    "--color-accent-gold": "#D4942E",
+    "--color-success": "#22C55E",
+    "--color-warning": "#FACC15",
+    "--color-danger": "#F87171",
+    "--color-info": "#1EAEDB",
+    "--color-text-primary": "#EAECEF",
+    "--color-text-secondary": "rgba(234,236,239,0.72)",
+    "--color-text-muted": "rgba(234,236,239,0.42)",
+    "--color-text-inverse": "#0B0E11",
+    "--color-border": "rgba(240,185,11,0.22)",
+    "--color-border-strong": "rgba(240,185,11,0.55)",
+    "--color-grid": "rgba(240,185,11,0.08)",
+    "--color-overlay": "rgba(0,0,0,0.65)",
+    "--font-display": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
+    "--font-body": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
+    "--font-mono": "ui-monospace,\"JetBrains Mono\",\"Fira Code\",monospace",
+    "--font-size-xs": "12px",
+    "--font-size-sm": "14px",
+    "--font-size-md": "16px",
+    "--font-size-lg": "18px",
+    "--font-size-xl": "22px",
+    "--font-size-2xl": "28px",
+    "--font-size-3xl": "34px",
+    "--font-weight-regular": "400",
+    "--font-weight-medium": "500",
+    "--font-weight-semibold": "600",
+    "--font-weight-bold": "700",
+    "--line-height-tight": "1.15",
+    "--line-height-normal": "1.45",
+    "--line-height-relaxed": "1.55",
+    "--letter-spacing-tight": "-0.01em",
+    "--letter-spacing-normal": "0",
+    "--letter-spacing-wide": "0.08em",
+    "--space-1": "8px",
+    "--space-2": "12px",
+    "--space-3": "16px",
+    "--space-4": "24px",
+    "--space-5": "32px",
+    "--space-6": "48px",
+    "--space-8": "64px",
+    "--space-10": "96px",
+    "--space-12": "128px",
+    "--radius-sm": "4px",
+    "--radius-md": "6px",
+    "--radius-lg": "8px",
+    "--radius-xl": "12px",
+    "--radius-pill": "9999px",
+    "--shadow-sm": "0 0 2px rgba(240,185,11,0.4)",
+    "--shadow-md": "0 0 6px rgba(240,185,11,0.35)",
+    "--shadow-lg": "0 0 12px rgba(240,185,11,0.45)",
+    "--shadow-xl": "0 0 20px rgba(240,185,11,0.55)",
+    "--motion-fast": "150ms",
+    "--motion-normal": "200ms",
+    "--motion-slow": "240ms",
+    "--motion-easing": "ease-out",
+    "--border-width-thin": "1px",
+    "--border-width-normal": "2px",
+    "--backdrop-blur": "0px",
+    "--dv-chart-panel-bg": "transparent",
+    "--dv-chart-panel-padding": "0",
+    "--dv-chart-panel-border": "none",
+    "--dv-chart-panel-radius": "0",
+    "--dv-chart-plot-bg": "color-mix(in srgb, var(--color-text-primary) 15%, transparent)",
+    "--dv-chart-grid-stroke": "rgba(240,185,11,0.1)",
+    "--dv-chart-grid-dash": "2 8",
+    "--dv-chart-axis-line": "#474D57",
+    "--dv-chart-axis-tick-stroke": "#474D57",
+    "--dv-chart-tick-label": "#848E9C",
+    "--dv-chart-axis-title": "#EAECEF",
+    "--dv-chart-legend-text": "#848E9C",
+    "--dv-chart-legend-inactive": "rgba(132,142,156,0.35)",
+    "--dv-chart-tooltip-bg": "#161A1E",
+    "--dv-chart-tooltip-border": "rgba(240,185,11,0.5)",
+    "--dv-chart-tooltip-fg": "#EAECEF",
+    "--dv-chart-label-line": "rgba(132,142,156,0.5)",
+    "--dv-chart-reference-stroke": "#FACC15",
+    "--kpi-bg-from": "#0D1014",
+    "--kpi-bg-to": "#1E2329",
+    "--kpi-text-primary": "#EAECEF",
+    "--kpi-text-secondary": "rgba(234,236,239,0.72)",
+    "--kpi-text-muted": "rgba(234,236,239,0.42)",
+    "--kpi-glow-base": "var(--color-primary)"
+  },
+  "chartPalette": ["#F0B90B", "#38BDF8", "#22C55E", "#0ECB81", "#FACC15", "#F87171"],
+  "raw": {
+    "color": {
+      "primary": { "name": "Binance Yellow", "hex": "#F0B90B", "usage": "交易主强调" },
+      "secondary": [
+        { "name": "主色悬停", "hex": "#F8D24A", "usage": "悬停高亮" },
+        { "name": "天蓝辅色", "hex": "#38BDF8", "usage": "次级系列、对比" },
+        { "name": "深金", "hex": "#D4942E", "usage": "金属琥珀" }
+      ],
+      "accent": [],
+      "surface": [
+        { "name": "交易深底", "hex": "#0B0E11", "usage": "大屏主背景" },
+        { "name": "面板", "hex": "#161A1E", "usage": "模块衬底" },
+        { "name": "次级", "hex": "#1E2329", "usage": "hover块" },
+        { "name": "弱衬", "hex": "#2B3139", "usage": "分割" }
+      ],
+      "text": [
+        { "name": "主文案", "hex": "#EAECEF", "usage": "主字" },
+        { "name": "次级", "hex": "rgba(234,236,239,0.72)", "usage": "次要" },
+        { "name": "弱化", "hex": "rgba(234,236,239,0.42)", "usage": "辅助" },
+        { "name": "反色", "hex": "#0B0E11", "usage": "主色按钮" }
+      ],
+      "border": [
+        { "name": "边框", "hex": "rgba(240,185,11,0.22)", "usage": "分割" },
+        { "name": "强边框", "hex": "rgba(240,185,11,0.55)", "usage": "强调" }
+      ],
+      "semantic": {
+        "success": { "name": "成功", "hex": "#22C55E", "usage": "上涨/正向" },
+        "warning": { "name": "警告", "hex": "#FACC15", "usage": "预警" },
+        "danger": { "name": "危险", "hex": "#F87171", "usage": "下跌/错误" },
+        "info": { "name": "信息", "hex": "#1EAEDB", "usage": "提示、焦点" },
+        "grid": { "name": "网格", "hex": "rgba(240,185,11,0.08)", "usage": "图表" }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "display": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
+        "body": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
+        "mono": "ui-monospace,\"JetBrains Mono\",\"Fira Code\",monospace"
+      },
+      "scale": [
+        { "size": "12px", "usage": "xs" },
+        { "size": "14px", "usage": "sm" },
+        { "size": "16px", "usage": "md" },
+        { "size": "18px", "usage": "lg" },
+        { "size": "22px", "usage": "xl" },
+        { "size": "28px", "usage": "2xl" },
+        { "size": "34px", "usage": "3xl" }
+      ],
+      "weights": [
+        { "weight": 400, "name": "regular" },
+        { "weight": 500, "name": "medium" },
+        { "weight": 600, "name": "semibold" },
+        { "weight": 700, "name": "bold" }
+      ]
+    },
+    "spacing": { "baseUnit": "8px", "scale": ["8px", "12px", "16px", "24px", "32px", "48px", "64px", "96px", "128px"] },
+    "radius": { "sm": "4px", "md": "6px", "lg": "8px", "xl": "12px", "pill": "9999px" },
+    "shadow": {
+      "sm": "0 0 2px rgba(240,185,11,0.4)",
+      "md": "0 0 6px rgba(240,185,11,0.35)",
+      "lg": "0 0 12px rgba(240,185,11,0.45)",
+      "xl": "0 0 20px rgba(240,185,11,0.55)"
+    },
+    "motion": { "fast": "150ms", "normal": "200ms", "slow": "240ms", "easing": "ease-out" },
+    "components": {
+      "button": { "background": "var(--color-surface-2)", "border": "var(--color-border)", "active": "var(--color-primary)" },
+      "card": { "background": "var(--color-surface)", "border": "var(--color-border)", "radius": "var(--radius-lg)" },
+      "input": { "background": "var(--color-surface-2)", "border": "var(--color-border-strong)", "focus": "var(--color-primary)" },
+      "navigation": { "tab": "高对比标签" }
+    }
+  }
+}

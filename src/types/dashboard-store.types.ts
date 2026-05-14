@@ -30,7 +30,8 @@ export interface DashboardStoreComponentRecord {
   role: DashboardStoreSlotRole;
   binding: DashboardStoreBindingSnapshot;
   propsSnapshot: Record<string, unknown>;
-  payload: DashboardStorePayload;
+  /** 缺省表示尚未由 mock-slot / 用户写入，预览时应按需拉取 */
+  payload?: DashboardStorePayload;
   filledAt: string;
   source: DashboardStoreSource;
 }

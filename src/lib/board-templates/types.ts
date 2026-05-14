@@ -7,6 +7,10 @@ export type BoardTemplateMeta = {
   tags?: string[];
   screenPresetId?: string;
   dashboardFile?: string;
+  /** AI 填空协议（相对模板目录） */
+  slotsSchemaFile?: string;
+  /** 模板私有组件声明（相对模板目录） */
+  widgetsManifestFile?: string;
 };
 
 export type BoardTemplateListItem = BoardTemplateMeta;
@@ -16,4 +20,8 @@ export type BoardTemplateBundle = {
   viTokensJson: string;
   dashboardJsx: string;
   store: DashboardStoreFile;
+  /** AI 填空协议 JSON 原文（若 meta.slotsSchemaFile 存在且可读） */
+  slotsSchemaJson?: string;
+  /** 模板私有组件清单 JSON 原文（若 meta.widgetsManifestFile 存在且可读） */
+  widgetsManifestJson?: string;
 };

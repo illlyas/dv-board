@@ -8,7 +8,6 @@ export const DV_CHART = {
   panelPadding: "var(--dv-chart-panel-padding)",
   panelBorder: "var(--dv-chart-panel-border)",
   panelRadius: "var(--dv-chart-panel-radius)",
-  plotBg: "var(--dv-chart-plot-bg)",
   gridStroke: "var(--dv-chart-grid-stroke)",
   gridDash: "var(--dv-chart-grid-dash)",
   axisLine: "var(--dv-chart-axis-line)",

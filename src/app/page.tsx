@@ -58,11 +58,6 @@ export default function Home() {
         body: JSON.stringify({
           name: finalName,
           style: payload.style,
-          themeMode: payload.themeMode,
-          boardKind: payload.boardKind,
-          screenPresetId: payload.screenPresetId,
-          layoutPresetId: payload.layoutPresetId,
-          assetKitId: payload.assetKitId,
         }),
       });
       if (!res.ok) {

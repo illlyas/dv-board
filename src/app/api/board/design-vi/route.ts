@@ -5,8 +5,8 @@
  *
  * 输入：{ style: string }
  * 步骤：
- *   1. 读取 design-systems/{style}/DESIGN.md
- *   2. 调用 DeepSeek，从 DESIGN.md 抽取结构化 CSS Tokens JSON
+ *   1. 读取 design-systems/{style}/design.md（或 DESIGN.md）
+ *   2. 调用 DeepSeek，从文档抽取结构化 CSS Tokens JSON
  *   3. 以流式文本返回 JSON（前端 callPipelineStep 解析）
  */
 import { promises as fs } from "fs";
@@ -40,7 +40,15 @@ export async function POST(request: Request) {
       label = style && STYLE_RE.test(style) ? style : "custom-vi-document";
     } else {
       const root = path.join(process.cwd(), "design-systems");
-      const target = path.join(root, style!, "DESIGN.md");
+      const prefer = path.join(root, style!, "design.md");
+      const fallback = path.join(root, style!, "DESIGN.md");
+      let target: string;
+      try {
+        await fs.access(prefer);
+        target = prefer;
+      } catch {
+        target = fallback;
+      }
       const resolved = path.resolve(target);
       if (!resolved.startsWith(path.resolve(root) + path.sep)) {
         return new Response(JSON.stringify({ error: "Invalid path" }), {

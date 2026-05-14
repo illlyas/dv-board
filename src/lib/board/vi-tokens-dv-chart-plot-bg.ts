@@ -1,3 +1,5 @@
+import { mergeAccentGold } from "@/lib/board/vi-tokens-accent-gold";
+
 /** 大屏图表绘图区底：主文本色 15% 叠透明（等价 0.15 不透明度语义），与 design-vi / 落盘归一化一致 */
 export const DV_CHART_PLOT_BG_KEY = "--dv-chart-plot-bg" as const;
 
@@ -22,6 +24,6 @@ export function applyDvChartPlotBgToViTokensPayload(input: unknown): unknown {
       }
     }
   }
-  o.cssVariables = mergeDvChartPlotBg(cssVariables);
+  o.cssVariables = mergeDvChartPlotBg(mergeAccentGold(cssVariables));
   return o;
 }

@@ -83,6 +83,9 @@ export const dataAnalysisModelSchema = z.object({
 
 // ─── API 响应 Schema ──────────────────────────────────────
 
+/** analyze-brief 等 LLM JSON 里偶发把「页数预期」写成数字，统一成字符串 */
+const extractedInfoStringField = z.union([z.string(), z.number()]).transform((v) => String(v));
+
 // 阶段一响应 A：信息充足，无需表单
 export const sufficientResponseSchema = z.object({
   type: z.literal("sufficient"),
@@ -96,7 +99,7 @@ export const sufficientResponseSchema = z.object({
     filters: z.array(z.string()).optional().default([]),
     alert_rules: z.array(z.string()).optional().default([]),
     update_frequency: z.string().optional().default(""),
-    page_count_hint: z.string().optional().default(""),
+    page_count_hint: extractedInfoStringField.optional().default(""),
     visual_tone: z.string().optional().default(""),
     industry: z.string().optional().default(""),
     analysis_type: z.string().optional().default(""),
@@ -115,7 +118,7 @@ export const formResponseSchema = z.object({
     filters: z.array(z.string()).optional().default([]),
     alert_rules: z.array(z.string()).optional().default([]),
     update_frequency: z.string().optional().default(""),
-    page_count_hint: z.string().optional().default(""),
+    page_count_hint: extractedInfoStringField.optional().default(""),
     visual_tone: z.string().optional().default(""),
     industry: z.string().optional().default(""),
     analysis_type: z.string().optional().default(""),

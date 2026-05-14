@@ -11,6 +11,7 @@ import { DV_CHART, DV_CHART_TITLE } from "@/lib/dv-chart-tokens";
 import { mergeEChartsOption } from "@/lib/echarts-option-merge";
 import { resolveCssForCanvas } from "@/lib/resolve-chart-css";
 import { resolvePieTheme } from "@/components/widgets/echarts-theme-resolve";
+import { asScalarReactText, hasScalarContent } from "@/lib/react-text-safety";
 
 const FALLBACK_PALETTE = [
   "var(--chart-1, #3b82f6)",
@@ -193,7 +194,7 @@ function PieChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
         ...props.style,
       }}
     >
-      {props.title && (
+      {hasScalarContent(props.title) && (
         <div
           style={{
             marginBottom: DV_CHART_TITLE.blockMarginBottom,
@@ -227,12 +228,12 @@ function PieChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
                       fontFamily: DV_CHART_TITLE.fontFamily,
                     }),
                 color: theme ? titleResolved.title : titleColorRaw,
-                marginBottom: props.subtitle ? DV_CHART_TITLE.gapAfterTitle : 0,
+                marginBottom: hasScalarContent(props.subtitle) ? DV_CHART_TITLE.gapAfterTitle : 0,
               }}
             >
-              {props.title}
+              {asScalarReactText(props.title)}
             </div>
-            {props.subtitle && (
+            {hasScalarContent(props.subtitle) && (
               <div
                 style={{
                   fontSize: DV_CHART_TITLE.subtitleFontSize,
@@ -240,7 +241,7 @@ function PieChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
                   color: theme ? titleResolved.subtitle : subtitleColorRaw,
                 }}
               >
-                {props.subtitle}
+                {asScalarReactText(props.subtitle)}
               </div>
             )}
           </div>
@@ -252,7 +253,6 @@ function PieChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
           flex: 1,
           minHeight: 0,
           overflow: "visible",
-          background: DV_CHART.plotBg,
           borderRadius: 4,
         }}
       >

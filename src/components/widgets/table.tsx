@@ -6,6 +6,7 @@ import type { TableProps } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
 import { ChartLabelBackdrop } from "@/components/dv-assets";
 import { DV_CHART_TITLE } from "@/lib/dv-chart-tokens";
+import { asScalarReactText, hasScalarContent } from "@/lib/react-text-safety";
 
 /**
  * 表格组件
@@ -277,7 +278,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
       ...props.style,
     }}>
       {/* 标题 */}
-      {props.title && (
+      {hasScalarContent(props.title) && (
         <div
           style={{
             marginBottom: DV_CHART_TITLE.blockMarginBottom,
@@ -319,12 +320,12 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                       fontFamily: DV_CHART_TITLE.fontFamily,
                     }),
                 color: defaultColors.titleColor,
-                marginBottom: props.subtitle ? DV_CHART_TITLE.gapAfterTitle : 0,
+                marginBottom: hasScalarContent(props.subtitle) ? DV_CHART_TITLE.gapAfterTitle : 0,
               }}
             >
-              {props.title}
+              {asScalarReactText(props.title)}
             </div>
-            {props.subtitle && (
+            {hasScalarContent(props.subtitle) && (
               <div
                 style={{
                   fontSize: DV_CHART_TITLE.subtitleFontSize,
@@ -332,7 +333,7 @@ function TableWidget({ config, data, loading }: WidgetComponentProps<{ type: "Ta
                   color: defaultColors.subtitleColor,
                 }}
               >
-                {props.subtitle}
+                {asScalarReactText(props.subtitle)}
               </div>
             )}
           </div>

@@ -8,6 +8,7 @@ import type { WidgetComponentProps } from "@/types/widget-registry.types";
 import type { KPIProps, KPIWidgetGroupItem, KPIMiniChartConfig } from "@/types/widget.types";
 import { registerWidget } from "@/components/widget/registry";
 import { KPIMiniSparkline } from "@/components/widgets/kpi-mini-sparkline";
+import { asScalarReactText, hasScalarContent } from "@/lib/react-text-safety";
 
 function formatMetricValue(
   val: unknown,
@@ -118,7 +119,7 @@ function IconSlot({
       </div>
     );
   }
-  if (icon) {
+  if (typeof icon === "string" && icon.length > 0) {
     return <div style={{ fontSize: size * 0.75, opacity: 0.6, lineHeight: 1 }}>{icon}</div>;
   }
   return null;
@@ -340,7 +341,7 @@ function GroupMetricItem({
           gap: "var(--space-1)",
         }}
       >
-        {item.title ? (
+        {hasScalarContent(item.title) ? (
           <div
             style={{
               fontSize: "var(--kpi-font-size-label)",
@@ -348,27 +349,33 @@ function GroupMetricItem({
               color: "var(--kpi-text-secondary)",
             }}
           >
-            {item.title}
+            {asScalarReactText(item.title)}
           </div>
         ) : null}
-        {item.subtitle ? (
-          <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-muted)" }}>{item.subtitle}</div>
+        {hasScalarContent(item.subtitle) ? (
+          <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-muted)" }}>
+            {asScalarReactText(item.subtitle)}
+          </div>
         ) : null}
         {loading ? (
           <ValueSkeleton />
         ) : (
           <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-1)", flexWrap: "wrap" }}>
-            {item.prefix ? (
+            {hasScalarContent(item.prefix) ? (
               <span style={{ fontSize: "var(--font-size-base)", fontWeight: 600, color: "var(--kpi-text-secondary)" }}>
-                {item.prefix}
+                {asScalarReactText(item.prefix)}
               </span>
             ) : null}
             <PrimaryValueText glow={glow}>{formatMetricValue(valueNum, item.format, item.precision)}</PrimaryValueText>
-            {item.unit ? (
-              <span style={{ fontSize: "var(--font-size-sm)", color: "var(--kpi-text-secondary)" }}>{item.unit}</span>
+            {hasScalarContent(item.unit) ? (
+              <span style={{ fontSize: "var(--font-size-sm)", color: "var(--kpi-text-secondary)" }}>
+                {asScalarReactText(item.unit)}
+              </span>
             ) : null}
-            {item.suffix ? (
-              <span style={{ fontSize: "var(--font-size-base)", color: "var(--kpi-text-secondary)" }}>{item.suffix}</span>
+            {hasScalarContent(item.suffix) ? (
+              <span style={{ fontSize: "var(--font-size-base)", color: "var(--kpi-text-secondary)" }}>
+                {asScalarReactText(item.suffix)}
+              </span>
             ) : null}
           </div>
         )}
@@ -389,10 +396,10 @@ function GroupMetricItem({
         ) : null}
         {item.comparison && !loading ? (
           <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-muted)" }}>
-            {item.comparison.label}:{" "}
+            {asScalarReactText(item.comparison.label)}:{" "}
             {item.comparison.valueKey && data[item.valueKey] && typeof data[item.valueKey] === "object"
               ? String((data[item.valueKey] as Record<string, unknown>)[item.comparison.valueKey!] ?? "")
-              : slice.comparison?.value ?? item.comparison.value ?? ""}
+              : asScalarReactText(slice.comparison?.value ?? item.comparison.value)}
           </div>
         ) : null}
         {mini && item.miniChart ? (
@@ -445,7 +452,8 @@ function KPISingle({ config, data, loading }: WidgetComponentProps<{ type: "KPI"
     secondaryDisplay = formatMetricValue(row[secondary.valueKey], secondary.format ?? props.format, secondary.precision);
   }
 
-  const footerText = (row.footerText as string | undefined) ?? props.footer;
+  const footerTextRaw = (row.footerText as unknown) ?? props.footer;
+  const footerText = asScalarReactText(footerTextRaw);
   const miniRows = props.miniChart ? resolveMiniSeries(row, props.miniChart) : null;
 
   const showBottomMetrics =
@@ -473,17 +481,19 @@ function KPISingle({ config, data, loading }: WidgetComponentProps<{ type: "KPI"
   const comparisonBlock =
     props.comparison ? (
       <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-muted)", wordBreak: "break-word" }}>
-        {props.comparison.label}:{" "}
-        {(row.comparison as { value?: string | number } | undefined)?.value ?? props.comparison.value}
+        {asScalarReactText(props.comparison.label)}:{" "}
+        {asScalarReactText(
+          (row.comparison as { value?: unknown } | undefined)?.value ?? props.comparison.value
+        )}
       </div>
     ) : null;
 
   const secondaryBlock =
     secondary && secondaryDisplay != null ? (
       <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-secondary)" }}>
-        {secondary.label}: {secondary.prefix}
+        {asScalarReactText(secondary.label)}: {asScalarReactText(secondary.prefix)}
         {secondaryDisplay}
-        {secondary.suffix}
+        {asScalarReactText(secondary.suffix)}
       </div>
     ) : null;
 
@@ -512,22 +522,22 @@ function KPISingle({ config, data, loading }: WidgetComponentProps<{ type: "KPI"
     <ValueSkeleton />
   ) : (
     <div style={{ display: "flex", alignItems: "baseline", gap: 4, flexWrap: "wrap", minWidth: 0 }}>
-      {props.prefix ? (
+      {hasScalarContent(props.prefix) ? (
         <span style={{ fontSize: "var(--font-size-base)", fontWeight: 600, color: "var(--kpi-text-secondary)" }}>
-          {props.prefix}
+          {asScalarReactText(props.prefix)}
         </span>
       ) : null}
       <PrimaryValueText colorToken={props.color} glow={glow}>
         {formatMetricValue(value, props.format, props.precision)}
       </PrimaryValueText>
-      {props.unit ? (
+      {hasScalarContent(props.unit) ? (
         <span style={{ fontSize: "var(--font-size-sm)", fontWeight: 500, color: "var(--kpi-text-secondary)" }}>
-          {props.unit}
+          {asScalarReactText(props.unit)}
         </span>
       ) : null}
-      {props.suffix ? (
+      {hasScalarContent(props.suffix) ? (
         <span style={{ fontSize: "var(--font-size-base)", fontWeight: 600, color: "var(--kpi-text-secondary)" }}>
-          {props.suffix}
+          {asScalarReactText(props.suffix)}
         </span>
       ) : null}
     </div>
@@ -535,13 +545,15 @@ function KPISingle({ config, data, loading }: WidgetComponentProps<{ type: "KPI"
 
   const titleBlock = (
     <>
-      {props.title ? (
+      {hasScalarContent(props.title) ? (
         <div style={{ fontSize: "var(--kpi-font-size-label)", fontWeight: 500, color: "var(--kpi-text-secondary)", marginBottom: 4 }}>
-          {props.title}
+          {asScalarReactText(props.title)}
         </div>
       ) : null}
-      {props.subtitle ? (
-        <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-muted)" }}>{props.subtitle}</div>
+      {hasScalarContent(props.subtitle) ? (
+        <div style={{ fontSize: "var(--kpi-font-size-footnote)", color: "var(--kpi-text-muted)" }}>
+          {asScalarReactText(props.subtitle)}
+        </div>
       ) : null}
     </>
   );

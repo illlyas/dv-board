@@ -119,6 +119,14 @@ export async function readBoardTemplateStoreFile(
   }
 }
 
+function safeRelativeFileName(name: string | undefined): string | undefined {
+  const n = (name ?? "").trim();
+  if (!n) return undefined;
+  if (n.includes("..") || n.includes("/") || n.includes("\\")) return undefined;
+  if (!/^[a-zA-Z0-9_\-.]+\.json$/i.test(n)) return undefined;
+  return n;
+}
+
 export async function loadBoardTemplateBundle(
   cwd: string,
   id: string
@@ -129,12 +137,29 @@ export async function loadBoardTemplateBundle(
   const dir = templateDir(cwd, safe);
   const dashboardFile = defaultDashboardFile(meta);
   try {
-    const [viTokensJson, dashboardJsx, store] = await Promise.all([
-      readFile(path.join(dir, "vi-tokens.json"), "utf-8"),
-      readFile(path.join(dir, dashboardFile), "utf-8"),
-      readBoardTemplateStoreFile(cwd, safe, dashboardFile),
-    ]);
-    return { meta, viTokensJson, dashboardJsx, store };
+    const slotsFile = safeRelativeFileName(meta.slotsSchemaFile);
+    const widgetsFile = safeRelativeFileName(meta.widgetsManifestFile);
+    const [viTokensJson, dashboardJsx, store, slotsSchemaJson, widgetsManifestJson] =
+      await Promise.all([
+        readFile(path.join(dir, "vi-tokens.json"), "utf-8"),
+        readFile(path.join(dir, dashboardFile), "utf-8"),
+        readBoardTemplateStoreFile(cwd, safe, dashboardFile),
+        slotsFile
+          ? readFile(path.join(dir, slotsFile), "utf-8").catch(() => undefined)
+          : Promise.resolve(undefined),
+        widgetsFile
+          ? readFile(path.join(dir, widgetsFile), "utf-8").catch(() => undefined)
+          : Promise.resolve(undefined),
+      ]);
+    const out: BoardTemplateBundle = {
+      meta,
+      viTokensJson,
+      dashboardJsx,
+      store,
+    };
+    if (slotsSchemaJson !== undefined) out.slotsSchemaJson = slotsSchemaJson;
+    if (widgetsManifestJson !== undefined) out.widgetsManifestJson = widgetsManifestJson;
+    return out;
   } catch {
     return null;
   }

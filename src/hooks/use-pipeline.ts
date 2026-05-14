@@ -17,9 +17,9 @@ import {
 } from "@/lib/pipeline/message-utils";
 import {
   executeDesignStory,
-  executePagesStory,
+  executeTemplateFill,
   executeVISystem,
-  executeJSXGeneration,
+  executeWindTemplateAssembly,
 } from "@/lib/pipeline/step-executors";
 import { readFile } from "@/lib/pipeline/file-operations";
 
@@ -85,9 +85,9 @@ export function usePipeline() {
       try {
         const ctx = { signal: ac.signal, projectName };
 
-        /** 与 Agent 模式一致：若磁盘上已有 story/pages，则走增量合并而非从零覆盖 */
+        /** 与 Agent 模式一致：若磁盘上已有 story / template-fill，则走增量合并 */
         let snapshotStory = "";
-        let snapshotPages = "";
+        let snapshotFill = "";
         if (projectName.trim()) {
           try {
             snapshotStory = await readFile(`.dv/${projectName}/数据故事/design-story.md`);
@@ -95,7 +95,7 @@ export function usePipeline() {
             /* 新项目 */
           }
           try {
-            snapshotPages = await readFile(`.dv/${projectName}/页面结构/pages-story.md`);
+            snapshotFill = await readFile(`.dv/${projectName}/页面结构/template-fill.json`);
           } catch {
             /* */
           }
@@ -129,14 +129,14 @@ export function usePipeline() {
           step: "designing",
           designStory,
           isLoading: true,
-          statusText: "正在设计页面结构...",
+          statusText: "正在生成模板填空（风电运营）...",
         }));
 
-        // Step 2: Pages Story
+        // Step 2: 模板填空 template-fill.json
         const pagesMsgId = crypto.randomUUID();
         setMessages((prev) => [...prev, createStreamingMessage(pagesMsgId, "")]);
 
-        const pagesStory = await executePagesStory(designStory, {
+        const templateFillJson = await executeTemplateFill(designStory, {
           ...ctx,
           onProgress: (partial) => {
             setMessages((prev) =>
@@ -144,13 +144,13 @@ export function usePipeline() {
             );
           },
         }, {
-          existingPages: snapshotPages.trim() ? snapshotPages : undefined,
+          existingFillJson: snapshotFill.trim() ? snapshotFill : undefined,
         });
 
         setMessages((prev) =>
           prev.map((m) =>
             m.id === pagesMsgId
-              ? finalizeStreamingMessage(m, pagesStory, { pagesStoryData: pagesStory })
+              ? finalizeStreamingMessage(m, templateFillJson, { pagesStoryData: templateFillJson })
               : m
           )
         );
@@ -158,7 +158,7 @@ export function usePipeline() {
         setState((s) => ({
           ...s,
           step: "vi",
-          pagesStory,
+          pagesStory: templateFillJson,
           isLoading: true,
           statusText: "正在提取品牌设计 Token...",
         }));
@@ -189,13 +189,13 @@ export function usePipeline() {
           viContent: rawMd,
           viTokens: tokens,
           isLoading: true,
-          statusText: "正在生成带品牌视觉的看板代码...",
+          statusText: "正在从风电模板装配看板代码...",
         }));
 
-        setMessages((prev) => [...prev, createSystemMessage("正在生成带品牌视觉的看板代码...")]);
+        setMessages((prev) => [...prev, createSystemMessage("正在从风电运营模板装配 dashboard.jsx …")]);
 
-        // Step 4: JSX Generation —— 吃 tokens 直接产出最终 dashboard.jsx
-        const jsxCode = await executeJSXGeneration(pagesStory, tokens, ctx, "dashboard.jsx");
+        // Step 4: 模板装配（无 LLM）
+        const jsxCode = await executeWindTemplateAssembly(templateFillJson, ctx);
 
         setState((s) => ({
           ...s,

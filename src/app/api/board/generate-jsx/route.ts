@@ -554,6 +554,7 @@ export default function Dashboard() {
 【禁止事项】
 ========================
 - 禁止写 import 语句（React、Widget、**BoardHeroBackdrop**、**BoardFooterBackdrop**、**BoardPageBackdrop**、**BoardPresetIcon** 已由运行时注入；直接在 JSX 中使用 \`<BoardHeroBackdrop />\` / \`<BoardFooterBackdrop />\` / \`<BoardPageBackdrop />\` / \`<BoardPresetIcon id="kpi-sync-refresh" />\`（\`id\` 为上述六类语义 id 或兼容旧 \`preset-icon-*\`），禁止 import）
+- **禁止** \`import … from "./components/…"\` 或任何多文件拆分：若需局部展示子组件，必须在**同一源码字符串**内写成普通 \`function SubName(props) { … }\`（置于 \`export default function Dashboard\` 之前或之后均可，须为函数声明以便提升），与风电运营模板一致；子组件内同样禁止 import、直接使用已注入符号
 - 禁止业务逻辑、数据请求
 - 禁止硬编码颜色/字号/间距/圆角/阴影
 - 禁止使用占位符 div 替代 Widget
@@ -565,7 +566,7 @@ export default function Dashboard() {
 严格 JSON，不要 markdown 围栏：
 
 {
-  "code": "export default function Dashboard() { ... }",
+  "code": "（单文件字符串：可先写若干 function 子组件，再写 export default function Dashboard() { … }；禁止 import、禁止引用 ./components）",
   "metadata": {
     "componentName": "Dashboard",
     "pageCount": 数字,
@@ -647,7 +648,7 @@ ${viSystemExcerpt || "(未提供)"}
 ${existingDashboard || "(未提供 — 仅依据页面结构设计生成)"}
 
 === 强制要求 ===
-1. 不写 import 语句。
+1. 不写 import 语句；**不**将局部 UI 拆到 \`./components/*\` 等多文件，子组件一律写在同一段 \`code\` 字符串内的 \`function Name(props){…}\` 中。
 2. 必须使用 Widget 组件并定义 widgets 配置对象；组件的视觉属性必须用 var(--...)。
 3. 所有颜色/字体/间距/圆角/阴影必须用 var(--xxx)；禁止 hex/rgba 具体色值（chart colorScheme 除外）。
 4. 外层容器 \`position: "relative"\`、背景 var(--color-bg)、文本 var(--color-text-primary)、字体 var(--font-body)；根内须含 **BoardPageBackdrop** 整页底纹（与 token-demo 一致），且 header/main/footer 叠在其上。

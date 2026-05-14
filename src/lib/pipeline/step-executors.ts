@@ -3,10 +3,12 @@
  */
 
 import { callPipelineStep, callPipelineStepText } from "@/lib/pipeline-api";
-import { jsxCodeSchema, normalizeJSXCode } from "@/lib/board/jsx-output";
+import { jsxCodeSchema } from "@/lib/board/jsx-output";
 import type { JSXCode } from "@/lib/board/jsx-output";
 import type { ViTokens } from "@/types/pipeline.types";
 import { applyDvChartPlotBgToViTokensPayload, mergeDvChartPlotBg } from "@/lib/board/vi-tokens-dv-chart-plot-bg";
+import { mergeAccentGold } from "@/lib/board/vi-tokens-accent-gold";
+import { emptyTemplateFill, parseTemplateFillFromModelText, templateFillToPagesStoryExcerpt } from "@/lib/board/template-fill-schema";
 import { readFile, saveFile } from "./file-operations";
 
 export interface StepExecutorContext {
@@ -39,25 +41,30 @@ export async function executeDesignStory(
 }
 
 /**
- * 执行 Pages Story 生成步骤
+ * 执行风电模板填空（template-fill.json + pages-story 摘要）
  */
-export async function executePagesStory(
+export async function executeTemplateFill(
   designStory: string,
   ctx: StepExecutorContext,
-  opts?: { existingPages?: string }
+  opts?: { existingFillJson?: string }
 ): Promise<string> {
   const body: Record<string, unknown> = { designStory };
-  const ex = opts?.existingPages?.trim();
-  if (ex) body.existingPages = ex;
+  const ex = opts?.existingFillJson?.trim();
+  if (ex) body.existingFill = ex;
   if (ctx.projectName) body.projectKey = ctx.projectName;
 
-  const pagesStory = await callPipelineStepText("/api/board/design-pages", body, ctx.onProgress, ctx.signal);
+  const raw = await callPipelineStepText("/api/board/design-template-fill", body, ctx.onProgress, ctx.signal);
+
+  const fill = parseTemplateFillFromModelText(raw);
+  const pretty = JSON.stringify(fill, null, 2);
+  const excerpt = templateFillToPagesStoryExcerpt(fill);
 
   if (ctx.projectName) {
-    await saveFile(ctx.projectName, "页面结构", "pages-story.md", pagesStory);
+    await saveFile(ctx.projectName, "页面结构", "template-fill.json", pretty);
+    await saveFile(ctx.projectName, "页面结构", "pages-story.md", excerpt);
   }
 
-  return pagesStory;
+  return pretty;
 }
 
 /**
@@ -65,7 +72,7 @@ export async function executePagesStory(
  */
 function normalizeViTokens(input: unknown): ViTokens {
   if (!input || typeof input !== "object") {
-    return { cssVariables: mergeDvChartPlotBg({}), chartPalette: [], raw: input };
+    return { cssVariables: mergeDvChartPlotBg(mergeAccentGold({})), chartPalette: [], raw: input };
   }
   const obj = input as Record<string, unknown>;
 
@@ -87,7 +94,7 @@ function normalizeViTokens(input: unknown): ViTokens {
 
   return {
     mode,
-    cssVariables: mergeDvChartPlotBg(cssVariables),
+    cssVariables: mergeDvChartPlotBg(mergeAccentGold(cssVariables)),
     chartPalette,
     raw: obj.raw ?? obj,
   };
@@ -95,8 +102,8 @@ function normalizeViTokens(input: unknown): ViTokens {
 
 /**
  * 执行 VI 系统步骤：
- *  1) 读取 design-systems/{style}/DESIGN.md 原文并保存为 vi-system.md
- *  2) 调 design-vi API 生成 CSS Tokens JSON 并保存为 vi-tokens.json
+ *  1) 读取 design-systems/{style}/design.md（或 DESIGN.md）原文并保存为 vi-system.md
+ *  2) 若存在 design-systems/{style}/vi-system.json 或 vi-tokens.json 则直接落盘；否则调 design-vi API 生成
  */
 export async function executeVISystem(
   ctx: StepExecutorContext,
@@ -105,13 +112,13 @@ export async function executeVISystem(
   const safeStyle = (style || "").trim();
   if (!safeStyle) throw new Error("缺少风格参数 style");
 
-  // 1) 拉取原始 DESIGN.md
+  // 1) 拉取设计说明（优先 design.md）
   const mdRes = await fetch(`/api/design-systems/read?style=${encodeURIComponent(safeStyle)}`, {
     signal: ctx.signal,
   });
   if (!mdRes.ok) {
     const txt = await mdRes.text().catch(() => "");
-    throw new Error(`读取 DESIGN.md 失败 (${mdRes.status}): ${txt}`);
+    throw new Error(`读取设计说明失败 (${mdRes.status}): ${txt}`);
   }
   const rawMd = await mdRes.text();
 
@@ -119,29 +126,43 @@ export async function executeVISystem(
     await saveFile(ctx.projectName, "品牌VI", "vi-system.md", rawMd);
   }
 
-  // 给上层一个早期预览
   ctx.onProgress?.(rawMd);
 
-  // 2) 让 AI 根据 DESIGN.md 产出 CSS Tokens JSON
-  const { json, rawText } = await callPipelineStep(
-    "/api/board/design-vi",
-    { style: safeStyle },
-    (partial) => {
-      // 流式过程中把原始 JSON 字符串透出去供 UI 展示
-      ctx.onProgress?.(partial);
-    },
-    ctx.signal
-  );
+  // 2) 预置 vi-system.json → 跳过 AI；否则走 design-vi
+  const presetRes = await fetch(`/api/design-systems/vi-system?style=${encodeURIComponent(safeStyle)}`, {
+    signal: ctx.signal,
+  });
 
-  const tokens = normalizeViTokens(json);
+  let tokens: ViTokens;
+  let diskPayload: unknown;
+  let rawTextFallback = "";
+
+  if (presetRes.ok) {
+    const presetJson = (await presetRes.json()) as unknown;
+    tokens = normalizeViTokens(presetJson);
+    diskPayload = presetJson;
+    ctx.onProgress?.("\n\n（已使用预置 vi-system.json / vi-tokens.json，跳过 AI Token 生成）\n\n");
+  } else {
+    const { json, rawText } = await callPipelineStep(
+      "/api/board/design-vi",
+      { style: safeStyle },
+      (partial) => {
+        ctx.onProgress?.(partial);
+      },
+      ctx.signal
+    );
+    tokens = normalizeViTokens(json);
+    diskPayload = json;
+    rawTextFallback = rawText;
+  }
 
   if (ctx.projectName) {
-    const jsonForDisk = applyDvChartPlotBgToViTokensPayload(json);
+    const jsonForDisk = applyDvChartPlotBgToViTokensPayload(diskPayload);
     const pretty = (() => {
       try {
         return JSON.stringify(jsonForDisk, null, 2);
       } catch {
-        return rawText;
+        return rawTextFallback;
       }
     })();
     await saveFile(ctx.projectName, "品牌VI", "vi-tokens.json", pretty);
@@ -178,58 +199,35 @@ export async function executeViTokensFromMarkdown(
 }
 
 /**
- * 执行 JSX 代码生成步骤（吃 tokens，直接产出最终带视觉的看板代码）
+ * 从模板确定性装配 dashboard.jsx + dashboard.store.json（VI 已由上一步落盘）。
+ * store 中业务 payload 不在此步写入，由各组件预览时 mock-slot 回写。
  */
-const JSX_CTX_TRUNC = 9000;
-const VI_CTX_TRUNC = 6000;
-
-export async function executeJSXGeneration(
-  pagesStory: string,
-  tokens: ViTokens,
-  ctx: StepExecutorContext,
-  filename = "dashboard.jsx"
+export async function executeWindTemplateAssembly(
+  templateFillJson: string,
+  ctx: StepExecutorContext
 ): Promise<JSXCode> {
-  let existingDashboard = "";
-  let viSystemExcerpt = "";
-  if (ctx.projectName) {
-    try {
-      existingDashboard = await readFile(`.dv/${ctx.projectName}/页面/${filename}`);
-    } catch {
-      /* 新建项目可能尚无 dashboard */
-    }
-    try {
-      viSystemExcerpt = await readFile(`.dv/${ctx.projectName}/品牌VI/vi-system.md`);
-    } catch {
-      /* 可选 */
-    }
+  if (!ctx.projectName?.trim()) throw new Error("assemble 需要 projectName");
+
+  const trimmed = (templateFillJson ?? "").trim();
+  const fill = trimmed
+    ? parseTemplateFillFromModelText(trimmed)
+    : emptyTemplateFill("风电智慧运营");
+
+  const res = await fetch("/api/board/assemble-wind-template", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      projectName: ctx.projectName,
+      templateFill: fill,
+    }),
+    signal: ctx.signal,
+  });
+
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(err.error ?? `assemble-wind-template ${res.status}`);
   }
 
-  const payload: Record<string, unknown> = {
-    boardStory: pagesStory,
-    tokens,
-  };
-  if (ctx.projectName) payload.projectKey = ctx.projectName;
-  if (existingDashboard.trim()) {
-    payload.existingDashboard =
-      existingDashboard.length <= JSX_CTX_TRUNC
-        ? existingDashboard
-        : `${existingDashboard.slice(0, JSX_CTX_TRUNC)}\n\n...[truncated ${existingDashboard.length - JSX_CTX_TRUNC} chars]`;
-  }
-  if (viSystemExcerpt.trim()) {
-    payload.viSystemExcerpt =
-      viSystemExcerpt.length <= VI_CTX_TRUNC
-        ? viSystemExcerpt
-        : `${viSystemExcerpt.slice(0, VI_CTX_TRUNC)}\n\n...[truncated ${viSystemExcerpt.length - VI_CTX_TRUNC} chars]`;
-  }
-
-  const jsxResult = await callPipelineStep("/api/board/generate-jsx", payload, undefined, ctx.signal);
-
-  const normalizedJSX = normalizeJSXCode(jsxResult.json);
-  const jsxCode = jsxCodeSchema.parse(normalizedJSX);
-
-  if (ctx.projectName) {
-    await saveFile(ctx.projectName, "页面", filename, jsxCode.code);
-  }
-
-  return jsxCode;
+  const data = (await res.json()) as { jsxCode?: unknown };
+  return jsxCodeSchema.parse(data.jsxCode);
 }

@@ -2,6 +2,8 @@
  * 将 vi-tokens.json 解析结果转为画布 style 上可注入的 CSS 变量表（与 FilePanel 原逻辑一致）。
  */
 
+import { mergeAccentGold } from "@/lib/board/vi-tokens-accent-gold";
+
 export type ViTokensJson = {
   mode?: "light" | "dark";
   cssVariables?: Record<string, string>;
@@ -12,13 +14,18 @@ export type ViTokensJson = {
 export function viTokensToInjectStyleVars(doc: ViTokensJson | null): Record<string, string> | undefined {
   if (!doc) return undefined;
   const vars: Record<string, string> = {};
+  const cssFlat: Record<string, string> = {};
   if (doc.cssVariables && typeof doc.cssVariables === "object") {
     for (const [k, v] of Object.entries(doc.cssVariables)) {
       if (typeof v === "string" && v.trim()) {
         const key = k.startsWith("--") ? k : `--${k}`;
-        vars[key] = v;
+        cssFlat[key] = v;
       }
     }
+  }
+  const cssMerged = mergeAccentGold(cssFlat);
+  for (const [k, v] of Object.entries(cssMerged)) {
+    vars[k] = v;
   }
   if (Array.isArray(doc.chartPalette)) {
     doc.chartPalette.forEach((c, i) => {

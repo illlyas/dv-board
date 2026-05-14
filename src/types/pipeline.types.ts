@@ -54,9 +54,9 @@ export interface TaskStepConfig {
 export const TASK_STEPS: TaskStepConfig[] = [
   { key: "collecting", label: "分析需求信息" },
   { key: "story", label: "生成数据故事" },
-  { key: "designing", label: "设计页面结构" },
+  { key: "designing", label: "模板填空（风电）" },
   { key: "vi", label: "提取品牌设计 Token" },
-  { key: "generating", label: "生成看板代码" },
+  { key: "generating", label: "装配看板代码" },
 ];
 
 export const STEP_ORDER: PipelineStep[] = [

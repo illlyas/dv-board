@@ -1,7 +1,7 @@
 /**
  * GET /api/design-systems/read?style=apple
  *
- * 读取 design-systems/{style}/DESIGN.md 原文。
+ * 读取 design-systems/{style}/ 下设计说明原文：优先 design.md，其次 DESIGN.md。
  * 路径白名单：style 只能是 design-systems 下真实存在的目录名，禁止 ..、/ 等。
  */
 import { promises as fs } from "fs";
@@ -24,7 +24,17 @@ export async function GET(request: Request) {
 
   try {
     const root = path.join(process.cwd(), "design-systems");
-    const target = path.join(root, style, "DESIGN.md");
+    const prefer = path.join(root, style, "design.md");
+    const fallback = path.join(root, style, "DESIGN.md");
+    const pick = async (): Promise<string> => {
+      try {
+        await fs.access(prefer);
+        return prefer;
+      } catch {
+        return fallback;
+      }
+    };
+    const target = await pick();
 
     // 防御性校验：解析后仍在 root 下
     const resolved = path.resolve(target);

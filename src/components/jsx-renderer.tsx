@@ -9,7 +9,7 @@ interface JsxRendererProps {
 
 /**
  * JSX 渲染器
- * 
+ *
  * 渲染 AI 生成的纯视图层 React 组件代码
  * 支持 JSX 语法（通过 Babel 转译）
  */
@@ -21,7 +21,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
   // 动态加载 Babel standalone
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+
     // 检查是否已加载
     if ((window as any).Babel) {
       setIsBabelLoaded(true);
@@ -65,6 +65,9 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           throw new Error("Babel 未加载");
         }
 
+        const entryMatch = code.match(/export\s+default\s+function\s+(\w+)/);
+        const entryFnName = entryMatch?.[1] ?? "Dashboard";
+
         // 动态导入 Widget 组件和注册表
         const { Widget } = await import("@/components/widget/widget");
         const { BoardHeroBackdrop, BoardFooterBackdrop, BoardPageBackdrop, BoardPresetIcon } =
@@ -72,44 +75,37 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
         const { useStoreData } = await import("@/hooks/use-store-data");
         await import("@/components/widgets"); // 自动注册所有组件
 
-        // 1. 移除所有 import 语句
+        // 1. 移除 import
         let cleanCode = code.replace(/^\s*import\s+.*?['"][^'"]+['"]\s*;?\s*$/gm, "");
 
         // 2. 移除 export default / export
         cleanCode = cleanCode.replace(/export\s+default\s+/g, "");
         cleanCode = cleanCode.replace(/export\s+/g, "");
-        
+
         // 3. 使用 Babel 转译 JSX 到 React.createElement
         const transformed = Babel.transform(cleanCode, {
           presets: ["react"],
           filename: "dashboard.jsx",
         }).code;
-        
+
         console.log("[JsxRenderer] Transformed code:", transformed.substring(0, 300));
-        
-        // 4. 提取函数名
-        const functionMatch = transformed.match(/function\s+(\w+)/);
-        if (!functionMatch) {
-          throw new Error("无法找到函数定义");
-        }
-        
-        const functionName = functionMatch[1];
-        console.log("[JsxRenderer] Function name:", functionName);
-        
-        // 5. 包装代码并返回组件
+
+        console.log("[JsxRenderer] Function name:", entryFnName);
+
+        // 4. 包装代码并返回组件
         const fullCode = `
           "use strict";
           ${transformed}
-          return ${functionName};
+          return ${entryFnName};
         `;
-        
-        // 6. 使用 Function 构造函数创建组件
+
+        // 5. 使用 Function 构造函数创建组件
         const ComponentFactory = new Function(
           "React",
-          "useState", 
-          "useEffect", 
-          "useMemo", 
-          "useCallback", 
+          "useState",
+          "useEffect",
+          "useMemo",
+          "useCallback",
           "useRef",
           "Widget",
           "BoardHeroBackdrop",
@@ -119,7 +115,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           "useStoreData",
           fullCode
         );
-        
+
         const GeneratedComponent = ComponentFactory(
           React,
           React.useState,
@@ -134,17 +130,17 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
           BoardPresetIcon,
           useStoreData
         );
-        
+
         console.log("[JsxRenderer] Component created:", typeof GeneratedComponent);
-        
+
         setComponent(() => GeneratedComponent);
         setError(null);
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         console.error("[JsxRenderer] Error:", errorMsg, err);
-        
+
         const detailedError = `${errorMsg}\n\n提示：请检查生成的代码格式是否正确。`;
-        
+
         setError(detailedError);
         onError?.(errorMsg);
         setComponent(null);
@@ -166,12 +162,8 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-        <div className="text-red-500 text-sm font-semibold mb-2">
-          ⚠️ 渲染错误
-        </div>
-        <pre className="text-xs text-gray-600 bg-gray-100 p-4 rounded max-w-full overflow-auto">
-          {error}
-        </pre>
+        <div className="text-red-500 text-sm font-semibold mb-2">⚠️ 渲染错误</div>
+        <pre className="text-xs text-gray-600 bg-gray-100 p-4 rounded max-w-full overflow-auto">{error}</pre>
         <button
           onClick={() => {
             setError(null);
@@ -187,9 +179,7 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
 
   if (!Component) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-        等待代码加载...
-      </div>
+      <div className="flex items-center justify-center h-full text-gray-500 text-sm">等待代码加载...</div>
     );
   }
 
@@ -199,26 +189,18 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     const errorStack = err instanceof Error ? err.stack : "";
     console.error("[JsxRenderer] Render error:", errorMsg, err);
-    
+
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-        <div className="text-red-500 text-sm font-semibold mb-2">
-          ⚠️ 组件渲染错误
-        </div>
-        <div className="text-xs text-gray-600 mb-2">
-          {errorMsg}
-        </div>
+        <div className="text-red-500 text-sm font-semibold mb-2">⚠️ 组件渲染错误</div>
+        <div className="text-xs text-gray-600 mb-2">{errorMsg}</div>
         <details className="text-left w-full max-w-2xl">
-          <summary className="cursor-pointer text-xs text-gray-600 hover:text-gray-900 mb-2">
-            查看详细错误信息
-          </summary>
+          <summary className="cursor-pointer text-xs text-gray-600 hover:text-gray-900 mb-2">查看详细错误信息</summary>
           <pre className="text-xs text-gray-600 bg-gray-100 p-4 rounded overflow-auto max-h-64">
             {errorStack || errorMsg}
           </pre>
         </details>
-        <div className="mt-4 text-xs text-gray-500">
-          提示：AI 生成的代码可能使用了未定义的变量或函数
-        </div>
+        <div className="mt-4 text-xs text-gray-500">提示：AI 生成的代码可能使用了未定义的变量或函数</div>
       </div>
     );
   }

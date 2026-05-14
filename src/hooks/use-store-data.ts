@@ -2,9 +2,8 @@
  * 读取 dashboard.store.json 中任意槽位原始 payload 数据的 Hook
  *
  * 与 useWidgetData 的差异：
- * - 不走 mock-slot pipeline，仅从内存中的 store 读取
- * - 不依赖 widgetType 形状推断
- * - 适用于纯视图层（JSX）中需要展示已经预先在 store 里准备好的数据（如自定义渲染的 KPI、地图配置数据等）
+ * - 默认仅从 store 读取；Config 槽位依赖模板/已写入 payload
+ * - 非 Config 且无 payload 时（装配后未落盘业务数据），在预览上下文中走 mock-slot 并回写 store
  */
 
 "use client";
@@ -13,9 +12,11 @@ import { useEffect, useState } from "react";
 import { useDashboardPreviewOptional } from "@/contexts/dashboard-preview-context";
 import {
   findStoredComponent,
+  inferMockRole,
   payloadToWidgetData,
   resolvePageIndex,
 } from "@/lib/dashboard-store";
+import { runMockSlotPipelineOnce } from "@/lib/mock-slot-pipeline";
 
 /**
  * 从 store 读取指定槽位的原始数据。
@@ -42,12 +43,58 @@ export function useStoreData<T = unknown>(
   );
 
   useEffect(() => {
-    if (!previewCtx || !slotId) {
+    if (!previewCtx || !slotId?.trim()) {
       setData(null);
       return;
     }
     if (!hydrated) return;
-    setData(readFromStore<T>(previewCtx, slotId, pageIndex));
+
+    let cancelled = false;
+
+    const run = async () => {
+      const sid = slotId.trim();
+      const fromStore = readFromStore<T>(previewCtx, sid, pageIndex);
+      if (fromStore != null) {
+        if (!cancelled) setData(fromStore);
+        return;
+      }
+
+      const store = previewCtx.getStore();
+      if (!store) {
+        if (!cancelled) setData(null);
+        return;
+      }
+      const pi = resolvePageIndex(sid, pageIndex);
+      const rec = findStoredComponent(store, pi, sid);
+      if (!rec?.payload && rec && rec.widgetType !== "Config") {
+        try {
+          const role = inferMockRole(rec.widgetType);
+          const { payload } = await runMockSlotPipelineOnce({
+            projectName: previewCtx.projectName,
+            dashboardFile: previewCtx.dashboardFile,
+            pageIndex: pi,
+            slotId: rec.slotId,
+            widgetType: rec.widgetType,
+            role,
+            binding: rec.binding,
+            propsSnapshot: rec.propsSnapshot ?? {},
+            pagesStoryExcerpt: previewCtx.getPagesStoryExcerpt(),
+          });
+          if (!cancelled) setData(payloadToWidgetData(payload) as T);
+        } catch (e) {
+          console.warn("[useStoreData] mock-slot 失败:", e);
+          if (!cancelled) setData(null);
+        }
+        return;
+      }
+
+      if (!cancelled) setData(fromStore);
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [previewCtx, hydrated, slotId, pageIndex]);
 
   return data;

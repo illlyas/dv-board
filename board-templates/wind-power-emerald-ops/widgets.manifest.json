@@ -1,0 +1,84 @@
+{
+  "templateId": "wind-power-emerald-ops",
+  "description": "模板私有展示组件清单；实现全部写在 dashboard.jsx 同文件内（function 声明，位于 export default function Dashboard 之后）；勿拆分为多文件或使用 import 引用相对路径模块。",
+  "components": [
+    {
+      "importName": "PanelShell",
+      "file": "dashboard.jsx",
+      "role": "布局壳",
+      "props": {
+        "headerTitle": "string — 面板标题",
+        "children": "ReactNode — 内容区"
+      }
+    },
+    {
+      "importName": "KpiGlowBar",
+      "file": "dashboard.jsx",
+      "role": "横向 KPI + 进度发光条",
+      "props": {
+        "label": "string",
+        "value": "number | string",
+        "unit": "string，可选",
+        "max": "number — 用于百分比",
+        "dir": "\"up\" | \"down\"",
+        "iconId": "BoardPresetIcon id，可选",
+        "tone": "\"success\" | \"warning\""
+      }
+    },
+    {
+      "importName": "KpiPercentStat",
+      "file": "dashboard.jsx",
+      "role": "环形百分比 + 当前/总量",
+      "props": {
+        "tone": "\"success\" | \"warning\"",
+        "label": "string",
+        "current": "number",
+        "total": "number"
+      }
+    },
+    {
+      "importName": "FramedStat",
+      "file": "dashboard.jsx",
+      "role": "带框 KPI 摘要",
+      "props": {
+        "tone": "\"success\" | \"warning\"",
+        "iconId": "string",
+        "title": "string",
+        "value": "string",
+        "unit": "string"
+      }
+    },
+    {
+      "importName": "KpiGaugeStat",
+      "file": "dashboard.jsx",
+      "role": "半环仪表 + 数值",
+      "props": {
+        "iconId": "string",
+        "title": "string",
+        "value": "string | number",
+        "unit": "string",
+        "tone": "\"success\" | \"warning\""
+      }
+    },
+    {
+      "importName": "RingStat",
+      "file": "dashboard.jsx",
+      "role": "环形高亮计数块",
+      "props": {
+        "label": "string",
+        "value": "string",
+        "unit": "string，可选",
+        "tone": "\"success\" | \"warning\" | \"neutral\""
+      }
+    }
+  ],
+  "platformWidgetsUsed": [
+    "KPI",
+    "LineChart",
+    "BarChart",
+    "DonutChart",
+    "GeoMap",
+    "Table",
+    "Title（header 内 data-widget）"
+  ]
+}
