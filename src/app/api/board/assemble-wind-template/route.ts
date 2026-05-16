@@ -1,20 +1,34 @@
 /**
- * 将 template-fill 装配为项目内 dashboard.jsx + dashboard.store.json（确定性，无 LLM）。
- * 业务数据 payload 不落盘；预览时由各槽位 mock-slot 写入 store。
+ * 将 template-fill 装配为项目 dashboard.jsx、widgets.json、slots.schema.json；
+ * store 复制模板槽位骨架，并将 template-fill 中的业务数据写入 dashboard.store.json。
  */
 import { readFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { storage, dvPath } from "@/lib/storage";
-import { templateFillSchema, validateSlotIdsAgainstSchema } from "@/lib/board/template-fill-schema";
 import {
-  applyTemplateFillToDashboardJsx,
-  mergeTemplateFillIntoDashboardStore,
-  stripStorePayloadsForRuntimeAgentFill,
+  normalizeTemplateFillSlotKeys,
+  templateFillSchema,
+  validateSlotIdsAgainstSchema,
+} from "@/lib/board/template-fill-schema";
+import {
+  applyThemeTitleToDashboardJsx,
+  applyTemplateFillToSlotsSchemaJson,
+  applyTemplateFillToWidgetsJson,
+  parseWidgetsJson,
+  mergeTemplateFillIntoStore,
   slotIdToWidgetKeyMap,
   type SlotsSchemaFile,
   countStoreComponents,
 } from "@/lib/board/wind-template-assembler";
+import {
+  storeFillFromTemplateFill,
+  widgetsFillFromTemplateFill,
+} from "@/lib/board/template-fill-schema";
+import {
+  buildFieldContractsFromWidgetsFill,
+  validateStoreFillAgainstWidgets,
+} from "@/lib/board/widget-field-contract";
 import { WIND_POWER_EMERALD_OPS_TEMPLATE_ID } from "@/lib/board/wind-template-id";
 import type { DashboardStoreFile } from "@/types/dashboard-store.types";
 import { jsxCodeSchema } from "@/lib/board/jsx-output";
@@ -34,34 +48,54 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing projectName" }, { status: 400 });
     }
 
-    const fill = templateFillSchema.parse(body?.templateFill);
+    const parsedFill = templateFillSchema.parse(body?.templateFill);
 
     const schemaRaw = await readFile(path.join(TEMPLATE_DIR, "slots.schema.json"), "utf8");
     const schema = JSON.parse(schemaRaw) as SlotsSchemaFile;
+    const fill = normalizeTemplateFillSlotKeys(parsedFill, schema.slots);
     const allowed = new Set(schema.slots.map((s) => s.slotId));
-    validateSlotIdsAgainstSchema(fill, allowed);
+    const widgetKeyToSlotId = new Map(
+      schema.slots.filter((s) => s.widgetKey).map((s) => [s.widgetKey!, s.slotId])
+    );
+    validateSlotIdsAgainstSchema(fill, allowed, widgetKeyToSlotId);
 
-    const [jsxTemplate, storeRaw] = await Promise.all([
+    const [jsxTemplate, storeRaw, widgetsRaw] = await Promise.all([
       readFile(path.join(TEMPLATE_DIR, "dashboard.jsx"), "utf8"),
       readFile(path.join(TEMPLATE_DIR, "dashboard.store.json"), "utf8"),
+      readFile(path.join(TEMPLATE_DIR, "widgets.json"), "utf8"),
     ]);
 
     const store = JSON.parse(storeRaw) as DashboardStoreFile;
     const slotMap = slotIdToWidgetKeyMap(schema);
+    const templateWidgets = parseWidgetsJson(widgetsRaw);
 
-    const patchedJsx = applyTemplateFillToDashboardJsx(jsxTemplate, fill, slotMap);
-    const mergedStore = stripStorePayloadsForRuntimeAgentFill(
-      mergeTemplateFillIntoDashboardStore(store, fill)
+    const patchedJsx = applyThemeTitleToDashboardJsx(jsxTemplate, fill);
+    const patchedWidgets = applyTemplateFillToWidgetsJson(templateWidgets, fill, slotMap);
+    const patchedSlotsSchema = applyTemplateFillToSlotsSchemaJson(schemaRaw, fill);
+
+    const widgetsFillPart = widgetsFillFromTemplateFill(fill);
+    const storeFillPart = storeFillFromTemplateFill(fill);
+    const fieldContracts = buildFieldContractsFromWidgetsFill(
+      widgetsFillPart,
+      schema,
+      patchedWidgets,
+      slotMap
     );
+    validateStoreFillAgainstWidgets(storeFillPart, fieldContracts);
+
+    const storeForDisk = mergeTemplateFillIntoStore(store, fill);
 
     const jsxPath = dvPath(projectName, "页面", "dashboard.jsx");
     const storePath = dvPath(projectName, "页面", "dashboard.store.json");
+    const widgetsPath = dvPath(projectName, "页面", "widgets.json");
 
     await storage.writeText(jsxPath, patchedJsx);
-    await storage.writeText(storePath, JSON.stringify(mergedStore, null, 2));
+    await storage.writeText(storePath, JSON.stringify(storeForDisk, null, 2));
+    await storage.writeText(widgetsPath, JSON.stringify(patchedWidgets, null, 2));
+    await storage.writeText(dvPath(projectName, "页面结构", "slots.schema.json"), patchedSlotsSchema);
 
-    const pageCount = mergedStore.pages.length;
-    const estimatedComponents = countStoreComponents(mergedStore);
+    const pageCount = storeForDisk.pages.length;
+    const estimatedComponents = countStoreComponents(storeForDisk);
 
     const jsxCode = jsxCodeSchema.parse({
       code: patchedJsx,

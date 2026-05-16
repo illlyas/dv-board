@@ -125,7 +125,7 @@ function normalizeIndustryTag(value: unknown): string {
   if (typeof value !== "string") return "generic";
   const v = value.trim().toLowerCase();
   const TAG_MAP: Record<string, string[]> = {
-    energy: ["能源", "电力", "新能源", "光伏", "风电"],
+    energy: ["能源", "电力", "新能源", "光伏", "运营"],
     industrial: ["工业", "制造", "工厂", "产线", "车间"],
     water: ["水利", "水务", "供水", "排水", "水库"],
     transport: ["交通", "公交", "地铁", "铁路", "客运"],

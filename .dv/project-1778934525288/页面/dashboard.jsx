@@ -1,5 +1,6 @@
+/** @dv-template: wind-power-emerald-ops */
 /**
- * 运营监控中心 — 布局骨架 + 私有面板组件
+ * 风电智慧运营 — 布局骨架 + 私有面板组件
  * widgets 见 widgets.json（props.widgets）；PanelShell 标题见 slots.schema.json panelHeaders（props.panelHeaders）。
  * 各面板组件在内部 useStoreData 管理数据；Dashboard 仅保留分页与布局状态。
  */
@@ -149,7 +150,7 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
       `}</style>
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <img
-          src="/template_bg.png"
+          src="/wind_power_bg.png"
           alt=""
           aria-hidden
           style={{ width: "100%", height: "100%", objectFit: "fill", display: "block",filter:"brightness(110%) contrast(120%) hue-rotate(215deg) saturate(15%)" }}
@@ -197,7 +198,7 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
           }}
         >
         
-          {"运营监控中心"}
+          {"智慧工厂运营驾驶舱"}
         </h1>
         <BoardClock />
       </header>
@@ -250,8 +251,8 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
             minWidth: 0,
             overflow: "hidden"
           }}>
-            <P1RealtimePrimaryPanel widgets={widgets} panelHeaders={panelHeaders} chartCell={chartCell} active={currentPage === 1} />
-            <P1RealtimeSecondaryPanel widgets={widgets} panelHeaders={panelHeaders} chartCell={chartCell} active={currentPage === 1} />
+            <P1PowerRealtimePanel widgets={widgets} panelHeaders={panelHeaders} chartCell={chartCell} active={currentPage === 1} />
+            <P1WindRealtimePanel widgets={widgets} panelHeaders={panelHeaders} chartCell={chartCell} active={currentPage === 1} />
           </div>
         </div>
 
@@ -272,7 +273,7 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
             minHeight: 0,
             minWidth: 0
           }}>
-            {[widgets.p0_kpi_hero_01, widgets.p0_kpi_hero_02, widgets.p0_kpi_avail, widgets.p0_kpi_emission, widgets.p0_kpi_hero_05].map((w, i) => (
+            {[widgets.p0_kpi_farms, widgets.p0_kpi_units, widgets.p0_kpi_avail, widgets.p0_kpi_emission, widgets.p0_kpi_clean].map((w, i) => (
               <div key={i} style={{ minHeight: 0, minWidth: 0, overflow: "hidden", position: "relative", display: "flex", alignItems: "center" }}>
                 {/* 旋转圆环装饰 */}
                 <div style={{
@@ -295,7 +296,7 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
             ))}
           </div>
 
-          <CenterGeoMapPanel boardRootRef={boardRootRef} />
+          <WindGeoMapPanel boardRootRef={boardRootRef} />
         </div>
 
         {/* ============ 右栏 ============ */}
@@ -633,59 +634,59 @@ function p1LiveChartConfig(widgetEntry, seedSlotId, liveRows) {
   };
 }
 
-function P1RealtimePrimaryPanel({ widgets, panelHeaders, chartCell, active }) {
-  const chartWidget = widgets.p1_chart_realtime_primary;
+function P1PowerRealtimePanel({ widgets, panelHeaders, chartCell, active }) {
+  const chartWidget = widgets.p1_chart_power_realtime;
   const axisFields = React.useMemo(() => chartAxisFieldsFromWidget(chartWidget), [chartWidget]);
-  const kpiBarConfig = useStoreData("p1.config.realtime_primary_kpi") || { items: [] };
-  const seriesSeed = useStoreData("p1.chart.realtime_primary_seed");
+  const powerKpi = useStoreData("p1.config.power_kpi") || { items: [] };
+  const powerSeed = useStoreData("p1.chart.power_realtime_seed");
   const bounds = React.useMemo(() => {
-    const rows = Array.isArray(seriesSeed) ? seriesSeed : [];
+    const rows = Array.isArray(powerSeed) ? powerSeed : [];
     return computeRealtimeBounds(rows, axisFields.xField, axisFields.yFields);
-  }, [seriesSeed, axisFields.xField, axisFields.yFields.join("\0")]);
-  const liveRows = useRealtimeSeries(seriesSeed, active, bounds, 30, axisFields);
+  }, [powerSeed, axisFields.xField, axisFields.yFields.join("\0")]);
+  const realtimePower = useRealtimeSeries(powerSeed, active, bounds, 30, axisFields);
   return (
-    <PanelShell headerTitle={panelHeaders.realtime_primary}>
+    <PanelShell headerTitle={panelHeaders.power_realtime}>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "var(--space-2)", minHeight: 0 }}>
-          {(kpiBarConfig.items || []).map((b, i) => (
+          {(powerKpi.items || []).map((b, i) => (
             <div key={i} style={{ minHeight: 0, minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center" }}><KpiGlowBar {...b} /></div>
           ))}
         </div>
         <div style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
-          {chartCell(<Widget config={p1LiveChartConfig(chartWidget, "p1.chart.realtime_primary_seed", liveRows)} />)}
+          {chartCell(<Widget config={p1LiveChartConfig(chartWidget, "p1.chart.power_realtime_seed", realtimePower)} />)}
         </div>
       </div>
     </PanelShell>
   );
 }
 
-function P1RealtimeSecondaryPanel({ widgets, panelHeaders, chartCell, active }) {
-  const chartWidget = widgets.p1_chart_realtime_secondary;
+function P1WindRealtimePanel({ widgets, panelHeaders, chartCell, active }) {
+  const chartWidget = widgets.p1_chart_wind_speed;
   const axisFields = React.useMemo(() => chartAxisFieldsFromWidget(chartWidget), [chartWidget]);
-  const kpiBarConfig = useStoreData("p1.config.realtime_secondary_kpi") || { items: [] };
-  const seriesSeed = useStoreData("p1.chart.realtime_secondary_seed");
+  const windKpi = useStoreData("p1.config.wind_kpi") || { items: [] };
+  const windSeed = useStoreData("p1.chart.wind_speed_seed");
   const bounds = React.useMemo(() => {
-    const rows = Array.isArray(seriesSeed) ? seriesSeed : [];
+    const rows = Array.isArray(windSeed) ? windSeed : [];
     return computeRealtimeBounds(rows, axisFields.xField, axisFields.yFields);
-  }, [seriesSeed, axisFields.xField, axisFields.yFields.join("\0")]);
-  const liveRows = useRealtimeSeries(seriesSeed, active, bounds, 30, axisFields);
+  }, [windSeed, axisFields.xField, axisFields.yFields.join("\0")]);
+  const realtimeWind = useRealtimeSeries(windSeed, active, bounds, 30, axisFields);
   return (
-    <PanelShell headerTitle={panelHeaders.realtime_secondary}>
+    <PanelShell headerTitle={panelHeaders.wind_speed}>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "var(--space-2)", minHeight: 0 }}>
-          {(kpiBarConfig.items || []).map((b, i) => (
+          {(windKpi.items || []).map((b, i) => (
             <div key={i} style={{ minHeight: 0, minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center" }}><KpiGlowBar {...b} /></div>
           ))}
         </div>
         <div style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
-          {chartCell(<Widget config={p1LiveChartConfig(chartWidget, "p1.chart.realtime_secondary_seed", liveRows)} />)}
+          {chartCell(<Widget config={p1LiveChartConfig(chartWidget, "p1.chart.wind_speed_seed", realtimeWind)} />)}
         </div>
       </div>
     </PanelShell>
   );
 }
 
-function CenterGeoMapPanel({ boardRootRef }) {
+function WindGeoMapPanel({ boardRootRef }) {
   const pal = useBoardViPalette(boardRootRef);
   const provinceConfig = useStoreData("p0.config.province_data") || {
     defaultProvince: "", provinces: {},
@@ -697,7 +698,7 @@ function CenterGeoMapPanel({ boardRootRef }) {
   const mapLegendChrome = provinceConfig.mapLegend || {};
   const regionCardLabels = provinceConfig.regionCard || {};
   const [activeProvince, setActiveProvince] = React.useState(provinceConfig.defaultProvince || "");
-  const provinceInfo = provinceDataMap[activeProvince] || { volume: 0, capacity: 0, sites: 0, rate: 0 };
+  const provinceInfo = provinceDataMap[activeProvince] || { power: 0, capacity: 0, farms: 0, rate: 0 };
   return (
     <div style={{ position: "relative", minHeight: 0, minWidth: 0, overflow: "hidden", borderRadius: "var(--radius-sm)",
       background: "radial-gradient(ellipse at center, color-mix(in srgb, var(--color-primary) 8%, transparent) 0%, transparent 70%)" }}>
@@ -720,9 +721,9 @@ function CenterGeoMapPanel({ boardRootRef }) {
         background: "color-mix(in srgb, var(--color-surface) 90%, transparent)", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-sm)", boxShadow: "var(--shadow-sm)", zIndex: 1 }}>
         <div style={{ color: "var(--color-primary)", fontFamily: "var(--font-display)", fontWeight: "var(--font-weight-semibold)", fontSize: "var(--font-size-md)", marginBottom: "var(--space-1)" }}>{activeProvince}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: "var(--font-size-xs)", color: "var(--color-text-secondary)" }}>
-          <div>{regionCardLabels.volumeLabel || "区域指标"} <span style={{ color: "var(--color-text-primary)" }}>{localeNum(provinceInfo.volume)} {regionCardLabels.volumeUnit || ""}</span></div>
+          <div>{regionCardLabels.volumeLabel || "区域指标"} <span style={{ color: "var(--color-text-primary)" }}>{localeNum(provinceInfo.power)} {regionCardLabels.volumeUnit || ""}</span></div>
           <div>{regionCardLabels.scaleLabel || "规模指标"} <span style={{ color: "var(--color-text-primary)" }}>{localeNum(provinceInfo.capacity)} {regionCardLabels.scaleUnit || ""}</span></div>
-          <div>{regionCardLabels.sitesLabel || "点位数量"} <span style={{ color: "var(--color-text-primary)" }}>{localeNum(provinceInfo.sites)} {regionCardLabels.sitesUnit || "个"}</span></div>
+          <div>{regionCardLabels.sitesLabel || "点位数量"} <span style={{ color: "var(--color-text-primary)" }}>{localeNum(provinceInfo.farms)} {regionCardLabels.sitesUnit || "个"}</span></div>
           <div>{regionCardLabels.rateLabel || "达成率"} <span style={{ color: "var(--color-primary)" }}>{localeNum(provinceInfo.rate)} {regionCardLabels.rateUnit || "%"}</span></div>
         </div>
       </div>
@@ -809,7 +810,7 @@ function P1DeviceLogTablePanel({ panelHeaders }) {
             { field: "triggered_at", label: "时间", width: 120 },
             { field: "department", label: regionCardLabels.logsColumnLabel || "区域" },
             { field: "name", label: "事件" },
-            { field: "value", label: "数值", format: "number", unit: "", align: "right" },
+            { field: "value", label: "功率", format: "number", unit: "kW", align: "right" },
           ],
           size: "small", striped: true, showIndex: false, autoScroll: true, autoScrollSpeed: 40, showFooter: false,
           style: { border: "none", background: "transparent", padding: 0, borderRadius: 0 },

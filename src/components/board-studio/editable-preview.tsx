@@ -4,6 +4,8 @@ import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, 
 import { JsxRenderer } from "@/components/jsx-renderer";
 import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
+import type { DashboardWidgetsMap } from "@/lib/board/load-dashboard-widgets";
+import type { DashboardPanelHeadersMap } from "@/lib/board/load-dashboard-panel-headers";
 import { getScreenPreset } from "@/lib/board/screen-presets";
 
 export interface SelectedWidget {
@@ -17,18 +19,30 @@ interface EditablePreviewProps {
   onSelectionChange: (widgets: SelectedWidget[]) => void;
   cssVariables?: Record<string, string>;
   visualAssetsBlock?: VisualAssetsBlock | null;
+  dashboardWidgets?: DashboardWidgetsMap | null;
+  dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
   canvasWidth?: number;
   canvasHeight?: number;
 }
 
 const StableRenderer = memo(function StableRenderer({
   code,
+  dashboardWidgets,
+  dashboardPanelHeaders,
   visualAssetsBlock,
 }: {
   code: string;
+  dashboardWidgets?: DashboardWidgetsMap | null;
+  dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
   visualAssetsBlock?: VisualAssetsBlock | null;
 }) {
-  const jsx = <JsxRenderer code={code} />;
+  const jsx = (
+    <JsxRenderer
+      code={code}
+      dashboardWidgets={dashboardWidgets}
+      dashboardPanelHeaders={dashboardPanelHeaders}
+    />
+  );
   if (!visualAssetsBlock) return jsx;
   return <VisualAssetsProvider block={visualAssetsBlock}>{jsx}</VisualAssetsProvider>;
 });
@@ -39,6 +53,8 @@ export function EditablePreview({
   onSelectionChange,
   cssVariables,
   visualAssetsBlock,
+  dashboardWidgets,
+  dashboardPanelHeaders,
   canvasWidth,
   canvasHeight,
 }: EditablePreviewProps) {
@@ -228,7 +244,12 @@ export function EditablePreview({
             transformOrigin: "0 0",
           }}
         >
-          <StableRenderer code={code} visualAssetsBlock={visualAssetsBlock} />
+          <StableRenderer
+            code={code}
+            dashboardWidgets={dashboardWidgets}
+            dashboardPanelHeaders={dashboardPanelHeaders}
+            visualAssetsBlock={visualAssetsBlock}
+          />
           <div ref={overlayRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 8 }} />
           <div ref={hoverBoxRef} style={{ display: "none", position: "absolute", pointerEvents: "none" }} />
         </div>

@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import type { DashboardWidgetsMap } from "@/lib/board/load-dashboard-widgets";
+import {
+  resolveDashboardPanelHeaders,
+  type DashboardPanelHeadersMap,
+} from "@/lib/board/load-dashboard-panel-headers";
 
 interface JsxRendererProps {
   code: string;
+  /** 平台 Widget 配置（如 wind-power-emerald-ops/widgets.json） */
+  dashboardWidgets?: DashboardWidgetsMap | null;
+  /** PanelShell 标题（由 slots.schema.json panelHeaders 解析） */
+  dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
   onError?: (error: string) => void;
 }
 
@@ -13,7 +22,12 @@ interface JsxRendererProps {
  * 渲染 AI 生成的纯视图层 React 组件代码
  * 支持 JSX 语法（通过 Babel 转译）
  */
-export function JsxRenderer({ code, onError }: JsxRendererProps) {
+export function JsxRenderer({
+  code,
+  dashboardWidgets = null,
+  dashboardPanelHeaders = null,
+  onError,
+}: JsxRendererProps) {
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBabelLoaded, setIsBabelLoaded] = useState(false);
@@ -148,6 +162,21 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
     })();
   }, [code, onError, isBabelLoaded]);
 
+  const widgetsProp = useMemo(
+    () => (dashboardWidgets && typeof dashboardWidgets === "object" ? dashboardWidgets : {}),
+    [dashboardWidgets]
+  );
+
+  const panelHeadersProp = useMemo(
+    () =>
+      resolveDashboardPanelHeaders(
+        dashboardPanelHeaders && typeof dashboardPanelHeaders === "object"
+          ? dashboardPanelHeaders
+          : null
+      ),
+    [dashboardPanelHeaders]
+  );
+
   if (!isBabelLoaded) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
@@ -184,7 +213,11 @@ export function JsxRenderer({ code, onError }: JsxRendererProps) {
   }
 
   try {
-    return <Component />;
+    const Dash = Component as React.ComponentType<{
+      widgets?: DashboardWidgetsMap | null;
+      panelHeaders?: DashboardPanelHeadersMap | null;
+    }>;
+    return <Dash widgets={widgetsProp} panelHeaders={panelHeadersProp} />;
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     const errorStack = err instanceof Error ? err.stack : "";

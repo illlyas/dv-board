@@ -4,6 +4,7 @@ import type {
   DashboardStorePayload,
   DashboardStoreSlotRole,
 } from "@/types/dashboard-store.types";
+import { normalizeStorePayload } from "@/lib/board/store-payload-normalize";
 import type { KPIWidgetGroupItem } from "@/types/widget.types";
 
 /** dashboard.jsx → dashboard.store.json */
@@ -101,6 +102,20 @@ export function payloadToWidgetData(payload: DashboardStorePayload): unknown {
     return Array.isArray(payload.value) ? payload.value : [];
   }
   return payload.value;
+}
+
+/** 结合槽位元数据归一化后再转为 Widget data */
+export function payloadToWidgetDataForComponent(
+  payload: DashboardStorePayload,
+  rec: Pick<DashboardStoreComponentRecord, "widgetType" | "propsSnapshot" | "slotId">
+): unknown {
+  const normalized = normalizeStorePayload(
+    payload,
+    rec.widgetType,
+    rec.propsSnapshot ?? {},
+    rec.slotId
+  );
+  return payloadToWidgetData(normalized);
 }
 
 const MOCK_SNAPSHOT_KEYS = new Set([

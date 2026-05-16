@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "phase": "widgets",
+  "templateId": "wind-power-emerald-ops",
+  "themeDocumentTitle": "智慧工厂运营驾驶舱",
+  "slots": {
+    "p0.kpi.wind_farms": {
+      "title": "车间数量",
+      "subtitle": "当前在产车间总数",
+      "unit": "个"
+    },
+    "p0.kpi.wind_units": {
+      "title": "设备总数",
+      "subtitle": "全部在册设备数量",
+      "unit": "台"
+    },
+    "p0.kpi.availability": {
+      "title": "设备可用率",
+      "subtitle": "实际运行时间 / 计划运行时间",
+      "unit": "%"
+    },
+    "p0.kpi.emission": {
+      "title": "碳排放量",
+      "subtitle": "生产过程CO₂排放累计",
+      "unit": "吨CO₂"
+    },
+    "p0.kpi.clean_gen": {
+      "title": "清洁能源占比",
+      "subtitle": "可再生能源使用比例",
+      "unit": "%"
+    },
+    "p0.kpi.gen_year": {
+      "title": "年产量",
+      "subtitle": "年度累计生产总量",
+      "unit": "件"
+    },
+    "p0.kpi.gen_month": {
+      "title": "月产量",
+      "subtitle": "本月累计生产总量",
+      "unit": "件"
+    },
+    "p0.kpi.gen_day": {
+      "title": "日产量",
+      "subtitle": "当日累计生产总量",
+      "unit": "件"
+    },
+    "p0.chart.hours_trend": {
+      "title": "产量趋势",
+      "subtitle": "当日每小时实际产量与计划产量对比",
+      "xAxis": {
+        "field": "hour",
+        "label": "时间"
+      },
+      "yAxis": [
+        {
+          "field": "actual",
+          "label": "实际产量"
+        },
+        {
+          "field": "plan",
+          "label": "计划产量"
+        }
+      ]
+    },
+    "p0.kpi.capacity_rate": {
+      "title": "产能利用率",
+      "subtitle": "实际产出 / 设计产能",
+      "unit": "%"
+    },
+    "p0.kpi.plan_rate": {
+      "title": "计划完成率",
+      "subtitle": "实际产出 / 计划产出",
+      "unit": "%"
+    },
+    "p0.chart.capacity": {
+      "title": "产线产能对比",
+      "subtitle": "各产线实际产出 vs 设计产能",
+      "xAxis": {
+        "field": "line",
+        "label": "产线"
+      },
+      "yAxis": [
+        {
+          "field": "actual",
+          "label": "实际产量"
+        },
+        {
+          "field": "capacity",
+          "label": "设计产能"
+        }
+      ]
+    },
+    "p0.kpi.running_orders": {
+      "title": "运行订单数",
+      "subtitle": "当前在制工单数量",
+      "unit": "个"
+    },
+    "p0.kpi.abnormal_orders": {
+      "title": "异常订单数",
+      "subtitle": "触发告警的异常工单数量",
+      "unit": "个"
+    },
+    "p0.chart.device_donut": {
+      "title": "设备状态分布",
+      "subtitle": "各运行状态设备数量占比",
+      "nameField": "status",
+      "valueField": "count"
+    },
+    "p0.kpi.util_hours": {
+      "title": "利用时长",
+      "subtitle": "平均设备每日运行时长",
+      "unit": "小时"
+    },
+    "p0.kpi.mldt": {
+      "title": "平均故障间隔",
+      "subtitle": "平均无故障工作时间 (MTBF)",
+      "unit": "小时"
+    },
+    "p0.kpi.mttr": {
+      "title": "平均修复时间",
+      "subtitle": "平均故障修复时长 (MTTR)",
+      "unit": "小时"
+    },
+    "p1.chart.power_realtime": {
+      "title": "实时功率监控",
+      "subtitle": "全厂实时功率曲线",
+      "xAxis": {
+        "field": "time",
+        "label": "时间"
+      },
+      "yAxis": [
+        {
+          "field": "power",
+          "label": "功率(kW)"
+        }
+      ]
+    },
+    "p1.chart.wind_speed": {
+      "title": "环境温度监测",
+      "subtitle": "车间实时温度变化",
+      "xAxis": {
+        "field": "time",
+        "label": "时间"
+      },
+      "yAxis": [
+        {
+          "field": "temp",
+          "label": "温度(℃)"
+        }
+      ]
+    },
+    "p1.chart.alarm_bar": {
+      "title": "告警分类统计",
+      "subtitle": "各类型告警发生次数",
+      "xAxis": {
+        "field": "type",
+        "label": "告警类型"
+      },
+      "yAxis": [
+        {
+          "field": "count",
+          "label": "告警次数"
+        }
+      ]
+    },
+    "p1.chart.device_status": {
+      "title": "设备状态占比",
+      "subtitle": "当前各状态设备比例",
+      "nameField": "status",
+      "valueField": "count"
+    },
+    "p1.table.alarm_list": {
+      "columns": [
+        {
+          "field": "triggered_at",
+          "label": "时间"
+        },
+        {
+          "field": "name",
+          "label": "设备"
+        },
+        {
+          "field": "metric",
+          "label": "告警类型"
+        },
+        {
+          "field": "trend",
+          "label": "等级"
+        }
+      ]
+    }
+  },
+  "panelHeaders": {
+    "gen_completion": "产量完成情况",
+    "production_base": "生产基地概况",
+    "capacity": "产能对比",
+    "power_realtime": "实时功率监控",
+    "wind_speed": "环境温度监测",
+    "logistics": "智慧物流监控",
+    "maintenance": "设备运维监控",
+    "alarm_list": "实时告警列表",
+    "device_log": "设备运行日志"
+  }
+}

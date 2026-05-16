@@ -16,6 +16,23 @@ export function dashboardStoreCacheKey(
 
 const cache = new Map<string, DashboardStoreFile>();
 const inflight = new Map<string, Promise<DashboardStoreFile>>();
+let storeRevision = 0;
+const revisionListeners = new Set<() => void>();
+
+function bumpStoreRevision(): void {
+  storeRevision += 1;
+  revisionListeners.forEach((fn) => fn());
+}
+
+/** 内存 store 更新时递增，供 useStoreData / useWidgetData 重新读取 */
+export function getDashboardStoreRevision(): number {
+  return storeRevision;
+}
+
+export function subscribeDashboardStoreRevision(listener: () => void): () => void {
+  revisionListeners.add(listener);
+  return () => revisionListeners.delete(listener);
+}
 
 export function getCachedDashboardStore(
   projectName: string,
@@ -31,6 +48,7 @@ export function replaceCachedDashboardStore(
   store: DashboardStoreFile
 ): void {
   cache.set(dashboardStoreCacheKey(projectName, dashboardFile), store);
+  bumpStoreRevision();
 }
 
 /**
@@ -59,6 +77,7 @@ export function loadDashboardStoreOnce(
       if (!res.ok) throw new Error(await res.text());
       const j = (await res.json()) as { store: DashboardStoreFile };
       cache.set(key, j.store);
+      bumpStoreRevision();
       return j.store;
     })().finally(() => {
       inflight.delete(key);

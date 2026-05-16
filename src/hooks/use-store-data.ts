@@ -10,10 +10,12 @@
 
 import { useEffect, useState } from "react";
 import { useDashboardPreviewOptional } from "@/contexts/dashboard-preview-context";
+import { subscribeDashboardStoreRevision } from "@/lib/dashboard-store-client-cache";
 import {
   findStoredComponent,
   inferMockRole,
   payloadToWidgetData,
+  payloadToWidgetDataForComponent,
   resolvePageIndex,
 } from "@/lib/dashboard-store";
 import { runMockSlotPipelineOnce } from "@/lib/mock-slot-pipeline";
@@ -24,7 +26,7 @@ import { runMockSlotPipelineOnce } from "@/lib/mock-slot-pipeline";
  * 用法：
  * ```jsx
  * const provinceData = useStoreData("p0.config.province_data");
- * const powerSeed = useStoreData("p1.chart.power_realtime_seed");
+ * const powerSeed = useStoreData("p1.chart.realtime_primary_seed");
  * ```
  *
  * @param slotId 槽位 id（与 store.json 中 components[].slotId 对齐）
@@ -37,6 +39,12 @@ export function useStoreData<T = unknown>(
 ): T | null {
   const previewCtx = useDashboardPreviewOptional();
   const hydrated = previewCtx?.hydrated ?? false;
+  const [storeRevision, setStoreRevision] = useState(0);
+
+  useEffect(() => {
+    if (!previewCtx) return;
+    return subscribeDashboardStoreRevision(() => setStoreRevision((n) => n + 1));
+  }, [previewCtx]);
 
   const [data, setData] = useState<T | null>(() =>
     readFromStore<T>(previewCtx, slotId, pageIndex)
@@ -80,7 +88,13 @@ export function useStoreData<T = unknown>(
             propsSnapshot: rec.propsSnapshot ?? {},
             pagesStoryExcerpt: previewCtx.getPagesStoryExcerpt(),
           });
-          if (!cancelled) setData(payloadToWidgetData(payload) as T);
+          if (!cancelled) {
+            const rec2 = findStoredComponent(store, pi, sid);
+            const norm = rec2
+              ? (payloadToWidgetDataForComponent(payload, rec2) as T)
+              : (payloadToWidgetData(payload) as T);
+            setData(norm);
+          }
         } catch (e) {
           console.warn("[useStoreData] mock-slot 失败:", e);
           if (!cancelled) setData(null);
@@ -95,7 +109,7 @@ export function useStoreData<T = unknown>(
     return () => {
       cancelled = true;
     };
-  }, [previewCtx, hydrated, slotId, pageIndex]);
+  }, [previewCtx, hydrated, slotId, pageIndex, storeRevision]);
 
   return data;
 }
@@ -113,5 +127,5 @@ function readFromStore<T>(
   const pi = resolvePageIndex(sid, pageIndex);
   const rec = findStoredComponent(store, pi, sid);
   if (!rec?.payload) return null;
-  return payloadToWidgetData(rec.payload) as T;
+  return payloadToWidgetDataForComponent(rec.payload, rec) as T;
 }

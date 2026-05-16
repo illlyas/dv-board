@@ -12,9 +12,12 @@ import {
   findStoredComponent,
   inferMockRole,
   payloadToWidgetData,
+  payloadToWidgetDataForComponent,
   resolvePageIndex,
 } from "@/lib/dashboard-store";
+import { normalizeStorePayload } from "@/lib/board/store-payload-normalize";
 import { runMockSlotPipelineOnce } from "@/lib/mock-slot-pipeline";
+import { subscribeDashboardStoreRevision } from "@/lib/dashboard-store-client-cache";
 
 interface UseWidgetDataOptions extends DataBinding {
   /** 当前 widget 类型，用于判定 mock 数据形状 */
@@ -97,9 +100,18 @@ export function useWidgetData<T = any>(
   previewRef.current = previewCtx;
   const previewActive = Boolean(previewCtx);
   const storeHydrated = previewCtx?.hydrated ?? false;
+  const [storeRevision, setStoreRevision] = useState(0);
 
+  useEffect(() => {
+    if (!previewCtx) return;
+    return subscribeDashboardStoreRevision(() => setStoreRevision((n) => n + 1));
+  }, [previewCtx]);
+
+  /** 空数组视为未绑定静态数据，以便 P1 实时图在种子未就绪时仍可从 store 拉取 */
   const hasBoundStatic =
-    staticData !== undefined && staticData !== null;
+    staticData !== undefined &&
+    staticData !== null &&
+    !(Array.isArray(staticData) && staticData.length === 0);
 
   const [data, setData] = useState<T | null>(() =>
     hasBoundStatic ? (staticData as T) : null,
@@ -110,7 +122,7 @@ export function useWidgetData<T = any>(
   const fetchData = useCallback(async () => {
     // 静态数据优先：不受 enabled 影响（避免 enableData={false} 时永远不注入）
     // null 视为「未绑定静态数据」，仍走下方拉取（避免生成代码误传 staticData: null 导致永无数据）
-    if (staticData !== undefined && staticData !== null) {
+    if (hasBoundStatic) {
       setData(staticData as T);
       setLoading(false);
       setError(null);
@@ -138,7 +150,7 @@ export function useWidgetData<T = any>(
         if (store) {
           const rec = findStoredComponent(store, pi, sid);
           if (rec?.payload) {
-            result = payloadToWidgetData(rec.payload);
+            result = payloadToWidgetDataForComponent(rec.payload, rec);
           }
         }
 
@@ -163,7 +175,13 @@ export function useWidgetData<T = any>(
               propsSnapshot: o.propsSnapshot ?? {},
               pagesStoryExcerpt: p.getPagesStoryExcerpt(),
             });
-            result = payloadToWidgetData(payload);
+            const normPayload = normalizeStorePayload(
+              payload,
+              o.widgetType || "Unknown",
+              o.propsSnapshot ?? {},
+              sid
+            );
+            result = payloadToWidgetData(normPayload);
           } catch (mockErr) {
             console.warn("[useWidgetData] mock-slot 失败，回退本地 mock:", mockErr);
           }
@@ -214,6 +232,8 @@ export function useWidgetData<T = any>(
     filterHasStaticOptions,
     previewActive,
     storeHydrated,
+    hasBoundStatic,
+    storeRevision,
   ]);
 
   // 初始加载

@@ -7,20 +7,20 @@
       "pageIndex": 0,
       "components": [
         {
-          "slotId": "p0.kpi.wind_farms",
+          "slotId": "p0.kpi.hero_01",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "wind_farms_value",
+            "dataKey": "hero_01_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
-            "title": "风电场数量",
-            "dataKey": "wind_farms_value",
-            "dataSlotId": "p0.kpi.wind_farms",
+            "title": "指标一",
+            "dataKey": "hero_01_value",
+            "dataSlotId": "p0.kpi.hero_01",
             "pageIndex": 0,
             "presetIconId": "kpi-sync-refresh",
             "unit": "个",
@@ -47,20 +47,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.wind_units",
+          "slotId": "p0.kpi.hero_02",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "wind_units_value",
+            "dataKey": "hero_02_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
-            "title": "风电机组数量",
-            "dataKey": "wind_units_value",
-            "dataSlotId": "p0.kpi.wind_units",
+            "title": "指标二",
+            "dataKey": "hero_02_value",
+            "dataSlotId": "p0.kpi.hero_02",
             "pageIndex": 0,
             "presetIconId": "kpi-analytics-bars",
             "unit": "台",
@@ -167,20 +167,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.clean_gen",
+          "slotId": "p0.kpi.hero_05",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "clean_gen_value",
+            "dataKey": "hero_05_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
-            "title": "清洁能源发电",
-            "dataKey": "clean_gen_value",
-            "dataSlotId": "p0.kpi.clean_gen",
+            "title": "指标五",
+            "dataKey": "hero_05_value",
+            "dataSlotId": "p0.kpi.hero_05",
             "pageIndex": 0,
             "presetIconId": "kpi-pharmacy",
             "unit": "万kW",
@@ -207,20 +207,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.gen_year",
+          "slotId": "p0.kpi.side_01",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "gen_year_value",
+            "dataKey": "side_01_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
             "title": "当年",
-            "dataKey": "gen_year_value",
-            "dataSlotId": "p0.kpi.gen_year",
+            "dataKey": "side_01_value",
+            "dataSlotId": "p0.kpi.side_01",
             "pageIndex": 0,
             "presetIconId": "kpi-sync-refresh",
             "unit": "MWh",
@@ -247,20 +247,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.gen_month",
+          "slotId": "p0.kpi.side_02",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "gen_month_value",
+            "dataKey": "side_02_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
             "title": "当月",
-            "dataKey": "gen_month_value",
-            "dataSlotId": "p0.kpi.gen_month",
+            "dataKey": "side_02_value",
+            "dataSlotId": "p0.kpi.side_02",
             "pageIndex": 0,
             "presetIconId": "kpi-analytics-bars",
             "unit": "MWh",
@@ -287,20 +287,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.gen_day",
+          "slotId": "p0.kpi.side_03",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "gen_day_value",
+            "dataKey": "side_03_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
             "title": "当日",
-            "dataKey": "gen_day_value",
-            "dataSlotId": "p0.kpi.gen_day",
+            "dataKey": "side_03_value",
+            "dataSlotId": "p0.kpi.side_03",
             "pageIndex": 0,
             "presetIconId": "kpi-insight-badge",
             "unit": "MWh",
@@ -346,7 +346,7 @@
             "yAxis": [
               {
                 "field": "equiv_hours",
-                "label": "场站等效利用小时",
+                "label": "等效利用小时",
                 "color": "var(--color-primary)"
               },
               {
@@ -551,20 +551,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.running_orders",
+          "slotId": "p0.kpi.status_01",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "running_orders_value",
+            "dataKey": "status_01_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
             "title": "当前在运单数",
-            "dataKey": "running_orders_value",
-            "dataSlotId": "p0.kpi.running_orders",
+            "dataKey": "status_01_value",
+            "dataSlotId": "p0.kpi.status_01",
             "pageIndex": 0,
             "presetIconId": "kpi-package",
             "unit": "个",
@@ -591,20 +591,20 @@
           "source": "template"
         },
         {
-          "slotId": "p0.kpi.abnormal_orders",
+          "slotId": "p0.kpi.status_02",
           "pageIndex": 0,
           "widgetType": "KPI",
           "role": "data",
           "binding": {
-            "dataKey": "abnormal_orders_value",
+            "dataKey": "status_02_value",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
             "widgetType": "KPI",
             "title": "异常运单数量",
-            "dataKey": "abnormal_orders_value",
-            "dataSlotId": "p0.kpi.abnormal_orders",
+            "dataKey": "status_02_value",
+            "dataSlotId": "p0.kpi.status_02",
             "pageIndex": 0,
             "presetIconId": "kpi-pharmacy",
             "unit": "个",
@@ -1096,207 +1096,207 @@
               "defaultProvince": "四川省",
               "provinces": {
                 "北京市": {
-                  "power": 186,
+                  "volume": 186,
                   "capacity": 1200,
-                  "farms": 3,
+                  "sites": 3,
                   "rate": 97
                 },
                 "天津市": {
-                  "power": 95,
+                  "volume": 95,
                   "capacity": 800,
-                  "farms": 2,
+                  "sites": 2,
                   "rate": 94
                 },
                 "河北省": {
-                  "power": 312,
+                  "volume": 312,
                   "capacity": 3500,
-                  "farms": 8,
+                  "sites": 8,
                   "rate": 95
                 },
                 "山西省": {
-                  "power": 245,
+                  "volume": 245,
                   "capacity": 2800,
-                  "farms": 6,
+                  "sites": 6,
                   "rate": 93
                 },
                 "内蒙古自治区": {
-                  "power": 580,
+                  "volume": 580,
                   "capacity": 6200,
-                  "farms": 15,
+                  "sites": 15,
                   "rate": 96
                 },
                 "辽宁省": {
-                  "power": 320,
+                  "volume": 320,
                   "capacity": 3100,
-                  "farms": 7,
+                  "sites": 7,
                   "rate": 94
                 },
                 "吉林省": {
-                  "power": 275,
+                  "volume": 275,
                   "capacity": 2600,
-                  "farms": 6,
+                  "sites": 6,
                   "rate": 92
                 },
                 "黑龙江省": {
-                  "power": 410,
+                  "volume": 410,
                   "capacity": 4500,
-                  "farms": 10,
+                  "sites": 10,
                   "rate": 93
                 },
                 "上海市": {
-                  "power": 68,
+                  "volume": 68,
                   "capacity": 500,
-                  "farms": 1,
+                  "sites": 1,
                   "rate": 98
                 },
                 "江苏省": {
-                  "power": 380,
+                  "volume": 380,
                   "capacity": 4100,
-                  "farms": 9,
+                  "sites": 9,
                   "rate": 96
                 },
                 "浙江省": {
-                  "power": 210,
+                  "volume": 210,
                   "capacity": 2200,
-                  "farms": 5,
+                  "sites": 5,
                   "rate": 95
                 },
                 "安徽省": {
-                  "power": 195,
+                  "volume": 195,
                   "capacity": 1900,
-                  "farms": 4,
+                  "sites": 4,
                   "rate": 94
                 },
                 "福建省": {
-                  "power": 265,
+                  "volume": 265,
                   "capacity": 2900,
-                  "farms": 7,
+                  "sites": 7,
                   "rate": 96
                 },
                 "江西省": {
-                  "power": 145,
+                  "volume": 145,
                   "capacity": 1500,
-                  "farms": 3,
+                  "sites": 3,
                   "rate": 93
                 },
                 "山东省": {
-                  "power": 420,
+                  "volume": 420,
                   "capacity": 4800,
-                  "farms": 11,
+                  "sites": 11,
                   "rate": 95
                 },
                 "河南省": {
-                  "power": 230,
+                  "volume": 230,
                   "capacity": 2400,
-                  "farms": 5,
+                  "sites": 5,
                   "rate": 94
                 },
                 "湖北省": {
-                  "power": 198,
+                  "volume": 198,
                   "capacity": 2100,
-                  "farms": 5,
+                  "sites": 5,
                   "rate": 93
                 },
                 "湖南省": {
-                  "power": 175,
+                  "volume": 175,
                   "capacity": 1800,
-                  "farms": 4,
+                  "sites": 4,
                   "rate": 92
                 },
                 "广东省": {
-                  "power": 350,
+                  "volume": 350,
                   "capacity": 3800,
-                  "farms": 8,
+                  "sites": 8,
                   "rate": 97
                 },
                 "广西壮族自治区": {
-                  "power": 165,
+                  "volume": 165,
                   "capacity": 1700,
-                  "farms": 4,
+                  "sites": 4,
                   "rate": 91
                 },
                 "海南省": {
-                  "power": 88,
+                  "volume": 88,
                   "capacity": 900,
-                  "farms": 2,
+                  "sites": 2,
                   "rate": 95
                 },
                 "重庆市": {
-                  "power": 120,
+                  "volume": 120,
                   "capacity": 1300,
-                  "farms": 3,
+                  "sites": 3,
                   "rate": 92
                 },
                 "四川省": {
-                  "power": 222,
+                  "volume": 222,
                   "capacity": 2773,
-                  "farms": 5,
+                  "sites": 5,
                   "rate": 96
                 },
                 "贵州省": {
-                  "power": 185,
+                  "volume": 185,
                   "capacity": 2000,
-                  "farms": 5,
+                  "sites": 5,
                   "rate": 93
                 },
                 "云南省": {
-                  "power": 290,
+                  "volume": 290,
                   "capacity": 3200,
-                  "farms": 7,
+                  "sites": 7,
                   "rate": 94
                 },
                 "西藏自治区": {
-                  "power": 45,
+                  "volume": 45,
                   "capacity": 400,
-                  "farms": 1,
+                  "sites": 1,
                   "rate": 88
                 },
                 "陕西省": {
-                  "power": 215,
+                  "volume": 215,
                   "capacity": 2300,
-                  "farms": 5,
+                  "sites": 5,
                   "rate": 94
                 },
                 "甘肃省": {
-                  "power": 480,
+                  "volume": 480,
                   "capacity": 5500,
-                  "farms": 12,
+                  "sites": 12,
                   "rate": 95
                 },
                 "青海省": {
-                  "power": 155,
+                  "volume": 155,
                   "capacity": 1600,
-                  "farms": 4,
+                  "sites": 4,
                   "rate": 91
                 },
                 "宁夏回族自治区": {
-                  "power": 260,
+                  "volume": 260,
                   "capacity": 2700,
-                  "farms": 6,
+                  "sites": 6,
                   "rate": 96
                 },
                 "新疆维吾尔自治区": {
-                  "power": 620,
+                  "volume": 620,
                   "capacity": 7100,
-                  "farms": 18,
+                  "sites": 18,
                   "rate": 94
                 },
                 "台湾省": {
-                  "power": 78,
+                  "volume": 78,
                   "capacity": 700,
-                  "farms": 2,
+                  "sites": 2,
                   "rate": 93
                 },
                 "香港特别行政区": {
-                  "power": 12,
+                  "volume": 12,
                   "capacity": 100,
-                  "farms": 1,
+                  "sites": 1,
                   "rate": 97
                 },
                 "澳门特别行政区": {
-                  "power": 5,
+                  "volume": 5,
                   "capacity": 50,
-                  "farms": 1,
+                  "sites": 1,
                   "rate": 96
                 }
               },
@@ -1785,91 +1785,91 @@
             "value": [
               {
                 "triggered_at": "2023-08-11 16:58",
-                "name": "风机A-03",
+                "name": "设备A-03",
                 "metric": "振动超限",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 16:52",
-                "name": "风机B-12",
+                "name": "设备B-12",
                 "metric": "温度过高",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 16:47",
-                "name": "风机C-07",
-                "metric": "功率偏低",
+                "name": "设备C-07",
+                "metric": "指标偏低",
                 "trend": "下降"
               },
               {
                 "triggered_at": "2023-08-11 16:41",
-                "name": "风机A-09",
+                "name": "设备A-09",
                 "metric": "叶片结冰",
                 "trend": "持平"
               },
               {
                 "triggered_at": "2023-08-11 16:35",
-                "name": "风机D-01",
-                "metric": "偏航异常",
+                "name": "设备D-01",
+                "metric": "校准异常",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 16:30",
-                "name": "风机B-05",
+                "name": "设备B-05",
                 "metric": "齿轮箱油温",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 16:24",
-                "name": "风机C-11",
+                "name": "设备C-11",
                 "metric": "发电机过热",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 16:18",
-                "name": "风机A-06",
+                "name": "设备A-06",
                 "metric": "振动超限",
                 "trend": "下降"
               },
               {
                 "triggered_at": "2023-08-11 16:12",
-                "name": "风机D-08",
+                "name": "设备D-08",
                 "metric": "通信中断",
                 "trend": "持平"
               },
               {
                 "triggered_at": "2023-08-11 16:05",
-                "name": "风机B-02",
+                "name": "设备B-02",
                 "metric": "液压系统",
                 "trend": "下降"
               },
               {
                 "triggered_at": "2023-08-11 15:58",
-                "name": "风机C-04",
-                "metric": "变桨故障",
+                "name": "设备C-04",
+                "metric": "调节故障",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 15:51",
-                "name": "风机A-10",
+                "name": "设备A-10",
                 "metric": "电网波动",
                 "trend": "持平"
               },
               {
                 "triggered_at": "2023-08-11 15:44",
-                "name": "风机D-06",
+                "name": "设备D-06",
                 "metric": "温度过高",
                 "trend": "上升"
               },
               {
                 "triggered_at": "2023-08-11 15:37",
-                "name": "风机B-09",
-                "metric": "功率偏低",
+                "name": "设备B-09",
+                "metric": "指标偏低",
                 "trend": "下降"
               },
               {
                 "triggered_at": "2023-08-11 15:30",
-                "name": "风机C-01",
+                "name": "设备C-01",
                 "metric": "振动超限",
                 "trend": "上升"
               }
@@ -1909,7 +1909,7 @@
               },
               {
                 "field": "value",
-                "label": "功率"
+                "label": "数值"
               }
             ]
           },
@@ -1919,121 +1919,121 @@
               {
                 "triggered_at": "2023-08-11 17:00",
                 "department": "华东风场",
-                "name": "风机A-03启动",
+                "name": "设备A-03启动",
                 "value": 2450
               },
               {
                 "triggered_at": "2023-08-11 16:58",
                 "department": "华北风场",
-                "name": "风机B-12停机检修",
+                "name": "设备B-12停机检修",
                 "value": 0
               },
               {
                 "triggered_at": "2023-08-11 16:55",
                 "department": "华东风场",
-                "name": "风机A-07功率调整",
+                "name": "设备A-07参数调整",
                 "value": 1820
               },
               {
                 "triggered_at": "2023-08-11 16:52",
                 "department": "西北风场",
-                "name": "风机C-05并网成功",
+                "name": "设备C-05上线成功",
                 "value": 3100
               },
               {
                 "triggered_at": "2023-08-11 16:48",
                 "department": "华南风场",
-                "name": "风机D-01偏航校正",
+                "name": "设备D-01校准校正",
                 "value": 2680
               },
               {
                 "triggered_at": "2023-08-11 16:45",
                 "department": "华北风场",
-                "name": "风机B-08限功率运行",
+                "name": "设备B-08限值运行",
                 "value": 1500
               },
               {
                 "triggered_at": "2023-08-11 16:42",
                 "department": "西北风场",
-                "name": "风机C-11恢复运行",
+                "name": "设备C-11恢复运行",
                 "value": 2900
               },
               {
                 "triggered_at": "2023-08-11 16:38",
                 "department": "华东风场",
-                "name": "风机A-01切入风速",
+                "name": "设备A-01启动监测序列",
                 "value": 850
               },
               {
                 "triggered_at": "2023-08-11 16:35",
                 "department": "华南风场",
-                "name": "风机D-04满发运行",
+                "name": "设备D-04满载运行",
                 "value": 3300
               },
               {
                 "triggered_at": "2023-08-11 16:32",
                 "department": "华北风场",
-                "name": "风机B-06变桨调整",
+                "name": "设备B-06调节调整",
                 "value": 2100
               },
               {
                 "triggered_at": "2023-08-11 16:28",
                 "department": "西北风场",
-                "name": "风机C-09降功率",
+                "name": "设备C-09降载",
                 "value": 1200
               },
               {
                 "triggered_at": "2023-08-11 16:25",
                 "department": "华东风场",
-                "name": "风机A-05停机待风",
+                "name": "设备A-05停机待机",
                 "value": 0
               },
               {
                 "triggered_at": "2023-08-11 16:22",
                 "department": "华南风场",
-                "name": "风机D-07启动成功",
+                "name": "设备D-07启动成功",
                 "value": 1950
               },
               {
                 "triggered_at": "2023-08-11 16:18",
                 "department": "华北风场",
-                "name": "风机B-03满发运行",
+                "name": "设备B-03满载运行",
                 "value": 3250
               },
               {
                 "triggered_at": "2023-08-11 16:15",
                 "department": "西北风场",
-                "name": "风机C-02并网运行",
+                "name": "设备C-02上线运行",
                 "value": 2750
               },
               {
                 "triggered_at": "2023-08-11 16:12",
                 "department": "华东风场",
-                "name": "风机A-08功率爬坡",
+                "name": "设备A-08数值爬坡",
                 "value": 1680
               },
               {
                 "triggered_at": "2023-08-11 16:08",
                 "department": "华南风场",
-                "name": "风机D-10维护完成",
+                "name": "设备D-10维护完成",
                 "value": 2400
               },
               {
                 "triggered_at": "2023-08-11 16:05",
                 "department": "华北风场",
-                "name": "风机B-11切出停机",
+                "name": "设备B-11退出停机",
                 "value": 0
               },
               {
                 "triggered_at": "2023-08-11 16:02",
                 "department": "西北风场",
-                "name": "风机C-06额定运行",
+                "name": "设备C-06额定运行",
                 "value": 3000
               },
               {
                 "triggered_at": "2023-08-11 15:58",
                 "department": "华东风场",
-                "name": "风机A-02低风速运行",
+                "name": "设备A-02低监测序列运行",
                 "value": 620
               }
             ]
@@ -2042,18 +2042,18 @@
           "source": "template"
         },
         {
-          "slotId": "p1.config.power_kpi",
+          "slotId": "p1.config.realtime_primary_kpi",
           "pageIndex": 1,
           "widgetType": "Config",
           "role": "data",
           "binding": {
-            "dataKey": "power_kpi",
+            "dataKey": "realtime_primary_kpi",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
-            "dataKey": "power_kpi",
-            "dataSlotId": "p1.config.power_kpi",
+            "dataKey": "realtime_primary_kpi",
+            "dataSlotId": "p1.config.realtime_primary_kpi",
             "pageIndex": 1
           },
           "payload": {
@@ -2061,7 +2061,7 @@
             "value": {
               "items": [
                 {
-                  "label": "当前功率",
+                  "label": "当前数值",
                   "value": 856,
                   "max": 1200,
                   "unit": "MW",
@@ -2092,18 +2092,18 @@
           "source": "template"
         },
         {
-          "slotId": "p1.config.wind_kpi",
+          "slotId": "p1.config.realtime_secondary_kpi",
           "pageIndex": 1,
           "widgetType": "Config",
           "role": "data",
           "binding": {
-            "dataKey": "wind_kpi",
+            "dataKey": "realtime_secondary_kpi",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
-            "dataKey": "wind_kpi",
-            "dataSlotId": "p1.config.wind_kpi",
+            "dataKey": "realtime_secondary_kpi",
+            "dataSlotId": "p1.config.realtime_secondary_kpi",
             "pageIndex": 1
           },
           "payload": {
@@ -2111,14 +2111,14 @@
             "value": {
               "items": [
                 {
-                  "label": "平均风速",
+                  "label": "平均监测序列",
                   "value": 8.6,
                   "max": 15,
                   "unit": "m/s",
                   "dir": "up"
                 },
                 {
-                  "label": "最大风速",
+                  "label": "最大监测序列",
                   "value": 14.2,
                   "max": 25,
                   "unit": "m/s",
@@ -2138,18 +2138,18 @@
           "source": "template"
         },
         {
-          "slotId": "p1.chart.power_realtime_seed",
+          "slotId": "p1.chart.realtime_primary_seed",
           "pageIndex": 1,
           "widgetType": "LineChart",
           "role": "data",
           "binding": {
-            "dataKey": "power_realtime_seed",
+            "dataKey": "realtime_primary_seed",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
-            "dataKey": "power_realtime_seed",
-            "dataSlotId": "p1.chart.power_realtime_seed",
+            "dataKey": "realtime_primary_seed",
+            "dataSlotId": "p1.chart.realtime_primary_seed",
             "pageIndex": 1
           },
           "payload": {
@@ -2158,102 +2158,102 @@
               {
                 "time": "16:40",
                 "value": 632,
-                "plan_power": 755
+                "series_secondary": 755
               },
               {
                 "time": "16:41",
                 "value": 611,
-                "plan_power": 848
+                "series_secondary": 848
               },
               {
                 "time": "16:42",
                 "value": 890,
-                "plan_power": 764
+                "series_secondary": 764
               },
               {
                 "time": "16:43",
                 "value": 774,
-                "plan_power": 806
+                "series_secondary": 806
               },
               {
                 "time": "16:44",
                 "value": 776,
-                "plan_power": 829
+                "series_secondary": 829
               },
               {
                 "time": "16:45",
                 "value": 752,
-                "plan_power": 784
+                "series_secondary": 784
               },
               {
                 "time": "16:46",
                 "value": 669,
-                "plan_power": 799
+                "series_secondary": 799
               },
               {
                 "time": "16:47",
                 "value": 781,
-                "plan_power": 796
+                "series_secondary": 796
               },
               {
                 "time": "16:48",
                 "value": 604,
-                "plan_power": 763
+                "series_secondary": 763
               },
               {
                 "time": "16:49",
                 "value": 762,
-                "plan_power": 774
+                "series_secondary": 774
               },
               {
                 "time": "16:50",
                 "value": 804,
-                "plan_power": 768
+                "series_secondary": 768
               },
               {
                 "time": "16:51",
                 "value": 653,
-                "plan_power": 809
+                "series_secondary": 809
               },
               {
                 "time": "16:52",
                 "value": 665,
-                "plan_power": 752
+                "series_secondary": 752
               },
               {
                 "time": "16:53",
                 "value": 727,
-                "plan_power": 845
+                "series_secondary": 845
               },
               {
                 "time": "16:54",
                 "value": 897,
-                "plan_power": 762
+                "series_secondary": 762
               },
               {
                 "time": "16:55",
                 "value": 876,
-                "plan_power": 842
+                "series_secondary": 842
               },
               {
                 "time": "16:56",
                 "value": 880,
-                "plan_power": 809
+                "series_secondary": 809
               },
               {
                 "time": "16:57",
                 "value": 824,
-                "plan_power": 824
+                "series_secondary": 824
               },
               {
                 "time": "16:58",
                 "value": 893,
-                "plan_power": 823
+                "series_secondary": 823
               },
               {
                 "time": "16:59",
                 "value": 798,
-                "plan_power": 823
+                "series_secondary": 823
               }
             ]
           },
@@ -2261,18 +2261,18 @@
           "source": "template"
         },
         {
-          "slotId": "p1.chart.wind_speed_seed",
+          "slotId": "p1.chart.realtime_secondary_seed",
           "pageIndex": 1,
           "widgetType": "LineChart",
           "role": "data",
           "binding": {
-            "dataKey": "wind_speed_seed",
+            "dataKey": "realtime_secondary_seed",
             "dataSource": null,
             "query": null
           },
           "propsSnapshot": {
-            "dataKey": "wind_speed_seed",
-            "dataSlotId": "p1.chart.wind_speed_seed",
+            "dataKey": "realtime_secondary_seed",
+            "dataSlotId": "p1.chart.realtime_secondary_seed",
             "pageIndex": 1
           },
           "payload": {

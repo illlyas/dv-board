@@ -9,6 +9,7 @@ import { registerWidget } from "@/components/widget/registry";
 import { ChartLabelBackdrop } from "@/components/dv-assets";
 import { DV_CHART, DV_CHART_TITLE } from "@/lib/dv-chart-tokens";
 import { mergeEChartsOption } from "@/lib/echarts-option-merge";
+import { guardCartesianScaleOverrides } from "@/lib/echarts-scale-guard";
 import { resolveCssForCanvas } from "@/lib/resolve-chart-css";
 import { resolveCartesianTheme } from "@/components/widgets/echarts-theme-resolve";
 import { asScalarReactText, hasScalarContent } from "@/lib/react-text-safety";
@@ -179,8 +180,15 @@ function BarChartWidget({ config, data, loading }: WidgetComponentProps<{ type: 
 
   const mergedOption = React.useMemo(() => {
     if (!baseOption) return null;
-    return mergeEChartsOption(baseOption, props.echartsOptionOverrides ?? null);
-  }, [baseOption, props.echartsOptionOverrides]);
+    const yFields = yAxisConfigs.map((y) => y.field);
+    const rows = chartData as Record<string, unknown>[];
+    const safeOverrides = guardCartesianScaleOverrides(
+      props.echartsOptionOverrides ?? null,
+      rows,
+      yFields
+    );
+    return mergeEChartsOption(baseOption, safeOverrides ?? null);
+  }, [baseOption, props.echartsOptionOverrides, chartData, yAxisConfigs]);
 
   return (
     <div

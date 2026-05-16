@@ -8,6 +8,15 @@ import type { ViTokensJson } from "@/lib/board/vi-tokens-inject";
 import { viTokensToInjectStyleVars } from "@/lib/board/vi-tokens-inject";
 import { loadDashboardStoreOnce } from "@/lib/dashboard-store-client-cache";
 import { readFile } from "@/lib/pipeline/file-operations";
+import {
+  parseDashboardWidgetsJson,
+  type DashboardWidgetsMap,
+} from "@/lib/board/load-dashboard-widgets";
+import {
+  parsePanelHeadersFromSlotsSchemaJson,
+  resolveDashboardPanelHeaders,
+  type DashboardPanelHeadersMap,
+} from "@/lib/board/load-dashboard-panel-headers";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 import { getScreenPreset } from "@/lib/board/screen-presets";
 import type { ProjectConfig } from "@/lib/projects/project-config";
@@ -25,6 +34,9 @@ export function FullscreenDashboard() {
   const fileName = sanitizeDashboardFilename(searchParams.get("file"));
 
   const [code, setCode] = useState<string | null>(null);
+  const [dashboardWidgets, setDashboardWidgets] = useState<DashboardWidgetsMap | null>(null);
+  const [dashboardPanelHeaders, setDashboardPanelHeaders] =
+    useState<DashboardPanelHeadersMap | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [cssVariables, setCssVariables] = useState<Record<string, string> | undefined>(undefined);
   const [visualAssetsBlock, setVisualAssetsBlock] = useState<VisualAssetsBlock | null>(null);
@@ -45,14 +57,22 @@ export function FullscreenDashboard() {
     (async () => {
       try {
         const jsxPath = `.dv/${projectId}/页面/${fileName}`;
-        const [jsxRaw, tokensRaw, projRes] = await Promise.all([
+        const [jsxRaw, tokensRaw, widgetsRaw, slotsSchemaRaw, projRes] = await Promise.all([
           readFile(jsxPath),
           readFile(`.dv/${projectId}/品牌VI/vi-tokens.json`).catch(() => null),
+          readFile(`.dv/${projectId}/页面/widgets.json`).catch(() => null),
+          readFile(`.dv/${projectId}/页面结构/slots.schema.json`).catch(() => null),
           fetch(`/api/projects/${encodeURIComponent(projectId)}`),
         ]);
         if (cancelled) return;
 
         setCode(jsxRaw);
+        setDashboardWidgets(widgetsRaw ? parseDashboardWidgetsJson(widgetsRaw) : null);
+        setDashboardPanelHeaders(
+          resolveDashboardPanelHeaders(
+            slotsSchemaRaw ? parsePanelHeadersFromSlotsSchemaJson(slotsSchemaRaw) : null
+          )
+        );
 
         if (tokensRaw) {
           try {
@@ -126,6 +146,8 @@ export function FullscreenDashboard() {
         <div className="flex min-h-0 flex-1 flex-col">
           <ScaledBoardPreview
             code={code}
+            dashboardWidgets={dashboardWidgets}
+            dashboardPanelHeaders={dashboardPanelHeaders}
             cssVariables={cssVariables}
             visualAssetsBlock={visualAssetsBlock}
             canvasWidth={boardCanvasWidth}

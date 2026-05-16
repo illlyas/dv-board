@@ -1,0 +1,1762 @@
+{
+  "version": 1,
+  "dashboardFile": "dashboard.jsx",
+  "updatedAt": "2026-05-16T12:31:32.496Z",
+  "pages": [
+    {
+      "pageIndex": 0,
+      "components": [
+        {
+          "slotId": "p0.kpi.wind_farms",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_farms_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "风电场数量",
+            "dataKey": "wind_farms_value",
+            "dataSlotId": "p0.kpi.wind_farms",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "个",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 5,
+              "unit": "个",
+              "trend": "up",
+              "trendValue": "+1",
+              "comparison": {
+                "label": "环比",
+                "value": "+1"
+              },
+              "subtitle": "全厂厂区数"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.wind_units",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_units_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "风电机组数量",
+            "dataKey": "wind_units_value",
+            "dataSlotId": "p0.kpi.wind_units",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "台",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 42,
+              "unit": "条",
+              "trend": "up",
+              "trendValue": "+3",
+              "comparison": {
+                "label": "较上期",
+                "value": "+3"
+              },
+              "subtitle": "产线总数"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.availability",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "availability_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "平均可利用率",
+            "dataKey": "availability_value",
+            "dataSlotId": "p0.kpi.availability",
+            "pageIndex": 0,
+            "presetIconId": "kpi-insight-badge",
+            "unit": "%",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 94.2,
+              "unit": "%",
+              "trend": "down",
+              "trendValue": "-0.5",
+              "comparison": {
+                "label": "较目标",
+                "value": "-0.8%p"
+              },
+              "subtitle": "设备可用率"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.emission",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "emission_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "年减排量",
+            "dataKey": "emission_value",
+            "dataSlotId": "p0.kpi.emission",
+            "pageIndex": 0,
+            "presetIconId": "kpi-capsule",
+            "unit": "万kWh",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 186.3,
+              "unit": "t",
+              "trend": "down",
+              "trendValue": "-12.1",
+              "comparison": {
+                "label": "同比",
+                "value": "-6.1%"
+              },
+              "subtitle": "碳排放总量（当日）"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.clean_gen",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "clean_gen_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "清洁能源发电",
+            "dataKey": "clean_gen_value",
+            "dataSlotId": "p0.kpi.clean_gen",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "万kW",
+            "presentation": {
+              "layout": "header-inline",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 82.5,
+              "unit": "%",
+              "trend": "up",
+              "trendValue": "+3.2",
+              "comparison": {
+                "label": "较上期",
+                "value": "+3.2%p"
+              },
+              "subtitle": "清洁能源占比"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.gen_year",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_year_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当年",
+            "dataKey": "gen_year_value",
+            "dataSlotId": "p0.kpi.gen_year",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "MWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 1248,
+              "unit": "万件",
+              "trend": "up",
+              "trendValue": "+8.5%",
+              "comparison": {
+                "label": "较去年",
+                "value": "+8.5%"
+              },
+              "subtitle": "年度累计产量"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.gen_month",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_month_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当月",
+            "dataKey": "gen_month_value",
+            "dataSlotId": "p0.kpi.gen_month",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "MWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 105.3,
+              "unit": "万件",
+              "trend": "up",
+              "trendValue": "+2.1",
+              "comparison": {
+                "label": "环比",
+                "value": "+2.1%"
+              },
+              "subtitle": "本月累计产量"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.gen_day",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_day_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当日",
+            "dataKey": "gen_day_value",
+            "dataSlotId": "p0.kpi.gen_day",
+            "pageIndex": 0,
+            "presetIconId": "kpi-insight-badge",
+            "unit": "MWh",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 3.62,
+              "unit": "万件",
+              "trend": "down",
+              "trendValue": "-0.15",
+              "comparison": {
+                "label": "较昨日",
+                "value": "-1500件"
+              },
+              "subtitle": "本日产量（当前）"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.hours_trend",
+          "pageIndex": 0,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "hours_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "LineChart",
+            "title": "近五年等效小时数与业界平均发电小时数",
+            "xAxis": {
+              "field": "year",
+              "label": "年度"
+            },
+            "yAxis": [
+              {
+                "field": "equiv_hours",
+                "label": "场站等效利用小时",
+                "color": "var(--color-primary)"
+              },
+              {
+                "field": "industry_avg_hours",
+                "label": "行业平均发电小时",
+                "color": "var(--color-accent-gold)"
+              }
+            ],
+            "dataKey": "hours_trend",
+            "dataSlotId": "p0.chart.hours_trend",
+            "pageIndex": 0,
+            "showLegend": true
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "hour": "08:00",
+                "actual": 320,
+                "plan": 350,
+                "equiv_hours": 320,
+                "industry_avg_hours": 350
+              },
+              {
+                "hour": "09:00",
+                "actual": 410,
+                "plan": 400,
+                "equiv_hours": 410,
+                "industry_avg_hours": 400
+              },
+              {
+                "hour": "10:00",
+                "actual": 390,
+                "plan": 400,
+                "equiv_hours": 390,
+                "industry_avg_hours": 400
+              },
+              {
+                "hour": "11:00",
+                "actual": 420,
+                "plan": 400,
+                "equiv_hours": 420,
+                "industry_avg_hours": 400
+              },
+              {
+                "hour": "12:00",
+                "actual": 380,
+                "plan": 400,
+                "equiv_hours": 380,
+                "industry_avg_hours": 400
+              },
+              {
+                "hour": "13:00",
+                "actual": 360,
+                "plan": 380,
+                "equiv_hours": 360,
+                "industry_avg_hours": 380
+              },
+              {
+                "hour": "14:00",
+                "actual": 430,
+                "plan": 420,
+                "equiv_hours": 430,
+                "industry_avg_hours": 420
+              },
+              {
+                "hour": "15:00",
+                "actual": 450,
+                "plan": 420,
+                "equiv_hours": 450,
+                "industry_avg_hours": 420
+              },
+              {
+                "hour": "16:00",
+                "actual": 440,
+                "plan": 420,
+                "equiv_hours": 440,
+                "industry_avg_hours": 420
+              },
+              {
+                "hour": "17:00",
+                "actual": 400,
+                "plan": 400,
+                "equiv_hours": 400,
+                "industry_avg_hours": 400
+              },
+              {
+                "hour": "18:00",
+                "actual": 370,
+                "plan": 380,
+                "equiv_hours": 370,
+                "industry_avg_hours": 380
+              },
+              {
+                "hour": "19:00",
+                "actual": 350,
+                "plan": 360,
+                "equiv_hours": 350,
+                "industry_avg_hours": 360
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.capacity_rate",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "capacity_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "年生产能力",
+            "dataKey": "capacity_rate_value",
+            "dataSlotId": "p0.kpi.capacity_rate",
+            "pageIndex": 0,
+            "presetIconId": "kpi-capsule",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 86.7,
+              "unit": "%",
+              "trend": "up",
+              "trendValue": "+1.2",
+              "comparison": {
+                "label": "较上期",
+                "value": "+1.2%p"
+              },
+              "subtitle": "产能利用率"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.plan_rate",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "plan_rate_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "计划排产量",
+            "dataKey": "plan_rate_value",
+            "dataSlotId": "p0.kpi.plan_rate",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "%",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 93.4,
+              "unit": "%",
+              "trend": "up",
+              "trendValue": "+2.0",
+              "comparison": {
+                "label": "较目标",
+                "value": "-1.6%p"
+              },
+              "subtitle": "计划完成率"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.capacity",
+          "pageIndex": 0,
+          "widgetType": "BarChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "capacity_trend",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "BarChart",
+            "title": "装机容量 (万kW)",
+            "xAxis": {
+              "field": "year",
+              "label": "年度"
+            },
+            "yAxis": [
+              {
+                "field": "operating_capacity",
+                "label": "在运装机",
+                "color": "var(--color-primary)"
+              },
+              {
+                "field": "committed_capacity",
+                "label": "在建及规划",
+                "color": "var(--color-accent-gold)"
+              }
+            ],
+            "dataKey": "capacity_trend",
+            "dataSlotId": "p0.chart.capacity",
+            "pageIndex": 0,
+            "showLegend": true
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "line": "A线",
+                "actual": 1120,
+                "capacity": 1200,
+                "year": "A线",
+                "operating_capacity": 1120,
+                "committed_capacity": 1200
+              },
+              {
+                "line": "B线",
+                "actual": 980,
+                "capacity": 1100,
+                "year": "B线",
+                "operating_capacity": 980,
+                "committed_capacity": 1100
+              },
+              {
+                "line": "C线",
+                "actual": 1050,
+                "capacity": 1200,
+                "year": "C线",
+                "operating_capacity": 1050,
+                "committed_capacity": 1200
+              },
+              {
+                "line": "D线",
+                "actual": 890,
+                "capacity": 1000,
+                "year": "D线",
+                "operating_capacity": 890,
+                "committed_capacity": 1000
+              },
+              {
+                "line": "E线",
+                "actual": 1150,
+                "capacity": 1200,
+                "year": "E线",
+                "operating_capacity": 1150,
+                "committed_capacity": 1200
+              },
+              {
+                "line": "F线",
+                "actual": 760,
+                "capacity": 900,
+                "year": "F线",
+                "operating_capacity": 760,
+                "committed_capacity": 900
+              },
+              {
+                "line": "G线",
+                "actual": 1020,
+                "capacity": 1100,
+                "year": "G线",
+                "operating_capacity": 1020,
+                "committed_capacity": 1100
+              },
+              {
+                "line": "H线",
+                "actual": 950,
+                "capacity": 1050,
+                "year": "H线",
+                "operating_capacity": 950,
+                "committed_capacity": 1050
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.running_orders",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "running_orders_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "当前在运单数",
+            "dataKey": "running_orders_value",
+            "dataSlotId": "p0.kpi.running_orders",
+            "pageIndex": 0,
+            "presetIconId": "kpi-package",
+            "unit": "个",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 18,
+              "unit": "个",
+              "trend": "up",
+              "trendValue": "+2",
+              "comparison": {
+                "label": "较上期",
+                "value": "+2"
+              },
+              "subtitle": "运行中工单"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.abnormal_orders",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "abnormal_orders_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "异常运单数量",
+            "dataKey": "abnormal_orders_value",
+            "dataSlotId": "p0.kpi.abnormal_orders",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "个",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 3,
+              "unit": "个",
+              "trend": "down",
+              "trendValue": "-1",
+              "comparison": {
+                "label": "环比",
+                "value": "-1"
+              },
+              "subtitle": "异常工单"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.chart.device_donut",
+          "pageIndex": 0,
+          "widgetType": "DonutChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_donut",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "DonutChart",
+            "title": "在途设备占比图",
+            "nameField": "name",
+            "valueField": "value",
+            "dataKey": "device_donut",
+            "dataSlotId": "p0.chart.device_donut",
+            "pageIndex": 0,
+            "showLegend": true,
+            "donut": true,
+            "innerRadius": 52,
+            "outerRadius": 78
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "status": "正常运行",
+                "count": 68
+              },
+              {
+                "status": "计划停机",
+                "count": 12
+              },
+              {
+                "status": "故障停机",
+                "count": 5
+              },
+              {
+                "status": "维修中",
+                "count": 8
+              },
+              {
+                "status": "待保养",
+                "count": 7
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.util_hours",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "util_hours_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "等效利用小时数",
+            "dataKey": "util_hours_value",
+            "dataSlotId": "p0.kpi.util_hours",
+            "pageIndex": 0,
+            "presetIconId": "kpi-sync-refresh",
+            "unit": "小时",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 18.5,
+              "unit": "h",
+              "trend": "up",
+              "trendValue": "+0.8",
+              "comparison": {
+                "label": "较上期",
+                "value": "+0.8h"
+              },
+              "subtitle": "平均利用小时数（周）"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.mldt",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "mldt_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "平均故障相应时间 (MLDT)",
+            "dataKey": "mldt_value",
+            "dataSlotId": "p0.kpi.mldt",
+            "pageIndex": 0,
+            "presetIconId": "kpi-analytics-bars",
+            "unit": "小时",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 2.3,
+              "unit": "h",
+              "trend": "down",
+              "trendValue": "-0.4",
+              "comparison": {
+                "label": "同比",
+                "value": "-0.4h"
+              },
+              "subtitle": "平均停机时长（故障）"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.kpi.mttr",
+          "pageIndex": 0,
+          "widgetType": "KPI",
+          "role": "data",
+          "binding": {
+            "dataKey": "mttr_value",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "KPI",
+            "title": "平均故障修复时间 (MTTR)",
+            "dataKey": "mttr_value",
+            "dataSlotId": "p0.kpi.mttr",
+            "pageIndex": 0,
+            "presetIconId": "kpi-pharmacy",
+            "unit": "小时",
+            "presentation": {
+              "layout": "classic",
+              "surface": "card",
+              "valueGlow": "inherit"
+            }
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "value": 45,
+              "unit": "min",
+              "trend": "down",
+              "trendValue": "-3",
+              "comparison": {
+                "label": "较上期",
+                "value": "-3min"
+              },
+              "subtitle": "平均修复时间"
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.gen_progress",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "gen_progress",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "gen_progress",
+            "dataSlotId": "p0.config.gen_progress",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "A线",
+                  "current": 11200,
+                  "total": 12000,
+                  "unit": "件",
+                  "color": "#1890ff"
+                },
+                {
+                  "label": "B线",
+                  "current": 9800,
+                  "total": 11000,
+                  "unit": "件",
+                  "color": "#52c41a"
+                },
+                {
+                  "label": "C线",
+                  "current": 10500,
+                  "total": 12000,
+                  "unit": "件",
+                  "color": "#faad14"
+                },
+                {
+                  "label": "D线",
+                  "current": 8900,
+                  "total": 10000,
+                  "unit": "件",
+                  "color": "#f5222d"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.production_base",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "production_base",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "production_base",
+            "dataSlotId": "p0.config.production_base",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "capacity": {
+                "label": "设计产能",
+                "current": 45000,
+                "total": 48000
+              },
+              "capacityBars": [
+                {
+                  "label": "已投产",
+                  "value": 42000,
+                  "color": "#1890ff"
+                },
+                {
+                  "label": "未投产",
+                  "value": 6000,
+                  "color": "#d9d9d9"
+                }
+              ],
+              "plan": {
+                "label": "今日计划",
+                "current": 16000,
+                "total": 16000
+              },
+              "planBars": [
+                {
+                  "label": "已完成",
+                  "value": 14900,
+                  "color": "#52c41a"
+                },
+                {
+                  "label": "未完成",
+                  "value": 1100,
+                  "color": "#ff4d4f"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.transit_summary",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "transit_summary",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "transit_summary",
+            "dataSlotId": "p0.config.transit_summary",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "running": {
+                "title": "运行中工单",
+                "value": 18,
+                "unit": "个",
+                "trend": "up",
+                "icon": "CheckCircleFilled"
+              },
+              "abnormal": {
+                "title": "异常工单",
+                "value": 3,
+                "unit": "个",
+                "trend": "down",
+                "icon": "CloseCircleFilled"
+              }
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.daily_orders",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "daily_orders",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "daily_orders",
+            "dataSlotId": "p0.config.daily_orders",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "title": "今日工单状态",
+              "bars": [
+                {
+                  "label": "待接单",
+                  "current": 4,
+                  "total": 30,
+                  "color": "#faad14"
+                },
+                {
+                  "label": "执行中",
+                  "current": 18,
+                  "total": 30,
+                  "color": "#1890ff"
+                },
+                {
+                  "label": "已完成",
+                  "current": 8,
+                  "total": 30,
+                  "color": "#52c41a"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.maintenance_metrics",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "maintenance_metrics",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "maintenance_metrics",
+            "dataSlotId": "p0.config.maintenance_metrics",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "iconId": "kpi-analytics-bars",
+                  "title": "平均维修时长",
+                  "value": "45",
+                  "unit": "min",
+                  "tone": "success"
+                },
+                {
+                  "iconId": "kpi-pharmacy",
+                  "title": "备件库存满足率",
+                  "value": "92",
+                  "unit": "%",
+                  "tone": "warning"
+                },
+                {
+                  "iconId": "kpi-sync-refresh",
+                  "title": "计划保养完成率",
+                  "value": "88",
+                  "unit": "%",
+                  "tone": "warning"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.work_orders",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "work_orders",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "work_orders",
+            "dataSlotId": "p0.config.work_orders",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "紧急维修",
+                  "value": 5,
+                  "color": "#f5222d"
+                },
+                {
+                  "label": "预防性维护",
+                  "value": 12,
+                  "color": "#1890ff"
+                },
+                {
+                  "label": "日常巡检",
+                  "value": 8,
+                  "color": "#52c41a"
+                },
+                {
+                  "label": "技改项目",
+                  "value": 3,
+                  "color": "#722ed1"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.province_data",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "province_data",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "province_data",
+            "dataSlotId": "p0.config.province_data",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "defaultProvince": "广东省",
+              "provinces": {
+                "广东省": {
+                  "power": 2800,
+                  "capacity": 3200,
+                  "farms": 8,
+                  "rate": 96
+                },
+                "江苏省": {
+                  "power": 2400,
+                  "capacity": 2800,
+                  "farms": 6,
+                  "rate": 93
+                },
+                "浙江省": {
+                  "power": 1800,
+                  "capacity": 2000,
+                  "farms": 5,
+                  "rate": 90
+                },
+                "山东省": {
+                  "power": 2100,
+                  "capacity": 2500,
+                  "farms": 7,
+                  "rate": 91
+                }
+              },
+              "mapLegend": {
+                "on": "产量(万件)",
+                "off": "产能(万件)"
+              },
+              "regionCard": {
+                "volumeLabel": "产量",
+                "volumeUnit": "万件",
+                "scaleLabel": "产能",
+                "scaleUnit": "万件",
+                "sitesLabel": "厂区数",
+                "sitesUnit": "个",
+                "rateLabel": "达成率",
+                "rateUnit": "%",
+                "logsColumnLabel": "最近预警"
+              }
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p0.config.map_scatter",
+          "pageIndex": 0,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "map_scatter",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "map_scatter",
+            "dataSlotId": "p0.config.map_scatter",
+            "pageIndex": 0
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "name": "广州厂区",
+                "value": [
+                  113.264,
+                  23.129,
+                  28
+                ]
+              },
+              {
+                "name": "深圳厂区",
+                "value": [
+                  114.057,
+                  22.543,
+                  24
+                ]
+              },
+              {
+                "name": "东莞厂区",
+                "value": [
+                  113.751,
+                  23.02,
+                  18
+                ]
+              },
+              {
+                "name": "苏州厂区",
+                "value": [
+                  120.619,
+                  31.317,
+                  22
+                ]
+              },
+              {
+                "name": "无锡厂区",
+                "value": [
+                  120.305,
+                  31.57,
+                  15
+                ]
+              },
+              {
+                "name": "杭州厂区",
+                "value": [
+                  120.155,
+                  30.274,
+                  20
+                ]
+              },
+              {
+                "name": "宁波厂区",
+                "value": [
+                  121.544,
+                  29.868,
+                  16
+                ]
+              },
+              {
+                "name": "青岛厂区",
+                "value": [
+                  120.382,
+                  36.067,
+                  19
+                ]
+              },
+              {
+                "name": "济南厂区",
+                "value": [
+                  117.12,
+                  36.651,
+                  14
+                ]
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        }
+      ]
+    },
+    {
+      "pageIndex": 1,
+      "components": [
+        {
+          "slotId": "p1.table.alarm_list",
+          "pageIndex": 1,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "alarm_list",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "dataSlotId": "p1.table.alarm_list",
+            "pageIndex": 1,
+            "dataKey": "alarm_list",
+            "columns": [
+              {
+                "field": "triggered_at",
+                "label": "时间",
+                "width": 120
+              },
+              {
+                "field": "name",
+                "label": "设备",
+                "width": 100
+              },
+              {
+                "field": "metric",
+                "label": "告警类型"
+              },
+              {
+                "field": "trend",
+                "label": "等级"
+              }
+            ]
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "triggered_at": "2025-04-08 08:23",
+                "name": "A线注塑机",
+                "metric": "温度超标",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2025-04-08 08:15",
+                "name": "B线压机",
+                "metric": "压力异常",
+                "trend": "平稳"
+              },
+              {
+                "triggered_at": "2025-04-08 07:58",
+                "name": "C线电机",
+                "metric": "振动过大",
+                "trend": "下降"
+              },
+              {
+                "triggered_at": "2025-04-08 07:42",
+                "name": "D线变频器",
+                "metric": "电流过载",
+                "trend": "上升"
+              },
+              {
+                "triggered_at": "2025-04-08 07:30",
+                "name": "中央空调",
+                "metric": "通信中断",
+                "trend": "持续"
+              },
+              {
+                "triggered_at": "2025-04-08 07:12",
+                "name": "E线齿轮箱",
+                "metric": "润滑不足",
+                "trend": "平稳"
+              },
+              {
+                "triggered_at": "2025-04-08 06:50",
+                "name": "1#仓库门禁",
+                "metric": "门禁异常",
+                "trend": "上升"
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.table.device_log",
+          "pageIndex": 1,
+          "widgetType": "Table",
+          "role": "data",
+          "binding": {
+            "dataKey": "device_log_list",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "widgetType": "Table",
+            "dataSlotId": "p1.table.device_log",
+            "pageIndex": 1,
+            "dataKey": "device_log_list",
+            "columns": [
+              {
+                "field": "triggered_at",
+                "label": "时间",
+                "width": 120
+              },
+              {
+                "field": "department",
+                "label": "风场"
+              },
+              {
+                "field": "name",
+                "label": "事件"
+              },
+              {
+                "field": "value",
+                "label": "功率"
+              }
+            ]
+          },
+          "payload": {
+            "kind": "tableRows",
+            "value": [
+              {
+                "triggered_at": "2025-04-08 08:00",
+                "department": "一车间",
+                "name": "A线注塑机",
+                "value": "更换螺杆"
+              },
+              {
+                "triggered_at": "2025-04-08 07:45",
+                "department": "二车间",
+                "name": "B线压机",
+                "value": "校准压力"
+              },
+              {
+                "triggered_at": "2025-04-08 07:30",
+                "department": "三车间",
+                "name": "C线电机",
+                "value": "更换轴承"
+              },
+              {
+                "triggered_at": "2025-04-08 07:15",
+                "department": "一车间",
+                "name": "D线变频器",
+                "value": "复位"
+              },
+              {
+                "triggered_at": "2025-04-08 07:00",
+                "department": "公用工程",
+                "name": "中央空调",
+                "value": "重启通信模块"
+              },
+              {
+                "triggered_at": "2025-04-08 06:40",
+                "department": "二车间",
+                "name": "E线齿轮箱",
+                "value": "加注润滑油"
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.config.power_kpi",
+          "pageIndex": 1,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "power_kpi",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "power_kpi",
+            "dataSlotId": "p1.config.power_kpi",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "实时功率",
+                  "value": 380,
+                  "max": 500,
+                  "unit": "kW",
+                  "dir": "up",
+                  "iconId": "PoweroffOutlined"
+                },
+                {
+                  "label": "峰值功率",
+                  "value": 460,
+                  "max": 500,
+                  "unit": "kW",
+                  "dir": "right",
+                  "iconId": "RocketOutlined"
+                },
+                {
+                  "label": "负载率",
+                  "value": 76,
+                  "max": 100,
+                  "unit": "%",
+                  "dir": "up",
+                  "iconId": "DashboardOutlined"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.config.wind_kpi",
+          "pageIndex": 1,
+          "widgetType": "Config",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_kpi",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "wind_kpi",
+            "dataSlotId": "p1.config.wind_kpi",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "kpiValue",
+            "value": {
+              "items": [
+                {
+                  "label": "环境温度",
+                  "value": 28,
+                  "max": 50,
+                  "unit": "℃",
+                  "dir": "up",
+                  "iconId": "TemperatureOutlined"
+                },
+                {
+                  "label": "相对湿度",
+                  "value": 65,
+                  "max": 100,
+                  "unit": "%",
+                  "dir": "right",
+                  "iconId": "CloudOutlined"
+                },
+                {
+                  "label": "设备振动",
+                  "value": 0.8,
+                  "max": 2,
+                  "unit": "mm/s",
+                  "dir": "up",
+                  "iconId": "AudioOutlined"
+                }
+              ]
+            }
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.power_realtime_seed",
+          "pageIndex": 1,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "power_realtime_seed",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "power_realtime_seed",
+            "dataSlotId": "p1.chart.power_realtime_seed",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "time": "09:00",
+                "power": 350
+              },
+              {
+                "time": "09:10",
+                "power": 360
+              },
+              {
+                "time": "09:20",
+                "power": 355
+              },
+              {
+                "time": "09:30",
+                "power": 370
+              },
+              {
+                "time": "09:40",
+                "power": 380
+              },
+              {
+                "time": "09:50",
+                "power": 375
+              },
+              {
+                "time": "10:00",
+                "power": 390
+              },
+              {
+                "time": "10:10",
+                "power": 385
+              },
+              {
+                "time": "10:20",
+                "power": 400
+              },
+              {
+                "time": "10:30",
+                "power": 410
+              },
+              {
+                "time": "10:40",
+                "power": 405
+              },
+              {
+                "time": "10:50",
+                "power": 420
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        },
+        {
+          "slotId": "p1.chart.wind_speed_seed",
+          "pageIndex": 1,
+          "widgetType": "LineChart",
+          "role": "data",
+          "binding": {
+            "dataKey": "wind_speed_seed",
+            "dataSource": null,
+            "query": null
+          },
+          "propsSnapshot": {
+            "dataKey": "wind_speed_seed",
+            "dataSlotId": "p1.chart.wind_speed_seed",
+            "pageIndex": 1
+          },
+          "payload": {
+            "kind": "seriesRows",
+            "value": [
+              {
+                "time": "09:00",
+                "temp": 7.2
+              },
+              {
+                "time": "09:10",
+                "temp": 7
+              },
+              {
+                "time": "09:20",
+                "temp": 7.5
+              },
+              {
+                "time": "09:30",
+                "temp": 7.8
+              },
+              {
+                "time": "09:40",
+                "temp": 8
+              },
+              {
+                "time": "09:50",
+                "temp": 7.6
+              },
+              {
+                "time": "10:00",
+                "temp": 8.2
+              },
+              {
+                "time": "10:10",
+                "temp": 8.5
+              },
+              {
+                "time": "10:20",
+                "temp": 8.3
+              },
+              {
+                "time": "10:30",
+                "temp": 8.8
+              },
+              {
+                "time": "10:40",
+                "temp": 8.6
+              },
+              {
+                "time": "10:50",
+                "temp": 9
+              }
+            ]
+          },
+          "filledAt": "2026-05-16T12:31:32.496Z",
+          "source": "agent"
+        }
+      ]
+    }
+  ]
+}

@@ -4,16 +4,22 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { JsxRenderer } from "@/components/jsx-renderer";
 import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
+import type { DashboardWidgetsMap } from "@/lib/board/load-dashboard-widgets";
+import type { DashboardPanelHeadersMap } from "@/lib/board/load-dashboard-panel-headers";
 import { getScreenPreset } from "@/lib/board/screen-presets";
 
 export function ScaledBoardPreview({
   code,
+  dashboardWidgets,
+  dashboardPanelHeaders,
   cssVariables,
   visualAssetsBlock,
   canvasWidth,
   canvasHeight,
 }: {
   code: string;
+  dashboardWidgets?: DashboardWidgetsMap | null;
+  dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
   cssVariables?: Record<string, string>;
   visualAssetsBlock?: VisualAssetsBlock | null;
   /** 设计画布像素宽，缺省为项目默认 Full HD；实际 JSX 可能更大，以测量为准 */
@@ -93,10 +99,18 @@ export function ScaledBoardPreview({
         >
           {visualAssetsBlock ? (
             <VisualAssetsProvider block={visualAssetsBlock}>
-              <JsxRenderer code={code} />
+              <JsxRenderer
+                code={code}
+                dashboardWidgets={dashboardWidgets}
+                dashboardPanelHeaders={dashboardPanelHeaders}
+              />
             </VisualAssetsProvider>
           ) : (
-            <JsxRenderer code={code} />
+            <JsxRenderer
+              code={code}
+              dashboardWidgets={dashboardWidgets}
+              dashboardPanelHeaders={dashboardPanelHeaders}
+            />
           )}
         </div>
       </div>

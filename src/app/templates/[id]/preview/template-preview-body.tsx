@@ -8,6 +8,11 @@ import type { ViTokensJson } from "@/lib/board/vi-tokens-inject";
 import { viTokensToInjectStyleVars } from "@/lib/board/vi-tokens-inject";
 import { getScreenPreset } from "@/lib/board/screen-presets";
 import type { BoardTemplateBundle } from "@/lib/board-templates/types";
+import { parseDashboardWidgetsJson } from "@/lib/board/load-dashboard-widgets";
+import {
+  parsePanelHeadersFromSlotsSchemaJson,
+  resolveDashboardPanelHeaders,
+} from "@/lib/board/load-dashboard-panel-headers";
 import { encodeBoardTemplateProjectName } from "@/lib/board-templates/template-project-name";
 
 function defaultDashboardFile(meta: BoardTemplateBundle["meta"]): string {
@@ -61,6 +66,19 @@ export function TemplatePreviewBody({ id }: { id: string }) {
 
   const dashboardFile = bundle ? defaultDashboardFile(bundle.meta) : "dashboard.jsx";
   const virtualProject = encodeBoardTemplateProjectName(id);
+  const dashboardWidgets = useMemo(
+    () => (bundle?.widgetsJson ? parseDashboardWidgetsJson(bundle.widgetsJson) : null),
+    [bundle?.widgetsJson]
+  );
+  const dashboardPanelHeaders = useMemo(
+    () =>
+      bundle?.slotsSchemaJson
+        ? resolveDashboardPanelHeaders(
+            parsePanelHeadersFromSlotsSchemaJson(bundle.slotsSchemaJson)
+          )
+        : null,
+    [bundle?.slotsSchemaJson]
+  );
 
   if (err) {
     return (
@@ -123,6 +141,8 @@ export function TemplatePreviewBody({ id }: { id: string }) {
         <div className="flex min-h-0 flex-1 flex-col">
           <ScaledBoardPreview
             code={bundle.dashboardJsx}
+            dashboardWidgets={dashboardWidgets}
+            dashboardPanelHeaders={dashboardPanelHeaders}
             cssVariables={cssVariables}
             visualAssetsBlock={null}
             canvasWidth={screen.width}

@@ -1,0 +1,906 @@
+{
+  "p0_kpi_hero_01": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.hero_01",
+      "pageIndex": 0,
+      "title": "指标一",
+      "presetIconId": "kpi-sync-refresh",
+      "dataKey": "hero_01_value",
+      "unit": "个",
+      "presentation": {
+        "layout": "header-inline",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_hero_02": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.hero_02",
+      "pageIndex": 0,
+      "title": "指标二",
+      "presetIconId": "kpi-analytics-bars",
+      "dataKey": "hero_02_value",
+      "unit": "台",
+      "presentation": {
+        "layout": "header-inline",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_avail": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.availability",
+      "pageIndex": 0,
+      "title": "平均可利用率",
+      "presetIconId": "kpi-insight-badge",
+      "dataKey": "availability_value",
+      "unit": "%",
+      "presentation": {
+        "layout": "header-inline",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_emission": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.emission",
+      "pageIndex": 0,
+      "title": "年减排量",
+      "presetIconId": "kpi-capsule",
+      "dataKey": "emission_value",
+      "unit": "万kWh",
+      "presentation": {
+        "layout": "header-inline",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_hero_05": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.hero_05",
+      "pageIndex": 0,
+      "title": "指标五",
+      "presetIconId": "kpi-pharmacy",
+      "dataKey": "hero_05_value",
+      "unit": "万kW",
+      "presentation": {
+        "layout": "header-inline",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_side_01": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.side_01",
+      "pageIndex": 0,
+      "title": "当年",
+      "presetIconId": "kpi-sync-refresh",
+      "dataKey": "side_01_value",
+      "unit": "MWh",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_side_02": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.side_02",
+      "pageIndex": 0,
+      "title": "当月",
+      "presetIconId": "kpi-analytics-bars",
+      "dataKey": "side_02_value",
+      "unit": "MWh",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_side_03": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.side_03",
+      "pageIndex": 0,
+      "title": "当日",
+      "presetIconId": "kpi-insight-badge",
+      "dataKey": "side_03_value",
+      "unit": "MWh",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_chart_hours": {
+    "type": "LineChart",
+    "props": {
+      "dataSlotId": "p0.chart.hours_trend",
+      "pageIndex": 0,
+      "subtitle": "单位：小时",
+      "dataKey": "hours_trend",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "xAxis": {
+        "field": "year",
+        "label": "年度"
+      },
+      "yAxis": [
+        {
+          "field": "equiv_hours",
+          "label": "等效利用小时",
+          "color": "var(--color-primary)"
+        },
+        {
+          "field": "industry_avg_hours",
+          "label": "行业平均发电小时",
+          "color": "var(--color-accent-gold)"
+        }
+      ],
+      "showLegend": true,
+      "showGrid": true,
+      "smooth": true,
+      "area": true,
+      "showPoints": false,
+      "lineWidth": 3,
+      "colorScheme": [
+        "var(--color-primary)",
+        "var(--color-accent-gold)"
+      ],
+      "gridColor": "var(--dv-chart-grid-stroke)",
+      "axisColor": "var(--dv-chart-axis-line)",
+      "axisTextColor": "var(--dv-chart-tick-label)",
+      "legendTextColor": "var(--dv-chart-legend-text)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "textColor": "var(--color-text-muted)",
+      "echartsOptionOverrides": {
+        "animationDuration": 600,
+        "yAxis": {
+          "min": 0,
+          "max": 250,
+          "interval": 125
+        },
+        "series": [
+          {
+            "name": "等效利用小时",
+            "type": "line",
+            "smooth": true,
+            "showSymbol": false,
+            "lineStyle": {
+              "width": 3,
+              "color": "#5FE48C",
+              "shadowColor": "rgba(95,228,140,0.85)",
+              "shadowBlur": 12
+            },
+            "itemStyle": {
+              "color": "var(--color-primary)"
+            },
+            "areaStyle": {
+              "opacity": 1,
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(95,228,140,0.1)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(95,228,140,0)"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "行业平均发电小时",
+            "type": "line",
+            "smooth": true,
+            "showSymbol": false,
+            "lineStyle": {
+              "width": 3,
+              "color": "#D4B86A",
+              "shadowColor": "rgba(212,184,106,0.75)",
+              "shadowBlur": 10
+            },
+            "itemStyle": {
+              "color": "var(--color-accent-gold)"
+            },
+            "areaStyle": {
+              "opacity": 1,
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(212,184,106,0.1)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(212,184,106,0)"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p0_kpi_capacity": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.capacity_rate",
+      "pageIndex": 0,
+      "title": "年生产能力",
+      "presetIconId": "kpi-capsule",
+      "dataKey": "capacity_rate_value",
+      "unit": "%",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_plan": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.plan_rate",
+      "pageIndex": 0,
+      "title": "计划排产量",
+      "presetIconId": "kpi-pharmacy",
+      "dataKey": "plan_rate_value",
+      "unit": "%",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_chart_capacity": {
+    "type": "BarChart",
+    "props": {
+      "dataSlotId": "p0.chart.capacity",
+      "pageIndex": 0,
+      "dataKey": "capacity_trend",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "xAxis": {
+        "field": "year",
+        "label": "年度"
+      },
+      "yAxis": [
+        {
+          "field": "operating_capacity",
+          "label": "在运装机",
+          "color": "var(--color-primary)"
+        },
+        {
+          "field": "committed_capacity",
+          "label": "在建及规划",
+          "color": "var(--color-accent-gold)"
+        }
+      ],
+      "showLegend": true,
+      "showGrid": true,
+      "colorScheme": [
+        "var(--color-primary)",
+        "var(--color-accent-gold)"
+      ],
+      "gridColor": "var(--dv-chart-grid-stroke)",
+      "axisColor": "var(--dv-chart-axis-line)",
+      "axisTextColor": "var(--dv-chart-tick-label)",
+      "legendTextColor": "var(--dv-chart-legend-text)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "textColor": "var(--color-text-muted)",
+      "echartsOptionOverrides": {
+        "animationDuration": 400,
+        "series": [
+          {
+            "name": "在运装机",
+            "type": "bar",
+            "barWidth": 10,
+            "itemStyle": {
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(95,228,140,0.35)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(95,228,140,0)"
+                  }
+                ]
+              },
+              "borderWidth": 0
+            }
+          },
+          {
+            "name": "在建及规划",
+            "type": "bar",
+            "barWidth": 10,
+            "itemStyle": {
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(212,184,106,0.35)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(212,184,106,0)"
+                  }
+                ]
+              },
+              "borderWidth": 0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p0_kpi_status_01": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.status_01",
+      "pageIndex": 0,
+      "title": "当前在运单数",
+      "presetIconId": "kpi-package",
+      "dataKey": "status_01_value",
+      "unit": "个",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_status_02": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.status_02",
+      "pageIndex": 0,
+      "title": "异常运单数量",
+      "presetIconId": "kpi-pharmacy",
+      "dataKey": "status_02_value",
+      "unit": "个",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_chart_device": {
+    "type": "DonutChart",
+    "props": {
+      "dataSlotId": "p0.chart.device_donut",
+      "pageIndex": 0,
+      "dataKey": "device_donut",
+      "nameField": "name",
+      "valueField": "value",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "showPercentage": true,
+      "showLegend": true,
+      "legendPosition": "right",
+      "donut": true,
+      "innerRadius": 52,
+      "outerRadius": 78,
+      "colorScheme": [
+        "var(--color-primary)",
+        "var(--color-accent-gold)",
+        "var(--color-danger)",
+        "var(--color-primary-hover)"
+      ],
+      "legendTextColor": "var(--dv-chart-legend-text)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "echartsOptionOverrides": {
+        "animationDuration": 400,
+        "color": [
+          {
+            "type": "linear",
+            "x": 0,
+            "y": 0,
+            "x2": 0,
+            "y2": 1,
+            "colorStops": [
+              {
+                "offset": 0,
+                "color": "rgba(95,228,140,0.35)"
+              },
+              {
+                "offset": 1,
+                "color": "rgba(95,228,140,0)"
+              }
+            ]
+          },
+          {
+            "type": "linear",
+            "x": 0,
+            "y": 0,
+            "x2": 0,
+            "y2": 1,
+            "colorStops": [
+              {
+                "offset": 0,
+                "color": "rgba(212,184,106,0.35)"
+              },
+              {
+                "offset": 1,
+                "color": "rgba(212,184,106,0)"
+              }
+            ]
+          },
+          {
+            "type": "linear",
+            "x": 0,
+            "y": 0,
+            "x2": 0,
+            "y2": 1,
+            "colorStops": [
+              {
+                "offset": 0,
+                "color": "rgba(248,113,113,0.35)"
+              },
+              {
+                "offset": 1,
+                "color": "rgba(248,113,113,0)"
+              }
+            ]
+          },
+          {
+            "type": "linear",
+            "x": 0,
+            "y": 0,
+            "x2": 0,
+            "y2": 1,
+            "colorStops": [
+              {
+                "offset": 0,
+                "color": "rgba(134,239,172,0.35)"
+              },
+              {
+                "offset": 1,
+                "color": "rgba(134,239,172,0)"
+              }
+            ]
+          }
+        ],
+        "series": [
+          {
+            "type": "pie",
+            "itemStyle": {
+              "borderWidth": 0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p0_kpi_util": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.util_hours",
+      "pageIndex": 0,
+      "title": "等效利用小时数",
+      "presetIconId": "kpi-sync-refresh",
+      "dataKey": "util_hours_value",
+      "unit": "小时",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_mldt": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.mldt",
+      "pageIndex": 0,
+      "title": "平均故障相应时间 (MLDT)",
+      "presetIconId": "kpi-analytics-bars",
+      "dataKey": "mldt_value",
+      "unit": "小时",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p0_kpi_mttr": {
+    "type": "KPI",
+    "props": {
+      "dataSlotId": "p0.kpi.mttr",
+      "pageIndex": 0,
+      "title": "平均故障修复时间 (MTTR)",
+      "presetIconId": "kpi-pharmacy",
+      "dataKey": "mttr_value",
+      "unit": "小时",
+      "presentation": {
+        "layout": "classic",
+        "surface": "none",
+        "valueGlow": "inherit"
+      }
+    }
+  },
+  "p1_chart_realtime_primary": {
+    "type": "LineChart",
+    "props": {
+      "dataSlotId": "p1.chart.realtime_primary",
+      "pageIndex": 1,
+      "subtitle": "单位：MW",
+      "dataKey": "realtime_primary",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "xAxis": {
+        "field": "time",
+        "label": "时间"
+      },
+      "yAxis": [
+        {
+          "field": "value",
+          "label": "实测序列",
+          "color": "var(--color-primary)"
+        },
+        {
+          "field": "series_secondary",
+          "label": "计划序列",
+          "color": "var(--color-accent-gold)"
+        }
+      ],
+      "showLegend": true,
+      "showGrid": true,
+      "smooth": true,
+      "area": true,
+      "showPoints": false,
+      "lineWidth": 2,
+      "colorScheme": [
+        "var(--color-primary)",
+        "var(--color-accent-gold)"
+      ],
+      "gridColor": "var(--dv-chart-grid-stroke)",
+      "axisColor": "var(--dv-chart-axis-line)",
+      "axisTextColor": "var(--dv-chart-tick-label)",
+      "legendTextColor": "var(--dv-chart-legend-text)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "textColor": "var(--color-text-muted)",
+      "echartsOptionOverrides": {
+        "animationDuration": 600,
+        "series": [
+          {
+            "name": "实测序列",
+            "type": "line",
+            "smooth": true,
+            "showSymbol": false,
+            "lineStyle": {
+              "width": 2,
+              "color": "var(--color-primary)"
+            },
+            "itemStyle": {
+              "color": "var(--color-primary)"
+            },
+            "areaStyle": {
+              "opacity": 1,
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(95,228,140,0.12)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(95,228,140,0)"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "计划序列",
+            "type": "line",
+            "smooth": true,
+            "showSymbol": false,
+            "lineStyle": {
+              "width": 2,
+              "color": "#D4B86A",
+              "type": "dashed"
+            },
+            "itemStyle": {
+              "color": "var(--color-accent-gold)"
+            },
+            "areaStyle": {
+              "opacity": 0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p1_chart_realtime_secondary": {
+    "type": "LineChart",
+    "props": {
+      "dataSlotId": "p1.chart.realtime_secondary",
+      "pageIndex": 1,
+      "subtitle": "单位：m/s",
+      "dataKey": "realtime_secondary",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "xAxis": {
+        "field": "time",
+        "label": "时间"
+      },
+      "yAxis": [
+        {
+          "field": "value",
+          "label": "监测序列",
+          "color": "var(--color-accent)"
+        }
+      ],
+      "showLegend": false,
+      "showGrid": true,
+      "smooth": true,
+      "area": true,
+      "showPoints": false,
+      "lineWidth": 2,
+      "colorScheme": [
+        "var(--color-accent)"
+      ],
+      "gridColor": "var(--dv-chart-grid-stroke)",
+      "axisColor": "var(--dv-chart-axis-line)",
+      "axisTextColor": "var(--dv-chart-tick-label)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "textColor": "var(--color-text-muted)",
+      "echartsOptionOverrides": {
+        "animationDuration": 600,
+        "series": [
+          {
+            "name": "监测序列",
+            "type": "line",
+            "smooth": true,
+            "showSymbol": false,
+            "lineStyle": {
+              "width": 2,
+              "color": "#3AFF9B"
+            },
+            "itemStyle": {
+              "color": "#3AFF9B"
+            },
+            "areaStyle": {
+              "opacity": 1,
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(58,255,155,0.1)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(58,255,155,0)"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p1_chart_alarm_bar": {
+    "type": "BarChart",
+    "props": {
+      "dataSlotId": "p1.chart.alarm_bar",
+      "pageIndex": 1,
+      "dataKey": "alarm_bar",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "xAxis": {
+        "field": "name",
+        "label": "告警类型"
+      },
+      "yAxis": [
+        {
+          "field": "value",
+          "label": "数量",
+          "color": "var(--color-danger)"
+        }
+      ],
+      "showLegend": false,
+      "showGrid": true,
+      "colorScheme": [
+        "var(--color-danger)"
+      ],
+      "gridColor": "var(--dv-chart-grid-stroke)",
+      "axisColor": "var(--dv-chart-axis-line)",
+      "axisTextColor": "var(--dv-chart-tick-label)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "textColor": "var(--color-text-muted)",
+      "echartsOptionOverrides": {
+        "animationDuration": 400,
+        "series": [
+          {
+            "name": "数量",
+            "type": "bar",
+            "barWidth": 14,
+            "itemStyle": {
+              "color": {
+                "type": "linear",
+                "x": 0,
+                "y": 0,
+                "x2": 0,
+                "y2": 1,
+                "colorStops": [
+                  {
+                    "offset": 0,
+                    "color": "rgba(248,113,113,0.6)"
+                  },
+                  {
+                    "offset": 1,
+                    "color": "rgba(248,113,113,0.05)"
+                  }
+                ]
+              },
+              "borderRadius": [
+                3,
+                3,
+                0,
+                0
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p1_chart_device_status": {
+    "type": "DonutChart",
+    "props": {
+      "dataSlotId": "p1.chart.device_status",
+      "pageIndex": 1,
+      "dataKey": "device_status",
+      "nameField": "name",
+      "valueField": "value",
+      "style": {
+        "border": "var(--dv-chart-panel-border)",
+        "padding": "var(--dv-chart-panel-padding)",
+        "borderRadius": "var(--dv-chart-panel-radius)",
+        "background": "var(--dv-chart-panel-bg)"
+      },
+      "showPercentage": true,
+      "showLegend": true,
+      "legendPosition": "right",
+      "donut": true,
+      "innerRadius": 52,
+      "outerRadius": 78,
+      "colorScheme": [
+        "var(--color-primary)",
+        "var(--color-warning)",
+        "var(--color-danger)",
+        "var(--color-primary-hover)"
+      ],
+      "legendTextColor": "var(--dv-chart-legend-text)",
+      "tooltipBackgroundColor": "var(--dv-chart-tooltip-bg)",
+      "tooltipTextColor": "var(--dv-chart-tooltip-fg)",
+      "echartsOptionOverrides": {
+        "animationDuration": 400,
+        "series": [
+          {
+            "type": "pie",
+            "itemStyle": {
+              "borderWidth": 0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "p1_table_alarm_list": {
+    "type": "Table",
+    "props": {
+      "dataSlotId": "p1.table.alarm_list",
+      "pageIndex": 1,
+      "dataKey": "alarm_list",
+      "columns": [
+        { "field": "triggered_at", "label": "时间", "width": 120 },
+        { "field": "name", "label": "设备", "width": 100 },
+        { "field": "metric", "label": "告警类型" },
+        {
+          "field": "trend",
+          "label": "等级",
+          "cellType": "tag",
+          "tagVariantMap": { "上升": "danger", "下降": "warning", "持平": "info" }
+        }
+      ],
+      "size": "small",
+      "striped": true,
+      "showIndex": false,
+      "autoScroll": true,
+      "autoScrollSpeed": 25,
+      "showFooter": false,
+      "style": {
+        "border": "none",
+        "background": "transparent",
+        "padding": 0,
+        "borderRadius": 0
+      }
+    }
+  }
+}

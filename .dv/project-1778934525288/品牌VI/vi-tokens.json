@@ -1,28 +1,28 @@
 {
   "mode": "dark",
   "cssVariables": {
-    "--color-bg": "#000000",
-    "--color-surface": "#1A1A1A",
-    "--color-surface-2": "#252525",
-    "--color-muted": "#2F2F2F",
-    "--color-primary": "#76B900",
-    "--color-primary-hover": "#92D133",
-    "--color-accent": "#8FD14A",
-    "--color-accent-gold": "#D4B84A",
+    "--color-bg": "#0B0E11",
+    "--color-surface": "#161A1E",
+    "--color-surface-2": "#1E2329",
+    "--color-muted": "#2B3139",
+    "--color-primary": "#F0B90B",
+    "--color-primary-hover": "#F8D24A",
+    "--color-accent": "#38BDF8",
+    "--color-accent-gold": "#D4942E",
     "--color-success": "#22C55E",
     "--color-warning": "#FACC15",
     "--color-danger": "#F87171",
-    "--color-info": "#38BDF8",
-    "--color-text-primary": "#FFFFFF",
-    "--color-text-secondary": "rgba(255,255,255,0.72)",
-    "--color-text-muted": "rgba(255,255,255,0.42)",
-    "--color-text-inverse": "#000000",
-    "--color-border": "rgba(118,185,0,0.22)",
-    "--color-border-strong": "rgba(118,185,0,0.55)",
-    "--color-grid": "rgba(118,185,0,0.08)",
+    "--color-info": "#1EAEDB",
+    "--color-text-primary": "#EAECEF",
+    "--color-text-secondary": "rgba(234,236,239,0.72)",
+    "--color-text-muted": "rgba(234,236,239,0.42)",
+    "--color-text-inverse": "#0B0E11",
+    "--color-border": "rgba(240,185,11,0.22)",
+    "--color-border-strong": "rgba(240,185,11,0.55)",
+    "--color-grid": "rgba(240,185,11,0.08)",
     "--color-overlay": "rgba(0,0,0,0.65)",
-    "--font-display": "\"NVIDIA-EMEA\",Arial,Helvetica,system-ui,sans-serif",
-    "--font-body": "\"NVIDIA-EMEA\",Arial,Helvetica,system-ui,sans-serif",
+    "--font-display": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
+    "--font-body": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
     "--font-mono": "ui-monospace,\"JetBrains Mono\",\"Fira Code\",monospace",
     "--font-size-xs": "12px",
     "--font-size-sm": "14px",
@@ -50,19 +50,19 @@
     "--space-8": "64px",
     "--space-10": "96px",
     "--space-12": "128px",
-    "--radius-sm": "2px",
-    "--radius-md": "2px",
-    "--radius-lg": "4px",
-    "--radius-xl": "8px",
+    "--radius-sm": "4px",
+    "--radius-md": "6px",
+    "--radius-lg": "8px",
+    "--radius-xl": "12px",
     "--radius-pill": "9999px",
-    "--shadow-sm": "0 0 2px rgba(118,185,0,0.4)",
-    "--shadow-md": "0 0 6px rgba(0,0,0,0.3)",
-    "--shadow-lg": "0 0 12px rgba(118,185,0,0.35)",
-    "--shadow-xl": "0 0 20px rgba(118,185,0,0.45)",
+    "--shadow-sm": "0 0 2px rgba(240,185,11,0.4)",
+    "--shadow-md": "0 0 6px rgba(240,185,11,0.35)",
+    "--shadow-lg": "0 0 12px rgba(240,185,11,0.45)",
+    "--shadow-xl": "0 0 20px rgba(240,185,11,0.55)",
     "--motion-fast": "150ms",
     "--motion-normal": "200ms",
     "--motion-slow": "240ms",
-    "--motion-easing": "cubic-bezier(0.4,0,0.2,1)",
+    "--motion-easing": "ease-out",
     "--border-width-thin": "1px",
     "--border-width-normal": "2px",
     "--backdrop-blur": "0px",
@@ -71,112 +71,112 @@
     "--dv-chart-panel-border": "none",
     "--dv-chart-panel-radius": "0",
     "--dv-chart-plot-bg": "color-mix(in srgb, var(--color-text-primary) 15%, transparent)",
-    "--dv-chart-grid-stroke": "rgba(118,185,0,0.1)",
+    "--dv-chart-grid-stroke": "rgba(240,185,11,0.1)",
     "--dv-chart-grid-dash": "2 8",
-    "--dv-chart-axis-line": "#5E5E5E",
-    "--dv-chart-axis-tick-stroke": "#5E5E5E",
-    "--dv-chart-tick-label": "#A7A7A7",
-    "--dv-chart-axis-title": "#FFFFFF",
-    "--dv-chart-legend-text": "#A7A7A7",
-    "--dv-chart-legend-inactive": "rgba(167,167,167,0.35)",
-    "--dv-chart-tooltip-bg": "#1A1A1A",
-    "--dv-chart-tooltip-border": "rgba(118,185,0,0.5)",
-    "--dv-chart-tooltip-fg": "#FFFFFF",
-    "--dv-chart-label-line": "rgba(167,167,167,0.5)",
+    "--dv-chart-axis-line": "#474D57",
+    "--dv-chart-axis-tick-stroke": "#474D57",
+    "--dv-chart-tick-label": "#848E9C",
+    "--dv-chart-axis-title": "#EAECEF",
+    "--dv-chart-legend-text": "#848E9C",
+    "--dv-chart-legend-inactive": "rgba(132,142,156,0.35)",
+    "--dv-chart-tooltip-bg": "#161A1E",
+    "--dv-chart-tooltip-border": "rgba(240,185,11,0.5)",
+    "--dv-chart-tooltip-fg": "#EAECEF",
+    "--dv-chart-label-line": "rgba(132,142,156,0.5)",
     "--dv-chart-reference-stroke": "#FACC15",
-    "--kpi-bg-from": "#0A0A0A",
-    "--kpi-bg-to": "#1A1A1A",
-    "--kpi-text-primary": "#FFFFFF",
-    "--kpi-text-secondary": "rgba(255,255,255,0.72)",
-    "--kpi-text-muted": "rgba(255,255,255,0.42)",
+    "--kpi-bg-from": "#0D1014",
+    "--kpi-bg-to": "#1E2329",
+    "--kpi-text-primary": "#EAECEF",
+    "--kpi-text-secondary": "rgba(234,236,239,0.72)",
+    "--kpi-text-muted": "rgba(234,236,239,0.42)",
     "--kpi-glow-base": "var(--color-primary)"
   },
   "chartPalette": [
-    "#76B900",
-    "#BFF230",
-    "#22C55E",
+    "#F0B90B",
     "#38BDF8",
+    "#22C55E",
+    "#0ECB81",
     "#FACC15",
     "#F87171"
   ],
   "raw": {
     "color": {
       "primary": {
-        "name": "NVIDIA Green",
-        "hex": "#76B900",
-        "usage": "品牌强调、数据线"
+        "name": "Binance Yellow",
+        "hex": "#F0B90B",
+        "usage": "交易主强调"
       },
       "secondary": [
         {
           "name": "主色悬停",
-          "hex": "#92D133",
-          "usage": "交互高亮"
+          "hex": "#F8D24A",
+          "usage": "悬停高亮"
         },
         {
-          "name": "亮绿辅色",
-          "hex": "#8FD14A",
-          "usage": "次级系列"
+          "name": "天蓝辅色",
+          "hex": "#38BDF8",
+          "usage": "次级系列、对比"
         },
         {
-          "name": "暖金",
-          "hex": "#D4B84A",
-          "usage": "金属高亮"
+          "name": "深金",
+          "hex": "#D4942E",
+          "usage": "金属琥珀"
         }
       ],
       "accent": [],
       "surface": [
         {
-          "name": "纯黑底",
-          "hex": "#000000",
-          "usage": "主背景"
+          "name": "交易深底",
+          "hex": "#0B0E11",
+          "usage": "大屏主背景"
         },
         {
-          "name": "近黑卡",
-          "hex": "#1A1A1A",
+          "name": "面板",
+          "hex": "#161A1E",
           "usage": "模块衬底"
         },
         {
-          "name": "深灰卡",
-          "hex": "#252525",
-          "usage": "次级表面"
+          "name": "次级",
+          "hex": "#1E2329",
+          "usage": "hover块"
         },
         {
           "name": "弱衬",
-          "hex": "#2F2F2F",
+          "hex": "#2B3139",
           "usage": "分割"
         }
       ],
       "text": [
         {
           "name": "主文案",
-          "hex": "#FFFFFF",
-          "usage": "暗底主字"
+          "hex": "#EAECEF",
+          "usage": "主字"
         },
         {
           "name": "次级",
-          "hex": "rgba(255,255,255,0.72)",
+          "hex": "rgba(234,236,239,0.72)",
           "usage": "次要"
         },
         {
           "name": "弱化",
-          "hex": "rgba(255,255,255,0.42)",
+          "hex": "rgba(234,236,239,0.42)",
           "usage": "辅助"
         },
         {
           "name": "反色",
-          "hex": "#000000",
-          "usage": "浅底按钮"
+          "hex": "#0B0E11",
+          "usage": "主色按钮"
         }
       ],
       "border": [
         {
           "name": "边框",
-          "hex": "rgba(118,185,0,0.22)",
+          "hex": "rgba(240,185,11,0.22)",
           "usage": "分割"
         },
         {
           "name": "强边框",
-          "hex": "rgba(118,185,0,0.55)",
+          "hex": "rgba(240,185,11,0.55)",
           "usage": "强调"
         }
       ],
@@ -184,7 +184,7 @@
         "success": {
           "name": "成功",
           "hex": "#22C55E",
-          "usage": "正向"
+          "usage": "上涨/正向"
         },
         "warning": {
           "name": "警告",
@@ -194,24 +194,24 @@
         "danger": {
           "name": "危险",
           "hex": "#F87171",
-          "usage": "错误"
+          "usage": "下跌/错误"
         },
         "info": {
           "name": "信息",
-          "hex": "#38BDF8",
-          "usage": "提示"
+          "hex": "#1EAEDB",
+          "usage": "提示、焦点"
         },
         "grid": {
           "name": "网格",
-          "hex": "rgba(118,185,0,0.08)",
+          "hex": "rgba(240,185,11,0.08)",
           "usage": "图表"
         }
       }
     },
     "typography": {
       "fontFamily": {
-        "display": "\"NVIDIA-EMEA\",Arial,Helvetica,system-ui,sans-serif",
-        "body": "\"NVIDIA-EMEA\",Arial,Helvetica,system-ui,sans-serif",
+        "display": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
+        "body": "Arial,\"Helvetica Neue\",Helvetica,system-ui,sans-serif",
         "mono": "ui-monospace,\"JetBrains Mono\",\"Fira Code\",monospace"
       },
       "scale": [
@@ -278,29 +278,29 @@
       ]
     },
     "radius": {
-      "sm": "2px",
-      "md": "2px",
-      "lg": "4px",
-      "xl": "8px",
+      "sm": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "xl": "12px",
       "pill": "9999px"
     },
     "shadow": {
-      "sm": "0 0 2px rgba(118,185,0,0.4)",
-      "md": "0 0 6px rgba(0,0,0,0.3)",
-      "lg": "0 0 12px rgba(118,185,0,0.35)",
-      "xl": "0 0 20px rgba(118,185,0,0.45)"
+      "sm": "0 0 2px rgba(240,185,11,0.4)",
+      "md": "0 0 6px rgba(240,185,11,0.35)",
+      "lg": "0 0 12px rgba(240,185,11,0.45)",
+      "xl": "0 0 20px rgba(240,185,11,0.55)"
     },
     "motion": {
       "fast": "150ms",
       "normal": "200ms",
       "slow": "240ms",
-      "easing": "cubic-bezier(0.4,0,0.2,1)"
+      "easing": "ease-out"
     },
     "components": {
       "button": {
-        "background": "transparent",
-        "border": "var(--color-primary)",
-        "active": "var(--color-primary-hover)"
+        "background": "var(--color-surface-2)",
+        "border": "var(--color-border)",
+        "active": "var(--color-primary)"
       },
       "card": {
         "background": "var(--color-surface)",
@@ -313,7 +313,7 @@
         "focus": "var(--color-primary)"
       },
       "navigation": {
-        "tab": "粗体导航"
+        "tab": "高对比标签"
       }
     }
   }

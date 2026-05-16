@@ -129,7 +129,7 @@ export function usePipeline() {
           step: "designing",
           designStory,
           isLoading: true,
-          statusText: "正在生成模板填空（风电运营）...",
+          statusText: "正在生成 widgets 契约与 store 数据（两阶段）...",
         }));
 
         // Step 2: 模板填空 template-fill.json

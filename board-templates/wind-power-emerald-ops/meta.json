@@ -1,10 +1,11 @@
 {
   "id": "wind-power-emerald-ops",
-  "title": "风电智慧运营中心",
-  "description": "深色翠绿大屏，围绕发电量、装机容量、物流与运维工单，指标卡 + 趋势 + 环形占比并排，适合能源/风电调度指挥中心场景预览。",
-  "tags": ["能源", "风电", "大屏", "深色", "2560×900"],
+  "title": "运营监控中心",
+  "description": "深色翠绿大屏模板：多 KPI、趋势图、地图、表格与分区面板，适合各类运营调度指挥中心场景预览。",
+  "tags": ["大屏", "深色", "运营", "2560×900"],
   "dashboardFile": "dashboard.jsx",
   "screenPresetId": "2560x900",
   "slotsSchemaFile": "slots.schema.json",
-  "widgetsManifestFile": "widgets.manifest.json"
+  "widgetsManifestFile": "widgets.manifest.json",
+  "widgetsConfigFile": "widgets.json"
 }

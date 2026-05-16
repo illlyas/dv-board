@@ -8,7 +8,16 @@ import type { JSXCode } from "@/lib/board/jsx-output";
 import type { ViTokens } from "@/types/pipeline.types";
 import { applyDvChartPlotBgToViTokensPayload, mergeDvChartPlotBg } from "@/lib/board/vi-tokens-dv-chart-plot-bg";
 import { mergeAccentGold } from "@/lib/board/vi-tokens-accent-gold";
-import { emptyTemplateFill, parseTemplateFillFromModelText, templateFillToPagesStoryExcerpt } from "@/lib/board/template-fill-schema";
+import {
+  emptyTemplateFill,
+  mergeWidgetsAndStoreFill,
+  parseStoreFillFromModelText,
+  parseTemplateFillFromModelText,
+  parseWidgetsFillFromModelText,
+  storeFillFromTemplateFill,
+  templateFillToPagesStoryExcerpt,
+  widgetsFillFromTemplateFill,
+} from "@/lib/board/template-fill-schema";
 import { readFile, saveFile } from "./file-operations";
 
 export interface StepExecutorContext {
@@ -41,25 +50,65 @@ export async function executeDesignStory(
 }
 
 /**
- * 执行风电模板填空（template-fill.json + pages-story 摘要）
+ * 两阶段模板填空：
+ * 1) design-template-widgets → widgets-fill.json（字段契约）
+ * 2) design-template-store → store-fill.json（业务数据，键名对齐 widgets）
+ * 合并为 template-fill.json + pages-story 摘要
  */
 export async function executeTemplateFill(
   designStory: string,
   ctx: StepExecutorContext,
   opts?: { existingFillJson?: string }
 ): Promise<string> {
-  const body: Record<string, unknown> = { designStory };
   const ex = opts?.existingFillJson?.trim();
-  if (ex) body.existingFill = ex;
-  if (ctx.projectName) body.projectKey = ctx.projectName;
+  let existingWidgetsFill = "";
+  let existingStoreFill = "";
+  if (ex) {
+    try {
+      const prev = parseTemplateFillFromModelText(ex);
+      existingWidgetsFill = JSON.stringify(widgetsFillFromTemplateFill(prev), null, 2);
+      existingStoreFill = JSON.stringify(storeFillFromTemplateFill(prev), null, 2);
+    } catch {
+      existingWidgetsFill = ex;
+    }
+  }
 
-  const raw = await callPipelineStepText("/api/board/design-template-fill", body, ctx.onProgress, ctx.signal);
+  const widgetsBody: Record<string, unknown> = { designStory };
+  if (existingWidgetsFill) widgetsBody.existingWidgetsFill = existingWidgetsFill;
+  if (ctx.projectName) widgetsBody.projectKey = ctx.projectName;
 
-  const fill = parseTemplateFillFromModelText(raw);
+  const widgetsRaw = await callPipelineStepText(
+    "/api/board/design-template-widgets",
+    widgetsBody,
+    ctx.onProgress,
+    ctx.signal
+  );
+
+  let widgetsFill = parseWidgetsFillFromModelText(widgetsRaw);
+
+  const storeBody: Record<string, unknown> = {
+    designStory,
+    widgetsFill,
+  };
+  if (existingStoreFill) storeBody.existingStoreFill = existingStoreFill;
+
+  const storeRaw = await callPipelineStepText(
+    "/api/board/design-template-store",
+    storeBody,
+    ctx.onProgress,
+    ctx.signal
+  );
+
+  let storeFill = parseStoreFillFromModelText(storeRaw);
+  const fill = mergeWidgetsAndStoreFill(widgetsFill, storeFill);
   const pretty = JSON.stringify(fill, null, 2);
+  const widgetsPretty = JSON.stringify(widgetsFill, null, 2);
+  const storePretty = JSON.stringify(storeFill, null, 2);
   const excerpt = templateFillToPagesStoryExcerpt(fill);
 
   if (ctx.projectName) {
+    await saveFile(ctx.projectName, "页面结构", "widgets-fill.json", widgetsPretty);
+    await saveFile(ctx.projectName, "页面结构", "store-fill.json", storePretty);
     await saveFile(ctx.projectName, "页面结构", "template-fill.json", pretty);
     await saveFile(ctx.projectName, "页面结构", "pages-story.md", excerpt);
   }
@@ -199,8 +248,8 @@ export async function executeViTokensFromMarkdown(
 }
 
 /**
- * 从模板确定性装配 dashboard.jsx + dashboard.store.json（VI 已由上一步落盘）。
- * store 中业务 payload 不在此步写入，由各组件预览时 mock-slot 回写。
+ * 从模板确定性装配 dashboard.jsx、widgets.json、slots.schema.json；
+ * store 写入 template-fill 中的业务数据；未填槽位预览时仍可由 mock-slot 补数。
  */
 export async function executeWindTemplateAssembly(
   templateFillJson: string,

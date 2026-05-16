@@ -1,7 +1,62 @@
 {
   "templateId": "wind-power-emerald-ops",
-  "description": "模板私有展示组件清单；实现全部写在 dashboard.jsx 同文件内（function 声明，位于 export default function Dashboard 之后）；勿拆分为多文件或使用 import 引用相对路径模块。",
+  "description": "模板私有展示组件在 dashboard.jsx 内实现；平台 Widget 见 widgets.json；PanelShell 标题见 slots.schema.json panelHeaders（props.panelHeaders）。",
   "components": [
+    {
+      "importName": "BoardHeaderChrome",
+      "file": "dashboard.jsx",
+      "role": "顶栏天气/城市（内部 useStoreData）"
+    },
+    {
+      "importName": "BoardClock",
+      "file": "dashboard.jsx",
+      "role": "顶栏实时时钟"
+    },
+    {
+      "importName": "P0GenProgressPanel",
+      "file": "dashboard.jsx",
+      "role": "左栏·目标完成情况"
+    },
+    {
+      "importName": "P0ProductionCapacityPanel",
+      "file": "dashboard.jsx",
+      "role": "左栏·生产基地与装机容量"
+    },
+    {
+      "importName": "P1RealtimePrimaryPanel",
+      "file": "dashboard.jsx",
+      "role": "左栏 P1·实测序列"
+    },
+    {
+      "importName": "P1RealtimeSecondaryPanel",
+      "file": "dashboard.jsx",
+      "role": "左栏 P1·监测序列"
+    },
+    {
+      "importName": "CenterGeoMapPanel",
+      "file": "dashboard.jsx",
+      "role": "中栏地图与省份信息卡"
+    },
+    {
+      "importName": "P0TransitLogisticsPanel",
+      "file": "dashboard.jsx",
+      "role": "右栏·智慧物流"
+    },
+    {
+      "importName": "P0MaintenancePanel",
+      "file": "dashboard.jsx",
+      "role": "右栏·运维"
+    },
+    {
+      "importName": "P1AlarmListTablePanel",
+      "file": "dashboard.jsx",
+      "role": "右栏 P1·实时告警列表表"
+    },
+    {
+      "importName": "P1DeviceLogTablePanel",
+      "file": "dashboard.jsx",
+      "role": "右栏 P1·设备日志表"
+    },
     {
       "importName": "PanelShell",
       "file": "dashboard.jsx",
@@ -80,5 +135,6 @@
     "GeoMap",
     "Table",
     "Title（header 内 data-widget）"
-  ]
+  ],
+  "widgetsConfigFile": "widgets.json"
 }

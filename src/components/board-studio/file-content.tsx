@@ -10,6 +10,15 @@ import { ScaledBoardPreview } from "./preview";
 import { EditablePreview, type SelectedWidget } from "./editable-preview";
 import { TokenDemoDashboard } from "./token-demo-dashboard";
 import { readFile } from "@/lib/pipeline/file-operations";
+import {
+  parseDashboardWidgetsJson,
+  type DashboardWidgetsMap,
+} from "@/lib/board/load-dashboard-widgets";
+import {
+  parsePanelHeadersFromSlotsSchemaJson,
+  resolveDashboardPanelHeaders,
+  type DashboardPanelHeadersMap,
+} from "@/lib/board/load-dashboard-panel-headers";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 
 /** 与 innerText 一致：去掉 HTML 结构带来的异常符号，便于与 Markdown 原文对照 */
@@ -54,6 +63,9 @@ export const FileTabContent = memo(function FileTabContent({
   boardCanvasHeight,
 }: FileTabContentProps) {
   const [content, setContent] = useState<string | null>(null);
+  const [dashboardWidgets, setDashboardWidgets] = useState<DashboardWidgetsMap | null>(null);
+  const [dashboardPanelHeaders, setDashboardPanelHeaders] =
+    useState<DashboardPanelHeadersMap | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const isJsx = file.name.endsWith(".jsx");
   const isViSystem = file.name === "vi-system.md";
@@ -96,6 +108,27 @@ export const FileTabContent = memo(function FileTabContent({
     };
   }, [isJsx, projectName, file.path]);
 
+  useEffect(() => {
+    if (!dashboardPreview) {
+      setDashboardWidgets(null);
+      setDashboardPanelHeaders(null);
+      return;
+    }
+    const base = `.dv/${dashboardPreview.projectName}/页面`;
+    const widgetsPath = `${base}/widgets.json`;
+    const slotsSchemaPath = `.dv/${dashboardPreview.projectName}/页面结构/slots.schema.json`;
+    readFile(widgetsPath)
+      .then((raw) => setDashboardWidgets(parseDashboardWidgetsJson(raw)))
+      .catch(() => setDashboardWidgets(null));
+    readFile(slotsSchemaPath)
+      .then((raw) =>
+        setDashboardPanelHeaders(
+          resolveDashboardPanelHeaders(parsePanelHeadersFromSlotsSchemaJson(raw))
+        )
+      )
+      .catch(() => setDashboardPanelHeaders(resolveDashboardPanelHeaders(null)));
+  }, [dashboardPreview?.projectName]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -111,6 +144,8 @@ export const FileTabContent = memo(function FileTabContent({
       isEditing && onSelectionChange ? (
         <EditablePreview
           code={content}
+          dashboardWidgets={dashboardWidgets}
+          dashboardPanelHeaders={dashboardPanelHeaders}
           selectedWidgets={selectedWidgets}
           onSelectionChange={onSelectionChange}
           cssVariables={cssVariables}
@@ -121,6 +156,8 @@ export const FileTabContent = memo(function FileTabContent({
       ) : (
         <ScaledBoardPreview
           code={content}
+          dashboardWidgets={dashboardWidgets}
+          dashboardPanelHeaders={dashboardPanelHeaders}
           cssVariables={cssVariables}
           visualAssetsBlock={visualAssetsBlock}
           canvasWidth={boardCanvasWidth}

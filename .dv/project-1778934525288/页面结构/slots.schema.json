@@ -1,7 +1,10 @@
 {
   "version": 1,
   "templateId": "wind-power-emerald-ops",
-  "canvas": { "width": 2560, "height": 900 },
+  "canvas": {
+    "width": 2560,
+    "height": 900
+  },
   "purpose": "AI 填空单一入口：描述页面、区域、数据插槽与配置块；生成或改写大屏时须保持布局骨架与 slotId 集合一致，仅替换业务语义、数据与 vi-tokens。",
   "invariants": [
     "dashboard.jsx 保持三栏 grid + header(72) + footer(56) + 2560×900 根容器；分页仅两页 currentPage 0/1。",
@@ -16,62 +19,132 @@
     "privateComponents": "widgets.manifest.json"
   },
   "panelHeaders": {
-    "gen_completion": "目标完成情况",
-    "production_base": "生产基地项目情况",
-    "capacity": "装机容量",
-    "realtime_primary": "实时监测（主）",
-    "realtime_secondary": "实时监测（次）",
-    "logistics": "业务系统智慧物流",
-    "maintenance": "业务系统运维",
+    "gen_completion": "产量完成情况",
+    "production_base": "生产基地概况",
+    "capacity": "产能对比",
+    "power_realtime": "实时功率监控",
+    "wind_speed": "环境温度监测",
+    "logistics": "智慧物流监控",
+    "maintenance": "设备运维监控",
     "alarm_list": "实时告警列表",
     "device_log": "设备运行日志"
   },
   "panelShellBindings": [
-    { "key": "gen_completion", "component": "P0GenProgressPanel", "pageIndex": 0, "region": "leftPanels" },
-    { "key": "production_base", "component": "P0ProductionCapacityPanel", "pageIndex": 0, "region": "leftPanels" },
-    { "key": "capacity", "component": "P0ProductionCapacityPanel", "pageIndex": 0, "region": "leftPanels" },
-    { "key": "realtime_primary", "component": "P1RealtimePrimaryPanel", "pageIndex": 1, "region": "leftPanels" },
-    { "key": "realtime_secondary", "component": "P1RealtimeSecondaryPanel", "pageIndex": 1, "region": "leftPanels" },
-    { "key": "logistics", "component": "P0TransitLogisticsPanel", "pageIndex": 0, "region": "rightPanels" },
-    { "key": "maintenance", "component": "P0MaintenancePanel", "pageIndex": 0, "region": "rightPanels" },
-    { "key": "alarm_list", "component": "P1AlarmListTablePanel", "pageIndex": 1, "region": "rightPanels" },
-    { "key": "device_log", "component": "P1DeviceLogTablePanel", "pageIndex": 1, "region": "rightPanels" }
+    {
+      "key": "gen_completion",
+      "component": "P0GenProgressPanel",
+      "pageIndex": 0,
+      "region": "leftPanels"
+    },
+    {
+      "key": "production_base",
+      "component": "P0ProductionCapacityPanel",
+      "pageIndex": 0,
+      "region": "leftPanels"
+    },
+    {
+      "key": "capacity",
+      "component": "P0ProductionCapacityPanel",
+      "pageIndex": 0,
+      "region": "leftPanels"
+    },
+    {
+      "key": "power_realtime",
+      "component": "P1PowerRealtimePanel",
+      "pageIndex": 1,
+      "region": "leftPanels"
+    },
+    {
+      "key": "wind_speed",
+      "component": "P1WindRealtimePanel",
+      "pageIndex": 1,
+      "region": "leftPanels"
+    },
+    {
+      "key": "logistics",
+      "component": "P0TransitLogisticsPanel",
+      "pageIndex": 0,
+      "region": "rightPanels"
+    },
+    {
+      "key": "maintenance",
+      "component": "P0MaintenancePanel",
+      "pageIndex": 0,
+      "region": "rightPanels"
+    },
+    {
+      "key": "alarm_list",
+      "component": "P1AlarmListTablePanel",
+      "pageIndex": 1,
+      "region": "rightPanels"
+    },
+    {
+      "key": "device_log",
+      "component": "P1DeviceLogTablePanel",
+      "pageIndex": 1,
+      "region": "rightPanels"
+    }
   ],
   "pages": [
     {
       "pageIndex": 0,
       "label": "总览",
       "layout": {
-        "header": ["天气文案区", "主标题「运营监控中心」", "日期时间"],
-        "centerTop": ["5 个 KPI 横排（Widget）"],
-        "centerMain": ["GeoMap 中国 + 省份信息卡 + 图例"],
-        "leftPanels": ["目标完成情况", "生产基地项目情况 + 装机容量"],
-        "rightPanels": ["业务系统智慧物流", "业务系统运维"]
+        "header": [
+          "天气文案区",
+          "主标题「风电智慧运营」",
+          "日期时间"
+        ],
+        "centerTop": [
+          "5 个 KPI 横排（Widget）"
+        ],
+        "centerMain": [
+          "GeoMap 中国 + 省份信息卡 + 图例"
+        ],
+        "leftPanels": [
+          "发电量完成情况",
+          "生产基地项目情况 + 装机容量"
+        ],
+        "rightPanels": [
+          "业务系统智慧物流",
+          "业务系统运维"
+        ]
       }
     },
     {
       "pageIndex": 1,
       "label": "实时监控",
       "layout": {
-        "leftPanels": ["实时监测（主）（KpiGlowBar + 折线种子 store + 运行时追加）", "实时监测（次）"],
-        "center": ["与 page0 共用中栏地图与顶 KPI"],
-        "rightPanels": ["实时告警列表 Table", "设备运行日志 Table"]
+        "leftPanels": [
+          "实时功率监控（KpiGlowBar + 折线种子 store + 运行时追加）",
+          "风速实时监测"
+        ],
+        "center": [
+          "与 page0 共用中栏地图与顶 KPI"
+        ],
+        "rightPanels": [
+          "实时告警列表 Table",
+          "设备运行日志 Table"
+        ]
       }
     }
   ],
   "slots": [
     {
-      "slotId": "p0.kpi.hero_01",
+      "slotId": "p0.kpi.wind_farms",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_hero_01",
-      "fill": { "titlesUnits": "可改", "dataKey": "须与 store payload 字段一致" }
+      "widgetKey": "p0_kpi_farms",
+      "fill": {
+        "titlesUnits": "可改",
+        "dataKey": "须与 store payload 字段一致"
+      }
     },
     {
-      "slotId": "p0.kpi.hero_02",
+      "slotId": "p0.kpi.wind_units",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_hero_02"
+      "widgetKey": "p0_kpi_units"
     },
     {
       "slotId": "p0.kpi.availability",
@@ -86,28 +159,28 @@
       "widgetKey": "p0_kpi_emission"
     },
     {
-      "slotId": "p0.kpi.hero_05",
+      "slotId": "p0.kpi.clean_gen",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_hero_05"
+      "widgetKey": "p0_kpi_clean"
     },
     {
-      "slotId": "p0.kpi.side_01",
+      "slotId": "p0.kpi.gen_year",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_side_01"
+      "widgetKey": "p0_kpi_gen_year"
     },
     {
-      "slotId": "p0.kpi.side_02",
+      "slotId": "p0.kpi.gen_month",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_side_02"
+      "widgetKey": "p0_kpi_gen_month"
     },
     {
-      "slotId": "p0.kpi.side_03",
+      "slotId": "p0.kpi.gen_day",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_side_03"
+      "widgetKey": "p0_kpi_gen_day"
     },
     {
       "slotId": "p0.chart.hours_trend",
@@ -139,16 +212,16 @@
       "fill": "template-fill：seedSeriesRows 替换柱状序列数据"
     },
     {
-      "slotId": "p0.kpi.status_01",
+      "slotId": "p0.kpi.running_orders",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_status_01"
+      "widgetKey": "p0_kpi_running"
     },
     {
-      "slotId": "p0.kpi.status_02",
+      "slotId": "p0.kpi.abnormal_orders",
       "pageIndex": 0,
       "surface": "Widget<KPI>",
-      "widgetKey": "p0_kpi_status_02"
+      "widgetKey": "p0_kpi_abnormal"
     },
     {
       "slotId": "p0.chart.device_donut",
@@ -229,7 +302,7 @@
       "pageIndex": 0,
       "kind": "config",
       "useStoreData": "p0.config.province_data",
-      "dataShape": "{ defaultProvince, provinces, header?, mapLegend?, regionCard? }；provinces 键为 GeoJSON 省级全称，值为 { volume,capacity,sites,rate }。template-fill：slots[\"p0.config.province_data\"].provinceData 整对象替换 payload.value（装配时归一化字段名）"
+      "dataShape": "{ defaultProvince, provinces, header?, mapLegend?, regionCard? }；provinces 键为 GeoJSON 省级全称，值为 { power,capacity,farms,rate }。template-fill：slots[\"p0.config.province_data\"].provinceData 整对象替换 payload.value（装配时归一化字段名）"
     },
     {
       "slotId": "p0.config.map_scatter",
@@ -240,18 +313,18 @@
       "fill": "template-fill：seedSeriesRows 整表替换 payload.value（name + value:[lng,lat,size]）"
     },
     {
-      "slotId": "p1.chart.realtime_primary",
+      "slotId": "p1.chart.power_realtime",
       "pageIndex": 1,
       "surface": "Widget<LineChart> + staticData 运行时覆盖",
-      "widgetKey": "p1_chart_realtime_primary",
-      "notes": "template-fill：subtitle/xAxisLabel/yAxisLabels（如实测序列、计划序列）；曲线数据来自 p1.chart.realtime_primary_seed 的 seedSeriesRows 写入 store 后由 staticData 展示"
+      "widgetKey": "p1_chart_power_realtime",
+      "notes": "template-fill：subtitle/xAxisLabel/yAxisLabels（如实时功率、计划功率）；曲线数据来自 p1.chart.power_realtime_seed 的 seedSeriesRows 写入 store 后由 staticData 展示"
     },
     {
-      "slotId": "p1.chart.realtime_secondary",
+      "slotId": "p1.chart.wind_speed",
       "pageIndex": 1,
       "surface": "Widget<LineChart> + staticData",
-      "widgetKey": "p1_chart_realtime_secondary",
-      "notes": "template-fill：subtitle/xAxisLabel/yAxisLabels；种子 p1.chart.realtime_secondary_seed 的 seedSeriesRows"
+      "widgetKey": "p1_chart_wind_speed",
+      "notes": "template-fill：subtitle/xAxisLabel/yAxisLabels；种子 p1.chart.wind_speed_seed 的 seedSeriesRows"
     },
     {
       "slotId": "p1.chart.alarm_bar",
@@ -266,36 +339,36 @@
       "widgetKey": "p1_chart_device_status"
     },
     {
-      "slotId": "p1.config.realtime_primary_kpi",
+      "slotId": "p1.config.power_kpi",
       "pageIndex": 1,
       "kind": "config",
-      "useStoreData": "p1.config.realtime_primary_kpi",
+      "useStoreData": "p1.config.power_kpi",
       "dataShape": "{ items: KpiGlowBarProps[] }",
-      "fill": "template-fill：slots[\"p1.config.realtime_primary_kpi\"].kpiGlowItems → 覆盖 store payload.value.items"
+      "fill": "template-fill：slots[\"p1.config.power_kpi\"].kpiGlowItems → 覆盖 store payload.value.items"
     },
     {
-      "slotId": "p1.config.realtime_secondary_kpi",
+      "slotId": "p1.config.wind_kpi",
       "pageIndex": 1,
       "kind": "config",
-      "useStoreData": "p1.config.realtime_secondary_kpi",
+      "useStoreData": "p1.config.wind_kpi",
       "dataShape": "{ items: KpiGlowBarProps[] }",
-      "fill": "template-fill：slots[\"p1.config.realtime_secondary_kpi\"].kpiGlowItems"
+      "fill": "template-fill：slots[\"p1.config.wind_kpi\"].kpiGlowItems"
     },
     {
-      "slotId": "p1.chart.realtime_primary_seed",
+      "slotId": "p1.chart.power_realtime_seed",
       "pageIndex": 1,
       "kind": "seed",
-      "useStoreData": "p1.chart.realtime_primary_seed",
-      "dataShape": "seriesRows 行键须与 p1.chart.realtime_primary 对应 widget 的 xAxis.field + yAxis[].field 完全一致（由 widgets-fill 决定，勿写死 time/value/series_secondary）",
-      "fill": "template-fill：slots[\"p1.chart.realtime_primary_seed\"].seedSeriesRows 整表替换 payload.value"
+      "useStoreData": "p1.chart.power_realtime_seed",
+      "dataShape": "seriesRows 行键须与 p1.chart.power_realtime 对应 widget 的 xAxis.field + yAxis[].field 完全一致（由 widgets-fill 决定，勿写死 time/value/plan_power）",
+      "fill": "template-fill：slots[\"p1.chart.power_realtime_seed\"].seedSeriesRows 整表替换 payload.value"
     },
     {
-      "slotId": "p1.chart.realtime_secondary_seed",
+      "slotId": "p1.chart.wind_speed_seed",
       "pageIndex": 1,
       "kind": "seed",
-      "useStoreData": "p1.chart.realtime_secondary_seed",
-      "dataShape": "seriesRows 行键须与 p1.chart.realtime_secondary 对应 widget 的 xAxis.field + yAxis[].field 完全一致",
-      "fill": "template-fill：slots[\"p1.chart.realtime_secondary_seed\"].seedSeriesRows"
+      "useStoreData": "p1.chart.wind_speed_seed",
+      "dataShape": "seriesRows 行键须与 p1.chart.wind_speed 对应 widget 的 xAxis.field + yAxis[].field 完全一致",
+      "fill": "template-fill：slots[\"p1.chart.wind_speed_seed\"].seedSeriesRows"
     },
     {
       "slotId": "p1.table.alarm_list",

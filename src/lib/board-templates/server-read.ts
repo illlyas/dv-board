@@ -139,11 +139,15 @@ export async function loadBoardTemplateBundle(
   try {
     const slotsFile = safeRelativeFileName(meta.slotsSchemaFile);
     const widgetsFile = safeRelativeFileName(meta.widgetsManifestFile);
-    const [viTokensJson, dashboardJsx, store, slotsSchemaJson, widgetsManifestJson] =
+    const widgetsConfigFile = safeRelativeFileName(meta.widgetsConfigFile ?? "widgets.json");
+    const [viTokensJson, dashboardJsx, store, widgetsJson, slotsSchemaJson, widgetsManifestJson] =
       await Promise.all([
         readFile(path.join(dir, "vi-tokens.json"), "utf-8"),
         readFile(path.join(dir, dashboardFile), "utf-8"),
         readBoardTemplateStoreFile(cwd, safe, dashboardFile),
+        widgetsConfigFile
+          ? readFile(path.join(dir, widgetsConfigFile), "utf-8").catch(() => undefined)
+          : Promise.resolve(undefined),
         slotsFile
           ? readFile(path.join(dir, slotsFile), "utf-8").catch(() => undefined)
           : Promise.resolve(undefined),
@@ -157,6 +161,7 @@ export async function loadBoardTemplateBundle(
       dashboardJsx,
       store,
     };
+    if (widgetsJson !== undefined) out.widgetsJson = widgetsJson;
     if (slotsSchemaJson !== undefined) out.slotsSchemaJson = slotsSchemaJson;
     if (widgetsManifestJson !== undefined) out.widgetsManifestJson = widgetsManifestJson;
     return out;

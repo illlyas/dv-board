@@ -1,29 +1,20 @@
-/**
- * PanelShell 标题：装配时用默认值定位并替换为 AI 产出。
- * key 稳定；defaultTitle 须与 board-templates/wind-power-emerald-ops/dashboard.jsx 一致。
- */
-export const WIND_PANEL_HEADER_KEYS = [
-  "gen_completion",
-  "production_base",
-  "capacity",
-  "power_realtime",
-  "wind_speed",
-  "logistics",
-  "maintenance",
-  "alarm_list",
-  "device_log",
-] as const;
+import windSlotsSchema from "../../../board-templates/wind-power-emerald-ops/slots.schema.json";
+import {
+  WIND_PANEL_HEADER_KEYS,
+  type WindPanelHeaderKey,
+} from "@/lib/board/wind-panels-keys";
 
-export type WindPanelHeaderKey = (typeof WIND_PANEL_HEADER_KEYS)[number];
+export { WIND_PANEL_HEADER_KEYS, type WindPanelHeaderKey } from "@/lib/board/wind-panels-keys";
 
-export const WIND_PANEL_DEFAULT_TITLES: Record<WindPanelHeaderKey, string> = {
-  gen_completion: "发电量完成情况",
-  production_base: "生产基地项目情况",
-  capacity: "装机容量",
-  power_realtime: "实时功率监控",
-  wind_speed: "风速实时监测",
-  logistics: "业务系统智慧物流",
-  maintenance: "业务系统运维",
-  alarm_list: "实时告警列表",
-  device_log: "设备运行日志",
-};
+function readDefaultTitlesFromSchema(): Record<WindPanelHeaderKey, string> {
+  const ph = (windSlotsSchema as { panelHeaders?: Record<string, string> }).panelHeaders ?? {};
+  const out = {} as Record<WindPanelHeaderKey, string>;
+  for (const k of WIND_PANEL_HEADER_KEYS) {
+    const v = ph[k];
+    out[k] = typeof v === "string" && v.trim() ? v.trim() : k;
+  }
+  return out;
+}
+
+/** 模板 slots.schema.json panelHeaders 中的默认标题 */
+export const WIND_PANEL_DEFAULT_TITLES = readDefaultTitlesFromSchema();
