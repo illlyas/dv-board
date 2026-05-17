@@ -71,7 +71,13 @@ function normalizeStoreSlotRaw(slotId: string, raw: unknown): Record<string, unk
       if (slotId.endsWith("province_data") && isPlainObject(value)) {
         slot.provinceData = slot.provinceData ?? value;
         delete slot.payload;
-      } else if (slotId.endsWith("map_scatter") && Array.isArray(value)) {
+      } else if (
+        slotId.endsWith("map_scatter") &&
+        (Array.isArray(value) ||
+          (isPlainObject(value) &&
+            (Array.isArray((value as Record<string, unknown>).on) ||
+              Array.isArray((value as Record<string, unknown>).off))))
+      ) {
         slot.seedSeriesRows = slot.seedSeriesRows ?? value;
         delete slot.payload;
       } else if (slotId.includes("config") && isPlainObject(value)) {

@@ -4,63 +4,26 @@
  * 各面板组件在内部 useStoreData 管理数据；Dashboard 仅保留分页与布局状态。
  */
 
-function _viParseHex(hex) {
-  const h = String(hex || "")
-    .replace(/^#/, "")
-    .trim();
-  if (h.length === 6) {
-    return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
-  }
-  return { r: 95, g: 228, b: 140 };
-}
-
-function _viWithAlpha(hex, a) {
-  const { r, g, b } = _viParseHex(hex);
-  return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-}
-
-function _viReadCssVar(hostEl, name, fallbackHex) {
-  if (typeof window === "undefined" || !hostEl) return fallbackHex;
-  const raw = getComputedStyle(hostEl).getPropertyValue(name).trim();
-  if (!raw) return fallbackHex;
-  if (raw.startsWith("#")) return raw;
-  return fallbackHex;
-}
-
-function useBoardViPalette(hostRef) {
-  const defaults = {
-    primary: "#5FE48C",
-    accentGold: "#D4B86A",
-    accent: "#3AFF9B",
-    danger: "#F87171",
-    primaryHover: "#86EFAC",
-    success: "#22C55E",
-    bg: "#03120B",
-    textMuted: "#5FA37E",
-  };
-  const [pal, setPal] = React.useState(defaults);
-  React.useLayoutEffect(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    setPal({
-      primary: _viReadCssVar(el, "--color-primary", defaults.primary),
-      accentGold: _viReadCssVar(el, "--color-accent-gold", defaults.accentGold),
-      accent: _viReadCssVar(el, "--color-accent", defaults.accent),
-      danger: _viReadCssVar(el, "--color-danger", defaults.danger),
-      primaryHover: _viReadCssVar(el, "--color-primary-hover", defaults.primaryHover),
-      success: _viReadCssVar(el, "--color-success", defaults.success),
-      bg: _viReadCssVar(el, "--color-bg", defaults.bg),
-      textMuted: _viReadCssVar(el, "--color-text-muted", defaults.textMuted),
-    });
-  }, []);
-  return pal;
-}
-
-export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: panelHeadersProp = null }) {
+export default function Dashboard({
+  widgets: widgetsProp = null,
+  panelHeaders: panelHeadersProp = null,
+  footerNav: footerNavProp = null,
+}) {
   const boardRootRef = React.useRef(null);
 
   const widgets = widgetsProp && typeof widgetsProp === "object" ? widgetsProp : {};
   const panelHeaders = panelHeadersProp && typeof panelHeadersProp === "object" ? panelHeadersProp : {};
+  const footerNavItems = Array.isArray(footerNavProp) && footerNavProp.length
+    ? footerNavProp
+        .map((it) => ({
+          pageIndex: Number(it?.pageIndex),
+          label: String(it?.label ?? "").trim(),
+        }))
+        .filter((it) => Number.isFinite(it.pageIndex) && it.pageIndex >= 0 && it.label)
+    : [
+        { pageIndex: 0, label: "总览" },
+        { pageIndex: 1, label: "实时监控" },
+      ];
 
   const [currentPage, setCurrentPage] = React.useState(0);
   const pageChangedRef = React.useRef(false);
@@ -149,7 +112,7 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
       `}</style>
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <img
-          src="/template_bg.png"
+          src="/wind_power_bg.png"
           alt=""
           aria-hidden
           style={{ width: "100%", height: "100%", objectFit: "fill", display: "block",filter:"brightness(110%) contrast(120%) hue-rotate(215deg) saturate(15%)" }}
@@ -295,7 +258,7 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
             ))}
           </div>
 
-          <CenterGeoMapPanel boardRootRef={boardRootRef} />
+          <CenterGeoMapPanel widgets={widgets} />
         </div>
 
         {/* ============ 右栏 ============ */}
@@ -367,30 +330,27 @@ export default function Dashboard({ widgets: widgetsProp = null, panelHeaders: p
           gap: "var(--space-6)",
           padding: "0 var(--space-8)"
         }}>
-          {[
-            { label: "总览", page: 0 },
-            { label: "实时监控", page: 1 }
-          ].map((it, i) => (
+          {footerNavItems.map((it) => (
             <button
-              key={i}
+              key={it.pageIndex}
               type="button"
-              onClick={() => handlePageChange(it.page)}
+              onClick={() => handlePageChange(it.pageIndex)}
               style={{
                 margin: 0,
                 padding: "0 var(--space-3)",
                 border: "none",
                 borderRadius: 0,
-                borderBottom: currentPage === it.page
+                borderBottom: currentPage === it.pageIndex
                   ? "2px solid var(--color-primary)"
                   : "2px solid transparent",
                 background: "transparent",
                 boxShadow: "none",
-                color: currentPage === it.page ? "var(--color-primary)" : "var(--color-text-secondary)",
+                color: currentPage === it.pageIndex ? "var(--color-primary)" : "var(--color-text-secondary)",
                 fontFamily: "var(--font-display)",
                 fontSize: "var(--font-size-sm)",
-                fontWeight: currentPage === it.page ? "var(--font-weight-semibold)" : "var(--font-weight-regular)",
+                fontWeight: currentPage === it.pageIndex ? "var(--font-weight-semibold)" : "var(--font-weight-regular)",
                 letterSpacing: "var(--letter-spacing-wide)",
-                textShadow: currentPage === it.page ? "0 0 6px color-mix(in srgb, var(--color-primary) 55%, transparent)" : "none",
+                textShadow: currentPage === it.pageIndex ? "0 0 6px color-mix(in srgb, var(--color-primary) 55%, transparent)" : "none",
                 cursor: "pointer"
               }}
             >
@@ -464,6 +424,104 @@ function P0GenProgressPanel({ widgets, panelHeaders, chartCell }) {
   );
 }
 
+/** 生产基地等指标条：超出可视区时逐条自动上滚（条目不足则不滚动） */
+function KpiGlowBarScrollList({ items, tone = "success" }) {
+  const bars = Array.isArray(items) ? items : [];
+  const scrollRef = React.useRef(null);
+  const innerRef = React.useRef(null);
+  const [overflows, setOverflows] = React.useState(false);
+  const itemsKey = React.useMemo(() => JSON.stringify(bars), [bars]);
+
+  React.useEffect(() => {
+    const viewport = scrollRef.current;
+    if (!viewport) return;
+    const measure = () => {
+      setOverflows(viewport.scrollHeight - viewport.clientHeight > 1);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(viewport);
+    if (innerRef.current) ro.observe(innerRef.current);
+    return () => ro.disconnect();
+  }, [itemsKey]);
+
+  React.useEffect(() => {
+    if (!overflows) return;
+    const viewport = scrollRef.current;
+    if (!viewport) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const stepMs = 2800;
+    const pauseMs = 1200;
+
+    const measureStep = () => {
+      const inner = innerRef.current;
+      if (!inner || !inner.children.length) return 0;
+      const first = inner.children[0];
+      let step = first.offsetHeight;
+      if (inner.children.length > 1) {
+        const second = inner.children[1];
+        const gap = second.offsetTop - first.offsetTop - first.offsetHeight;
+        if (gap > 0 && gap < 80) step += gap;
+      }
+      return step > 0 ? step : 0;
+    };
+
+    let timer;
+    const tick = () => {
+      const step = measureStep();
+      if (step <= 0) return;
+      const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+      const next = viewport.scrollTop + step;
+      if (next >= maxScroll - 1) {
+        viewport.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        viewport.scrollTo({ top: next, behavior: "smooth" });
+      }
+    };
+
+    const startId = setTimeout(() => {
+      timer = setInterval(tick, stepMs);
+    }, pauseMs);
+
+    return () => {
+      clearTimeout(startId);
+      if (timer) clearInterval(timer);
+    };
+  }, [overflows, itemsKey]);
+
+  React.useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [itemsKey]);
+
+  return (
+    <div
+      ref={scrollRef}
+      style={{
+        alignSelf: "stretch",
+        height: "100%",
+        minHeight: 0,
+        minWidth: 0,
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: overflows ? "flex-start" : "center",
+      }}
+    >
+      <div
+        ref={innerRef}
+        style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", minWidth: 0 }}
+      >
+        {bars.map((b, i) => (
+          <div key={i} style={{ flexShrink: 0, minWidth: 0 }}>
+            <KpiGlowBar {...b} tone={tone} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function P0ProductionCapacityPanel({ widgets, panelHeaders, chartCell }) {
   const productionBase = useStoreData("p0.config.production_base") || {
     capacity: { label: "", current: 0, total: 0 }, capacityBars: [],
@@ -477,17 +535,13 @@ function P0ProductionCapacityPanel({ widgets, panelHeaders, chartCell }) {
             <div style={{ minHeight: 0, minWidth: 0, overflow: "hidden" }}>
               <KpiPercentStat tone="success" label={productionBase.capacity?.label} current={productionBase.capacity?.current} total={productionBase.capacity?.total} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", minHeight: 0, minWidth: 0, overflow: "hidden", justifyContent: "center" }}>
-              {(productionBase.capacityBars || []).map((b, i) => (<React.Fragment key={i}><KpiGlowBar {...b} tone="success" /></React.Fragment>))}
-            </div>
+            <KpiGlowBarScrollList items={productionBase.capacityBars} tone="success" />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "160px minmax(0, 1fr)", gap: "var(--space-3)", alignItems: "center", minHeight: 0, minWidth: 0, overflow: "hidden" }}>
             <div style={{ minHeight: 0, minWidth: 0, overflow: "hidden" }}>
               <KpiPercentStat tone="warning" label={productionBase.plan?.label} current={productionBase.plan?.current} total={productionBase.plan?.total} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", minHeight: 0, minWidth: 0, overflow: "hidden", justifyContent: "center" }}>
-              {(productionBase.planBars || []).map((b, i) => (<React.Fragment key={i}><KpiGlowBar {...b} tone="warning" /></React.Fragment>))}
-            </div>
+            <KpiGlowBarScrollList items={productionBase.planBars} tone="warning" />
           </div>
         </div>
       </PanelShell>
@@ -685,36 +739,151 @@ function P1RealtimeSecondaryPanel({ widgets, panelHeaders, chartCell, active }) 
   );
 }
 
-function CenterGeoMapPanel({ boardRootRef }) {
-  const pal = useBoardViPalette(boardRootRef);
+const GEO_MAP_MODES = ["on", "off"];
+
+function resolveMapScatterByMode(raw) {
+  if (Array.isArray(raw)) return { on: raw, off: [] };
+  if (raw && typeof raw === "object") {
+    return {
+      on: Array.isArray(raw.on) ? raw.on : [],
+      off: Array.isArray(raw.off) ? raw.off : [],
+    };
+  }
+  return { on: [], off: [] };
+}
+
+function deriveMonitoringScatterFromFacility(facilityPoints) {
+  if (!Array.isArray(facilityPoints) || !facilityPoints.length) return [];
+  return facilityPoints.slice(0, 28).map((pt, i) => {
+    const lng = Number(pt?.value?.[0]);
+    const lat = Number(pt?.value?.[1]);
+    const size = Number(pt?.value?.[2]);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+    const label = String(pt?.name ?? "").trim();
+    return {
+      name: label ? `${label}·监测` : `监测点${i + 1}`,
+      value: [
+        lng + ((i % 5) - 2) * 0.32,
+        lat + ((i % 3) - 1) * 0.24,
+        Number.isFinite(size) ? Math.max(2, Math.round(size * 0.7)) : 3,
+      ],
+    };
+  }).filter(Boolean);
+}
+
+function deriveMonitoringProvinceMetrics(facility) {
+  const sites = Number(facility?.sites) || 0;
+  const volume = Number(facility?.volume) || 0;
+  const capacity = Number(facility?.capacity) || 0;
+  const rate = Number(facility?.rate) || 0;
+  return {
+    volume: Math.max(0, Math.round(sites * 6 + rate * 0.4)),
+    capacity: Math.max(1, Math.round(sites * 12 + capacity * 0.08)),
+    sites: Math.max(1, Math.round(volume / 90 + sites * 0.6)),
+    rate: Math.min(99, Math.max(86, Math.round(rate - 1 + (sites % 4)))),
+  };
+}
+
+const GEO_MONITORING_REGION_CARD = {
+  volumeLabel: "告警次数",
+  volumeUnit: "次",
+  scaleLabel: "传感器在线",
+  scaleUnit: "台",
+  sitesLabel: "监测站点",
+  sitesUnit: "个",
+  rateLabel: "数据完好率",
+  rateUnit: "%",
+};
+
+function CenterGeoMapPanel({ widgets }) {
+  const geoWidget = widgets.center_geo_map || { type: "GeoMap", props: {} };
+  const geoProps = geoWidget.props && typeof geoWidget.props === "object" ? geoWidget.props : {};
   const provinceConfig = useStoreData("p0.config.province_data") || {
     defaultProvince: "", provinces: {},
     mapLegend: { on: "● 业务点位", off: "○ 监测点位" },
     regionCard: { volumeLabel: "区域指标", volumeUnit: "", scaleLabel: "规模指标", scaleUnit: "", sitesLabel: "点位数量", sitesUnit: "个", rateLabel: "达成率", rateUnit: "%" },
   };
-  const provinceDataMap = provinceConfig.provinces || {};
-  const mapScatterData = useStoreData("p0.config.map_scatter") || [];
+  const facilityProvinceMap = provinceConfig.provinces || {};
+  const mapScatterRaw = useStoreData("p0.config.map_scatter") || [];
+  const scatterByMode = resolveMapScatterByMode(mapScatterRaw);
   const mapLegendChrome = provinceConfig.mapLegend || {};
-  const regionCardLabels = provinceConfig.regionCard || {};
+  const [mapMode, setMapMode] = React.useState("on");
   const [activeProvince, setActiveProvince] = React.useState(provinceConfig.defaultProvince || "");
+
+  const facilityScatter = scatterByMode.on;
+  const monitoringScatter = scatterByMode.off.length
+    ? scatterByMode.off
+    : deriveMonitoringScatterFromFacility(facilityScatter);
+  const activeScatter = mapMode === "off" ? monitoringScatter : facilityScatter;
+
+  const modeLayer = provinceConfig.modes?.[mapMode];
+  const provinceDataMap = mapMode === "off"
+    ? (modeLayer?.provinces ||
+        Object.fromEntries(
+          Object.entries(facilityProvinceMap).map(([name, metrics]) => [
+            name,
+            deriveMonitoringProvinceMetrics(metrics),
+          ])
+        ))
+    : (modeLayer?.provinces || facilityProvinceMap);
+
+  const regionCardLabels = {
+    ...(provinceConfig.regionCard || {}),
+    ...(mapMode === "off"
+      ? { ...GEO_MONITORING_REGION_CARD, ...(modeLayer?.regionCard || provinceConfig.modes?.off?.regionCard || {}) }
+      : (modeLayer?.regionCard || {})),
+  };
+
   const provinceInfo = provinceDataMap[activeProvince] || { volume: 0, capacity: 0, sites: 0, rate: 0 };
+  const scatterColor =
+    mapMode === "off"
+      ? "var(--color-accent-gold)"
+      : (geoProps.scatterColor || "var(--color-primary)");
+
+  const legendBtnStyle = (active) => ({
+    padding: "4px var(--space-2)",
+    borderRadius: "var(--radius-sm)",
+    fontSize: "var(--font-size-xs)",
+    letterSpacing: "var(--letter-spacing-wide)",
+    cursor: "pointer",
+    userSelect: "none",
+    border: active ? "1px solid var(--color-primary)" : "1px solid var(--color-border)",
+    background: active
+      ? "color-mix(in srgb, var(--color-primary) 18%, transparent)"
+      : "var(--color-surface-2)",
+    color: active ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+    transition: "background 0.2s ease, border-color 0.2s ease, color 0.2s ease",
+  });
   return (
     <div style={{ position: "relative", minHeight: 0, minWidth: 0, overflow: "hidden", borderRadius: "var(--radius-sm)",
       background: "radial-gradient(ellipse at center, color-mix(in srgb, var(--color-primary) 8%, transparent) 0%, transparent 70%)" }}>
       <Widget config={{
         type: "GeoMap",
         props: {
-          geoJsonPath: "/map/100000.json", mapName: "china",
-          areaColor: _viWithAlpha(pal.bg, 0.4), borderColor: _viWithAlpha(pal.primary, 0.22),
-          emphasisAreaColor: _viWithAlpha(pal.success, 0.55), emphasisBorderColor: pal.primary,
-          labelColor: _viWithAlpha(pal.textMuted, 0.8), backgroundColor: "transparent",
-          autoHighlight: true, highlightInterval: 3000, onHighlightChange: setActiveProvince,
-          scatterColor: pal.primary, scatterSize: 4, scatterData: mapScatterData,
+          ...geoProps,
+          onHighlightChange: setActiveProvince,
+          scatterData: activeScatter,
+          scatterColor,
         },
       }} />
       <div style={{ position: "absolute", left: "var(--space-3)", bottom: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-1)", zIndex: 1 }}>
-        <span style={{ padding: "4px var(--space-2)", background: "color-mix(in srgb, var(--color-primary) 18%, transparent)", border: "1px solid var(--color-primary)", borderRadius: "var(--radius-sm)", color: "var(--color-text-primary)", fontSize: "var(--font-size-xs)", letterSpacing: "var(--letter-spacing-wide)" }}>{mapLegendChrome.on || "● 业务点位"}</span>
-        <span style={{ padding: "4px var(--space-2)", background: "var(--color-surface-2)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-sm)", color: "var(--color-text-secondary)", fontSize: "var(--font-size-xs)", letterSpacing: "var(--letter-spacing-wide)" }}>{mapLegendChrome.off || "○ 监测点位"}</span>
+        {GEO_MAP_MODES.map((mode) => (
+          <span
+            key={mode}
+            role="button"
+            tabIndex={0}
+            onClick={() => setMapMode(mode)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setMapMode(mode);
+              }
+            }}
+            style={legendBtnStyle(mapMode === mode)}
+          >
+            {mode === "on" ? (mapLegendChrome.on || "● 业务点位") : (mapLegendChrome.off || "○ 监测点位")}
+          </span>
+        ))}
       </div>
       <div style={{ position: "absolute", right: "var(--space-3)", bottom: "var(--space-3)", minWidth: 200, padding: "var(--space-2) var(--space-3)",
         background: "color-mix(in srgb, var(--color-surface) 90%, transparent)", border: "1px solid var(--color-border-strong)", borderRadius: "var(--radius-sm)", boxShadow: "var(--shadow-sm)", zIndex: 1 }}>

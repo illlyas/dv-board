@@ -5,7 +5,9 @@ import {
   ensureStoreHasTemplateSkeleton,
 } from "@/lib/board/template-fill-store";
 import type { DashboardWidgetsMap } from "@/lib/board/load-dashboard-widgets";
+import { chromeFromSlotsSchema } from "@/lib/board/load-dashboard-chrome";
 import { panelHeadersFromSlotsSchema } from "@/lib/board/load-dashboard-panel-headers";
+import type { FooterNavItem, MapLegendChrome } from "@/lib/board/wind-chrome-keys";
 import { WIND_PANEL_HEADER_KEYS } from "@/lib/board/wind-panels-keys";
 import type { WindPanelHeaderKey } from "@/lib/board/wind-panels-keys";
 import { WIND_TEMPLATE_MARKER } from "@/lib/board/wind-template-id";
@@ -24,6 +26,15 @@ export type SlotsSchemaFile = {
     pageIndex?: number;
   }>;
   panelHeaders?: Partial<Record<WindPanelHeaderKey, string>>;
+  chrome?: {
+    mapLegend?: MapLegendChrome;
+    footerNav?: FooterNavItem[];
+  };
+  pages?: Array<{
+    pageIndex: number;
+    label?: string;
+    layout?: Record<string, unknown>;
+  }>;
   panelShellBindings?: Array<{
     key: string;
     component: string;
@@ -178,7 +189,35 @@ export function parseWidgetsJson(raw: string): DashboardWidgetsMap {
   return parsed as DashboardWidgetsMap;
 }
 
-/** 将 template-fill 中的 panelHeaders 合并进 slots.schema.json */
+/** 将 template-fill 顶层 mapLegend 合并进 province_data 槽位 */
+export function mergeMapLegendIntoProvinceSlot(fill: TemplateFill): TemplateFill {
+  if (!fill.mapLegend) return fill;
+  const next = structuredClone(fill);
+  const slotId = "p0.config.province_data";
+  const slot = { ...(next.slots[slotId] ?? {}) };
+  const pd =
+    slot.provinceData && typeof slot.provinceData === "object" && !Array.isArray(slot.provinceData)
+      ? { ...(slot.provinceData as Record<string, unknown>) }
+      : {};
+  const existing =
+    pd.mapLegend && typeof pd.mapLegend === "object" && !Array.isArray(pd.mapLegend)
+      ? (pd.mapLegend as Record<string, unknown>)
+      : {};
+  pd.mapLegend = {
+    ...existing,
+    ...(typeof fill.mapLegend.on === "string" && fill.mapLegend.on.trim()
+      ? { on: fill.mapLegend.on.trim() }
+      : {}),
+    ...(typeof fill.mapLegend.off === "string" && fill.mapLegend.off.trim()
+      ? { off: fill.mapLegend.off.trim() }
+      : {}),
+  };
+  slot.provinceData = pd;
+  next.slots[slotId] = slot;
+  return next;
+}
+
+/** 将 template-fill 中的 panelHeaders / chrome 合并进 slots.schema.json */
 export function applyTemplateFillToSlotsSchemaJson(
   slotsSchemaJson: string,
   fill: TemplateFill
@@ -193,6 +232,42 @@ export function applyTemplateFillToSlotsSchemaJson(
     }
     schema.panelHeaders = merged;
   }
+
+  const chromeBase = chromeFromSlotsSchema(schema);
+  const chromeNext = { ...chromeBase };
+
+  if (fill.mapLegend) {
+    chromeNext.mapLegend = {
+      on:
+        typeof fill.mapLegend.on === "string" && fill.mapLegend.on.trim()
+          ? fill.mapLegend.on.trim()
+          : chromeBase.mapLegend.on,
+      off:
+        typeof fill.mapLegend.off === "string" && fill.mapLegend.off.trim()
+          ? fill.mapLegend.off.trim()
+          : chromeBase.mapLegend.off,
+    };
+  }
+
+  if (fill.footerNav?.length) {
+    chromeNext.footerNav = fill.footerNav
+      .map((item) => ({
+        pageIndex: item.pageIndex,
+        label: String(item.label ?? "").trim(),
+      }))
+      .filter((item) => Number.isFinite(item.pageIndex) && item.pageIndex >= 0 && item.label);
+  }
+
+  schema.chrome = chromeNext;
+
+  if (schema.pages?.length && chromeNext.footerNav.length) {
+    const labelByPage = new Map(chromeNext.footerNav.map((f) => [f.pageIndex, f.label]));
+    schema.pages = schema.pages.map((p) => {
+      const label = labelByPage.get(p.pageIndex);
+      return label ? { ...p, label } : p;
+    });
+  }
+
   return JSON.stringify(schema, null, 2);
 }
 

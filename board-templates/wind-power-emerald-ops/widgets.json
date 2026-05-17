@@ -188,8 +188,8 @@
             "showSymbol": false,
             "lineStyle": {
               "width": 3,
-              "color": "#5FE48C",
-              "shadowColor": "rgba(95,228,140,0.85)",
+              "color": "var(--color-primary)",
+              "shadowColor": "var(--color-primary-alpha-85)",
               "shadowBlur": 12
             },
             "itemStyle": {
@@ -206,11 +206,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(95,228,140,0.1)"
+                    "color": "var(--color-primary-alpha-10)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(95,228,140,0)"
+                    "color": "transparent"
                   }
                 ]
               }
@@ -223,8 +223,8 @@
             "showSymbol": false,
             "lineStyle": {
               "width": 3,
-              "color": "#D4B86A",
-              "shadowColor": "rgba(212,184,106,0.75)",
+              "color": "var(--color-accent-gold)",
+              "shadowColor": "var(--color-accent-gold-alpha-75)",
               "shadowBlur": 10
             },
             "itemStyle": {
@@ -241,11 +241,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(212,184,106,0.1)"
+                    "color": "var(--color-accent-gold-alpha-10)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(212,184,106,0)"
+                    "color": "transparent"
                   }
                 ]
               }
@@ -345,11 +345,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(95,228,140,0.35)"
+                    "color": "var(--color-primary-alpha-35)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(95,228,140,0)"
+                    "color": "transparent"
                   }
                 ]
               },
@@ -370,11 +370,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(212,184,106,0.35)"
+                    "color": "var(--color-accent-gold-alpha-35)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(212,184,106,0)"
+                    "color": "transparent"
                   }
                 ]
               },
@@ -458,11 +458,11 @@
             "colorStops": [
               {
                 "offset": 0,
-                "color": "rgba(95,228,140,0.35)"
+                "color": "var(--color-primary-alpha-35)"
               },
               {
                 "offset": 1,
-                "color": "rgba(95,228,140,0)"
+                "color": "transparent"
               }
             ]
           },
@@ -475,11 +475,11 @@
             "colorStops": [
               {
                 "offset": 0,
-                "color": "rgba(212,184,106,0.35)"
+                "color": "var(--color-accent-gold-alpha-35)"
               },
               {
                 "offset": 1,
-                "color": "rgba(212,184,106,0)"
+                "color": "transparent"
               }
             ]
           },
@@ -492,11 +492,11 @@
             "colorStops": [
               {
                 "offset": 0,
-                "color": "rgba(248,113,113,0.35)"
+                "color": "var(--color-danger-alpha-35)"
               },
               {
                 "offset": 1,
-                "color": "rgba(248,113,113,0)"
+                "color": "transparent"
               }
             ]
           },
@@ -509,11 +509,11 @@
             "colorStops": [
               {
                 "offset": 0,
-                "color": "rgba(134,239,172,0.35)"
+                "color": "var(--chart-4-alpha-35)"
               },
               {
                 "offset": 1,
-                "color": "rgba(134,239,172,0)"
+                "color": "transparent"
               }
             ]
           }
@@ -649,11 +649,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(95,228,140,0.12)"
+                    "color": "var(--color-primary-alpha-12)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(95,228,140,0)"
+                    "color": "transparent"
                   }
                 ]
               }
@@ -666,7 +666,7 @@
             "showSymbol": false,
             "lineStyle": {
               "width": 2,
-              "color": "#D4B86A",
+              "color": "var(--color-accent-gold)",
               "type": "dashed"
             },
             "itemStyle": {
@@ -729,10 +729,10 @@
             "showSymbol": false,
             "lineStyle": {
               "width": 2,
-              "color": "#3AFF9B"
+              "color": "var(--color-accent)"
             },
             "itemStyle": {
-              "color": "#3AFF9B"
+              "color": "var(--color-accent)"
             },
             "areaStyle": {
               "opacity": 1,
@@ -745,11 +745,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(58,255,155,0.1)"
+                    "color": "var(--color-accent-alpha-10)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(58,255,155,0)"
+                    "color": "transparent"
                   }
                 ]
               }
@@ -810,11 +810,11 @@
                 "colorStops": [
                   {
                     "offset": 0,
-                    "color": "rgba(248,113,113,0.6)"
+                    "color": "var(--color-danger-alpha-60)"
                   },
                   {
                     "offset": 1,
-                    "color": "rgba(248,113,113,0.05)"
+                    "color": "var(--color-danger-alpha-5)"
                   }
                 ]
               },
@@ -901,6 +901,23 @@
         "padding": 0,
         "borderRadius": 0
       }
+    }
+  },
+  "center_geo_map": {
+    "type": "GeoMap",
+    "props": {
+      "geoJsonPath": "/map/100000.json",
+      "mapName": "china",
+      "areaColor": "var(--color-bg-alpha-40)",
+      "borderColor": "var(--color-border)",
+      "emphasisAreaColor": "var(--color-primary-alpha-55)",
+      "emphasisBorderColor": "var(--color-primary)",
+      "labelColor": "var(--color-text-muted-alpha-80)",
+      "backgroundColor": "transparent",
+      "autoHighlight": true,
+      "highlightInterval": 3000,
+      "scatterColor": "var(--color-primary)",
+      "scatterSize": 4
     }
   }
 }

@@ -14,9 +14,11 @@ import {
 } from "@/lib/board/wind-template-assembler";
 import {
   buildAllSlotPromptLines,
+  buildChromePromptLines,
   STORE_FILL_JSON_EXAMPLE,
 } from "@/lib/board/template-fill-prompt";
 import { widgetsFillSchema } from "@/lib/board/template-fill-schema";
+import { buildConfigFieldContractPrompt } from "@/lib/board/config-field-contract";
 import {
   buildFieldContractsFromWidgetsFill,
   buildStoreFieldContractPrompt,
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
     const templateWidgets = parseWidgetsJson(widgetsRaw);
     const slotMap = slotIdToWidgetKeyMap(schema);
     const allSlotLines = buildAllSlotPromptLines(schema);
+    const chromeLines = buildChromePromptLines(schema);
     const slotIdList = schema.slots.map((s) => s.slotId).join(", ");
 
     const contracts = buildFieldContractsFromWidgetsFill(
@@ -68,6 +71,7 @@ export async function POST(request: Request) {
       slotMap
     );
     const fieldContractBlock = buildStoreFieldContractPrompt(contracts);
+    const configContractBlock = buildConfigFieldContractPrompt(schema);
 
     const system = `你是数据可视化看板的「store 数据」专家。模板 **${WIND_POWER_EMERALD_OPS_TEMPLATE_ID}**。
 
@@ -85,13 +89,20 @@ ${STORE_FILL_JSON_EXAMPLE}
 5. **Donut/Pie**：每行必须含契约中的 nameField 与 valueField 键。
 6. **Table**：优先 **tableRows**；列 field 与契约一致。
 7. **KPI**：payload 为 \`{ "kind": "kpiValue", "value": { "value", "trend", ... } }\`。
-8. **Config 私有面板**（p0.config.* 除 province_data/map_scatter）：只用 **configValue** 对象（如 \`{ "items": [...] }\`、production_base 的 capacity/plan），**禁止** payload.kind=config；province_data 用 **provinceData**；map_scatter 用 **seedSeriesRows**。
+8. **Config 私有面板**（p0.config.* 除 province_data/map_scatter）：只用 **configValue**（或 P1 实时条的 **kpiGlowItems**），**禁止** payload.kind=config；province_data 用 **provinceData**；map_scatter 用 **seedSeriesRows**。**Config 字段形状必须严格遵循下方「Config 面板契约」**（尤其 production_base：圆环用 current/total，capacityBars/planBars 用 value/max）。
 9. 禁止照搬模板风电示例省份/场站名（除非 Story 是风电）。
 10. 时序类 seed ≥12 行；分类柱/折线 ≥8 行；数值合理、中文标签。
-11. JSON 须一次 parse 成功。
+11. **p0.config.province_data.provinceData.mapLegend** 必填 \`{ on, off }\`（可与 widgets 阶段顶层 mapLegend 一致；装配时合并）。
+12. JSON 须一次 parse 成功。
 
-【字段契约表 — 行对象键名必须严格遵循】
+【看板 Chrome — mapLegend 须写入 provinceData】
+${chromeLines}
+
+【字段契约表 — 图表/表格行对象键名必须严格遵循】
 ${fieldContractBlock}
+
+【Config 面板契约 — configValue / kpiGlowItems 字段名必须严格遵循】
+${configContractBlock}
 
 【全部槽位 — store 落盘说明】
 ${allSlotLines}`;
@@ -100,7 +111,7 @@ ${allSlotLines}`;
     if (existingStoreFill) {
       user += `【既有 store-fill（修订合并；输出完整 JSON）】\n\n${existingStoreFill}\n\n---\n\n`;
     }
-    user += `【Design Story】\n\n${designStory}\n\n请输出 phase=store 的完整 JSON（行字段键名与契约表一致）。`;
+    user += `【Design Story】\n\n${designStory}\n\n请输出 phase=store 的完整 JSON（图表行键名与字段契约表一致；Config 与 Config 面板契约一致）。`;
 
     const model = createDeepSeekModel();
     const result = streamText({ model, system, prompt: user });

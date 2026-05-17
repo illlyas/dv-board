@@ -6,6 +6,7 @@ import { VisualAssetsProvider } from "@/contexts/visual-assets-context";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 import type { DashboardWidgetsMap } from "@/lib/board/load-dashboard-widgets";
 import type { DashboardPanelHeadersMap } from "@/lib/board/load-dashboard-panel-headers";
+import type { FooterNavItem } from "@/lib/board/wind-chrome-keys";
 import { getScreenPreset } from "@/lib/board/screen-presets";
 
 export interface SelectedWidget {
@@ -21,6 +22,7 @@ interface EditablePreviewProps {
   visualAssetsBlock?: VisualAssetsBlock | null;
   dashboardWidgets?: DashboardWidgetsMap | null;
   dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
+  dashboardFooterNav?: FooterNavItem[] | null;
   canvasWidth?: number;
   canvasHeight?: number;
 }
@@ -29,11 +31,13 @@ const StableRenderer = memo(function StableRenderer({
   code,
   dashboardWidgets,
   dashboardPanelHeaders,
+  dashboardFooterNav,
   visualAssetsBlock,
 }: {
   code: string;
   dashboardWidgets?: DashboardWidgetsMap | null;
   dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
+  dashboardFooterNav?: FooterNavItem[] | null;
   visualAssetsBlock?: VisualAssetsBlock | null;
 }) {
   const jsx = (
@@ -41,6 +45,7 @@ const StableRenderer = memo(function StableRenderer({
       code={code}
       dashboardWidgets={dashboardWidgets}
       dashboardPanelHeaders={dashboardPanelHeaders}
+      dashboardFooterNav={dashboardFooterNav}
     />
   );
   if (!visualAssetsBlock) return jsx;
@@ -55,6 +60,7 @@ export function EditablePreview({
   visualAssetsBlock,
   dashboardWidgets,
   dashboardPanelHeaders,
+  dashboardFooterNav,
   canvasWidth,
   canvasHeight,
 }: EditablePreviewProps) {
@@ -248,6 +254,7 @@ export function EditablePreview({
             code={code}
             dashboardWidgets={dashboardWidgets}
             dashboardPanelHeaders={dashboardPanelHeaders}
+            dashboardFooterNav={dashboardFooterNav}
             visualAssetsBlock={visualAssetsBlock}
           />
           <div ref={overlayRef} style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 8 }} />

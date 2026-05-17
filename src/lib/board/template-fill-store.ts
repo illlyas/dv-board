@@ -22,8 +22,18 @@ export function resolveSlotFillPayload(fill: TemplateSlotFill): DashboardStorePa
   if (fill.tableRows != null && Array.isArray(fill.tableRows)) {
     return { kind: "tableRows", value: fill.tableRows };
   }
-  if (fill.seedSeriesRows != null && Array.isArray(fill.seedSeriesRows)) {
-    return { kind: "seriesRows", value: fill.seedSeriesRows };
+  if (fill.seedSeriesRows != null) {
+    if (Array.isArray(fill.seedSeriesRows)) {
+      return { kind: "seriesRows", value: fill.seedSeriesRows };
+    }
+    if (
+      typeof fill.seedSeriesRows === "object" &&
+      !Array.isArray(fill.seedSeriesRows) &&
+      (Array.isArray((fill.seedSeriesRows as { on?: unknown }).on) ||
+        Array.isArray((fill.seedSeriesRows as { off?: unknown }).off))
+    ) {
+      return { kind: "seriesRows", value: fill.seedSeriesRows };
+    }
   }
   if (fill.kpiGlowItems != null && Array.isArray(fill.kpiGlowItems)) {
     return { kind: "kpiValue", value: { items: fill.kpiGlowItems } };

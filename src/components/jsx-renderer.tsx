@@ -6,6 +6,7 @@ import {
   resolveDashboardPanelHeaders,
   type DashboardPanelHeadersMap,
 } from "@/lib/board/load-dashboard-panel-headers";
+import type { FooterNavItem } from "@/lib/board/wind-chrome-keys";
 
 interface JsxRendererProps {
   code: string;
@@ -13,6 +14,8 @@ interface JsxRendererProps {
   dashboardWidgets?: DashboardWidgetsMap | null;
   /** PanelShell 标题（由 slots.schema.json panelHeaders 解析） */
   dashboardPanelHeaders?: DashboardPanelHeadersMap | null;
+  /** Footer 分页按钮（由 slots.schema.json chrome.footerNav 解析） */
+  dashboardFooterNav?: FooterNavItem[] | null;
   onError?: (error: string) => void;
 }
 
@@ -26,6 +29,7 @@ export function JsxRenderer({
   code,
   dashboardWidgets = null,
   dashboardPanelHeaders = null,
+  dashboardFooterNav = null,
   onError,
 }: JsxRendererProps) {
   const [Component, setComponent] = useState<React.ComponentType | null>(null);
@@ -177,6 +181,16 @@ export function JsxRenderer({
     [dashboardPanelHeaders]
   );
 
+  const footerNavProp = useMemo(() => {
+    if (!Array.isArray(dashboardFooterNav) || !dashboardFooterNav.length) return null;
+    return dashboardFooterNav
+      .map((it) => ({
+        pageIndex: Number(it?.pageIndex),
+        label: String(it?.label ?? "").trim(),
+      }))
+      .filter((it) => Number.isFinite(it.pageIndex) && it.pageIndex >= 0 && it.label);
+  }, [dashboardFooterNav]);
+
   if (!isBabelLoaded) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
@@ -216,8 +230,9 @@ export function JsxRenderer({
     const Dash = Component as React.ComponentType<{
       widgets?: DashboardWidgetsMap | null;
       panelHeaders?: DashboardPanelHeadersMap | null;
+      footerNav?: FooterNavItem[] | null;
     }>;
-    return <Dash widgets={widgetsProp} panelHeaders={panelHeadersProp} />;
+    return <Dash widgets={widgetsProp} panelHeaders={panelHeadersProp} footerNav={footerNavProp} />;
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     const errorStack = err instanceof Error ? err.stack : "";

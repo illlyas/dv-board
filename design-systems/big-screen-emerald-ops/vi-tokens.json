@@ -14,13 +14,29 @@
     "--color-danger": "#F87171",
     "--color-info": "#38BDF8",
     "--color-text-primary": "#ECFDF5",
-    "--color-text-secondary": "rgba(236,253,245,0.72)",
-    "--color-text-muted": "rgba(236,253,245,0.42)",
-    "--color-text-inverse": "#030712",
+    "--color-text-secondary": "#A7F3D0",
+    "--color-text-muted": "#34D399",
+    "--color-text-inverse": "#022C22",
     "--color-border": "rgba(74,222,128,0.22)",
     "--color-border-strong": "rgba(74,222,128,0.55)",
     "--color-grid": "rgba(74,222,128,0.06)",
     "--color-overlay": "rgba(0,0,0,0.65)",
+    "--color-primary-alpha-85": "rgba(74,222,128,0.85)",
+    "--color-primary-alpha-55": "rgba(74,222,128,0.55)",
+    "--color-primary-alpha-35": "rgba(74,222,128,0.35)",
+    "--color-primary-alpha-12": "rgba(74,222,128,0.12)",
+    "--color-primary-alpha-10": "rgba(74,222,128,0.1)",
+    "--color-accent-alpha-10": "rgba(45,212,191,0.1)",
+    "--color-accent-gold-alpha-75": "rgba(212,168,85,0.75)",
+    "--color-accent-gold-alpha-35": "rgba(212,168,85,0.35)",
+    "--color-accent-gold-alpha-10": "rgba(212,168,85,0.1)",
+    "--color-danger-alpha-60": "rgba(248,113,113,0.6)",
+    "--color-danger-alpha-35": "rgba(248,113,113,0.35)",
+    "--color-danger-alpha-5": "rgba(248,113,113,0.05)",
+    "--color-success-alpha-55": "rgba(34,197,94,0.55)",
+    "--color-bg-alpha-40": "rgba(3,7,18,0.4)",
+    "--color-text-muted-alpha-80": "rgba(52,211,153,0.8)",
+    "--chart-4-alpha-35": "rgba(56,189,248,0.35)",
     "--font-display": "\"Rajdhani\",\"Bahnschrift\",\"DIN Alternate\",system-ui,sans-serif",
     "--font-body": "system-ui,\"Segoe UI\",\"PingFang SC\",sans-serif",
     "--font-mono": "ui-monospace,\"JetBrains Mono\",\"Fira Code\",monospace",
@@ -91,38 +107,121 @@
     "--kpi-text-muted": "rgba(236,253,245,0.42)",
     "--kpi-glow-base": "var(--color-primary)"
   },
-  "chartPalette": ["#4ADE80", "#2DD4BF", "#22C55E", "#38BDF8", "#FACC15", "#F87171"],
+  "chartPalette": [
+    "#4ADE80",
+    "#2DD4BF",
+    "#22C55E",
+    "#38BDF8",
+    "#FACC15",
+    "#F87171"
+  ],
   "raw": {
     "color": {
-      "primary": { "name": "翠绿主强调", "hex": "#4ADE80", "usage": "主数据线、选中态、发光勾边" },
+      "primary": {
+        "name": "翠绿主强调",
+        "hex": "#4ADE80",
+        "usage": "主数据线、选中态、发光勾边"
+      },
       "secondary": [
-        { "name": "主色悬停", "hex": "#86EFAC", "usage": "交互高亮" },
-        { "name": "青绿辅色", "hex": "#2DD4BF", "usage": "次级高亮、图例次要系列" },
-        { "name": "香槟金", "hex": "#D4A855", "usage": "环形指标、金属高亮" }
+        {
+          "name": "主色悬停",
+          "hex": "#86EFAC",
+          "usage": "交互高亮"
+        },
+        {
+          "name": "青绿辅色",
+          "hex": "#2DD4BF",
+          "usage": "次级高亮、图例次要系列"
+        },
+        {
+          "name": "香槟金",
+          "hex": "#D4A855",
+          "usage": "环形指标、金属高亮"
+        }
       ],
       "accent": [],
       "surface": [
-        { "name": "主背景", "hex": "#030712", "usage": "整屏最深底" },
-        { "name": "模块衬底", "hex": "#0B1F14", "usage": "顶栏、模块" },
-        { "name": "次级表面", "hex": "#132A1F", "usage": "hover/选中块" },
-        { "name": "弱衬", "hex": "#1F3D2E", "usage": "分割、图表弱底" }
+        {
+          "name": "主背景",
+          "hex": "#030712",
+          "usage": "整屏最深底"
+        },
+        {
+          "name": "表面",
+          "hex": "#0B1F14",
+          "usage": "顶栏、模块衬底"
+        },
+        {
+          "name": "次级表面",
+          "hex": "#132A1F",
+          "usage": "hover/选中模块"
+        },
+        {
+          "name": "弱衬",
+          "hex": "#1F3D2E",
+          "usage": "分割线内侧、图表弱底"
+        }
       ],
       "text": [
-        { "name": "主文案", "hex": "#ECFDF5", "usage": "标题、数值" },
-        { "name": "次级文案", "hex": "rgba(236,253,245,0.72)", "usage": "次要文字" },
-        { "name": "弱化文案", "hex": "rgba(236,253,245,0.42)", "usage": "辅助、占位" },
-        { "name": "反色文案", "hex": "#030712", "usage": "主色实心按钮上" }
+        {
+          "name": "主文案",
+          "hex": "#ECFDF5",
+          "usage": "正文标题、数值"
+        },
+        {
+          "name": "次级文案",
+          "hex": "#A7F3D0",
+          "usage": "次要文字"
+        },
+        {
+          "name": "弱化文案",
+          "hex": "#34D399",
+          "usage": "辅助、占位"
+        },
+        {
+          "name": "反色文案",
+          "hex": "#022C22",
+          "usage": "主色实心按钮上"
+        }
       ],
       "border": [
-        { "name": "边框", "hex": "rgba(74,222,128,0.22)", "usage": "模块分割" },
-        { "name": "强边框", "hex": "rgba(74,222,128,0.55)", "usage": "强调描边" }
+        {
+          "name": "边框",
+          "hex": "rgba(74,222,128,0.22)",
+          "usage": "模块分割边界"
+        },
+        {
+          "name": "强边框",
+          "hex": "rgba(74,222,128,0.55)",
+          "usage": "强调边框、发光勾边"
+        }
       ],
       "semantic": {
-        "success": { "name": "成功", "hex": "#22C55E", "usage": "正常态" },
-        "warning": { "name": "警告", "hex": "#FACC15", "usage": "预警" },
-        "danger": { "name": "危险", "hex": "#F87171", "usage": "严重告警" },
-        "info": { "name": "信息", "hex": "#38BDF8", "usage": "提示" },
-        "grid": { "name": "网格", "hex": "rgba(74,222,128,0.06)", "usage": "图表网格" }
+        "success": {
+          "name": "成功",
+          "hex": "#22C55E",
+          "usage": "正向指标"
+        },
+        "warning": {
+          "name": "警告",
+          "hex": "#FACC15",
+          "usage": "警示数据"
+        },
+        "danger": {
+          "name": "危险",
+          "hex": "#F87171",
+          "usage": "警戒值、错误"
+        },
+        "info": {
+          "name": "信息",
+          "hex": "#38BDF8",
+          "usage": "辅助提示"
+        },
+        "grid": {
+          "name": "网格线",
+          "hex": "rgba(74,222,128,0.06)",
+          "usage": "图表网格背景"
+        }
       }
     },
     "typography": {
@@ -132,35 +231,106 @@
         "mono": "ui-monospace,\"JetBrains Mono\",\"Fira Code\",monospace"
       },
       "scale": [
-        { "size": "12px", "usage": "xs" },
-        { "size": "14px", "usage": "sm" },
-        { "size": "16px", "usage": "md" },
-        { "size": "18px", "usage": "lg" },
-        { "size": "22px", "usage": "xl" },
-        { "size": "28px", "usage": "2xl" },
-        { "size": "34px", "usage": "3xl" }
+        {
+          "size": "12px",
+          "usage": "xs"
+        },
+        {
+          "size": "14px",
+          "usage": "sm"
+        },
+        {
+          "size": "16px",
+          "usage": "md"
+        },
+        {
+          "size": "18px",
+          "usage": "lg"
+        },
+        {
+          "size": "22px",
+          "usage": "xl"
+        },
+        {
+          "size": "28px",
+          "usage": "2xl"
+        },
+        {
+          "size": "34px",
+          "usage": "3xl"
+        }
       ],
       "weights": [
-        { "weight": 400, "name": "regular" },
-        { "weight": 500, "name": "medium" },
-        { "weight": 600, "name": "semibold" },
-        { "weight": 700, "name": "bold" }
+        {
+          "weight": 400,
+          "name": "regular"
+        },
+        {
+          "weight": 500,
+          "name": "medium"
+        },
+        {
+          "weight": 600,
+          "name": "semibold"
+        },
+        {
+          "weight": 700,
+          "name": "bold"
+        }
       ]
     },
-    "spacing": { "baseUnit": "8px", "scale": ["8px", "12px", "16px", "24px", "32px", "48px", "64px", "96px", "128px"] },
-    "radius": { "sm": "4px", "md": "6px", "lg": "8px", "xl": "12px", "pill": "9999px" },
+    "spacing": {
+      "baseUnit": "8px",
+      "scale": [
+        "8px",
+        "12px",
+        "16px",
+        "24px",
+        "32px",
+        "48px",
+        "64px",
+        "96px",
+        "128px"
+      ]
+    },
+    "radius": {
+      "sm": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "xl": "12px",
+      "pill": "9999px"
+    },
     "shadow": {
       "sm": "0 0 2px rgba(74,222,128,0.4)",
       "md": "0 0 6px rgba(74,222,128,0.35)",
       "lg": "0 0 12px rgba(74,222,128,0.45)",
       "xl": "0 0 20px rgba(74,222,128,0.55)"
     },
-    "motion": { "fast": "150ms", "normal": "200ms", "slow": "240ms", "easing": "ease-out" },
+    "motion": {
+      "fast": "150ms",
+      "normal": "200ms",
+      "slow": "240ms",
+      "easing": "ease-out"
+    },
     "components": {
-      "button": { "background": "var(--color-surface-2)", "border": "var(--color-border)", "active": "var(--color-primary)" },
-      "card": { "background": "var(--color-surface)", "border": "var(--color-border)", "radius": "var(--radius-lg)" },
-      "input": { "background": "var(--color-surface-2)", "border": "var(--color-border-strong)", "focus": "var(--color-primary)" },
-      "navigation": { "tab": "primary 指示条" }
+      "button": {
+        "background": "var(--color-surface-2) or transparent",
+        "border": "var(--color-border)",
+        "active": "var(--color-primary) fill or border"
+      },
+      "card": {
+        "background": "var(--color-surface)",
+        "border": "var(--color-border)",
+        "radius": "var(--radius-lg, 8px)"
+      },
+      "input": {
+        "background": "var(--color-surface-2)",
+        "border": "var(--color-border-strong)",
+        "focus": "var(--color-primary) glow"
+      },
+      "navigation": {
+        "tab": "semi-transparent background, primary color selection"
+      }
     }
   }
 }

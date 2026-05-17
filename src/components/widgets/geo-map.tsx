@@ -136,7 +136,7 @@ function GeoMapWidget({
       tooltip: {
         trigger: "item",
         backgroundColor: "rgba(0, 20, 12, 0.85)",
-        borderColor: "rgba(95, 228, 140, 0.4)",
+        borderColor: props.borderColor || props.emphasisBorderColor || "rgba(148, 163, 184, 0.4)",
         textStyle: {
           color: "#fff",
           fontSize: 12,
@@ -187,10 +187,10 @@ function GeoMapWidget({
               fontWeight: "bold",
             },
             itemStyle: {
-              areaColor: props.emphasisAreaColor || "rgba(34, 197, 94, 0.6)",
-              borderColor: props.emphasisBorderColor || "#5FE48C",
+              areaColor: props.emphasisAreaColor || props.borderColor || "rgba(40, 60, 50, 0.55)",
+              borderColor: props.emphasisBorderColor || props.borderColor || "#38bdf8",
               borderWidth: 2,
-              shadowColor: "rgba(95, 228, 140, 0.6)",
+              shadowColor: props.emphasisBorderColor || props.scatterColor || "rgba(56, 189, 248, 0.45)",
               shadowBlur: 20,
             },
           },
@@ -215,8 +215,8 @@ function GeoMapWidget({
                   period: 4,
                 },
                 itemStyle: {
-                  color: props.scatterColor || "#5FE48C",
-                  shadowColor: props.scatterColor || "rgba(95, 228, 140, 0.6)",
+                  color: props.scatterColor || "#38bdf8",
+                  shadowColor: props.scatterColor || "rgba(56, 189, 248, 0.45)",
                   shadowBlur: 6,
                 },
               },

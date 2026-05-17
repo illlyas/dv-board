@@ -8,12 +8,12 @@ function slotStoreHint(s: SlotsSchemaFile["slots"][number]): string {
         "provinceData（整对象替换，禁止沿用运营示例）",
         "defaultProvince 必须为 GeoJSON 省级全称（如「广东省」「四川省」）",
         "provinces 键为省级全称；值为 { power, capacity, farms, rate } 四类指标（语义随 Story，如产量/产能/产线数/达成率）",
-        "mapLegend: { on, off }；regionCard: { volumeLabel,volumeUnit,scaleLabel,scaleUnit,sitesLabel,sitesUnit,rateLabel,rateUnit,logsColumnLabel }",
+        "mapLegend: { on, off }；regionCard: { volumeLabel,… }；可选 modes: { off: { provinces?, regionCard? } }（on 用顶层 provinces）",
         "禁止使用 CN-44、adcode、{ name,value,color } 等简写结构",
       ].join("；");
     }
     if (s.slotId.endsWith("map_scatter")) {
-      return "seedSeriesRows：{ name, value:[经度,纬度,散点大小] }[]，≥8 点，点位名与 Story 行业一致（工厂/车间/站点，勿用运营场站名）";
+      return "seedSeriesRows：{ on:[{name,value:[lng,lat,size]}], off:[…] } 或纯数组（视为 on）；on=设施/业务点位，off=监测点位，各 ≥8 点";
     }
     if (s.slotId.includes("realtime_primary_kpi") || s.slotId.includes("realtime_secondary_kpi")) {
       return "kpiGlowItems：KpiGlowBar 项 { label,value,max,unit,dir?,iconId? }[]，3 项";
@@ -21,7 +21,17 @@ function slotStoreHint(s: SlotsSchemaFile["slots"][number]): string {
     if (s.slotId.endsWith("maintenance_metrics")) {
       return "configValue.items：KpiGaugeStat 三项，每项必含 **title**（指标名，勿用 label）、value（字符串或数字）、unit、iconId（kpi-sync-refresh/kpi-analytics-bars/kpi-pharmacy）、tone（success|warning|neutral）；语义对齐 Story 运维区左侧三指标";
     }
-    return "configValue：整对象 → payload.value；production_base 须含 capacity/plan 为 { label,current,total }，另含 capacityBars/planBars 数组";
+    if (s.slotId.endsWith("work_orders")) {
+      return "configValue.items：RingStat 三项，每项 { label, value, unit?, tone? }；tone 仅允许 success|warning|neutral（禁止 danger/error/primary 等）";
+    }
+    if (s.slotId.endsWith("production_base")) {
+      return (
+        "configValue：{ capacity, plan, capacityBars, planBars }；" +
+        "capacity/plan 为 KpiPercentStat { label,current,total }；" +
+        "capacityBars/planBars 为 KpiGlowBar[]，每项必含 { label,value,max,unit,dir? }（禁止对 bars 使用 current/total）"
+      );
+    }
+    return "configValue：整对象 → payload.value；字段形状见 Config 面板契约（config-field-contract）";
   }
   if (s.kind === "seed") {
     return "seedSeriesRows：行对象键名必须与同名 panel 的 widget 槽（p1.chart.realtime_primary / p1.chart.realtime_secondary）在 widgets 阶段锁定的 xAxis.field、yAxis[].field 一致；≥12 行";
@@ -81,6 +91,28 @@ export function buildPanelHeaderPromptLines(schema: SlotsSchemaFile): string {
   }).join("\n");
 }
 
+/** GeoMap 图例 + Footer 分页（→ slots.schema chrome，mapLegend 同步写入 provinceData） */
+export function buildChromePromptLines(schema: SlotsSchemaFile): string {
+  const chrome = schema.chrome;
+  const mapLegend = chrome?.mapLegend ?? { on: "● 设施点位", off: "○ 监测点位" };
+  const footerNav =
+    chrome?.footerNav ??
+    schema.pages?.map((p) => ({ pageIndex: p.pageIndex, label: p.label ?? "" })) ??
+    [];
+  const lines = [
+    "- **mapLegend**（GeoMap 左下角两枚切换按钮文案）",
+    `  - on（设施/业务层）：默认「${mapLegend.on ?? ""}」→ 填 \`mapLegend.on\` 且写入 \`p0.config.province_data.provinceData.mapLegend.on\``,
+    `  - off（监测层）：默认「${mapLegend.off ?? ""}」→ 填 \`mapLegend.off\``,
+    "- **footerNav**（底栏分页按钮，与 currentPage 0/1 对应）",
+  ];
+  for (const f of footerNav) {
+    if (typeof f.pageIndex === "number" && f.label) {
+      lines.push(`  - pageIndex **${f.pageIndex}**：默认「${f.label}」→ \`footerNav[{ pageIndex:${f.pageIndex}, label }]\``);
+    }
+  }
+  return lines.join("\n");
+}
+
 /** 阶段一：widgets.json 字段契约（须含 xAxis.field / yAxis[].field） */
 export const WIDGETS_FILL_JSON_EXAMPLE = `{
   "version": 1,
@@ -112,7 +144,12 @@ export const WIDGETS_FILL_JSON_EXAMPLE = `{
       ]
     }
   },
-  "panelHeaders": { "capacity": "产能对比" }
+  "panelHeaders": { "capacity": "产能对比" },
+  "mapLegend": { "on": "● 产线点位", "off": "○ 监测点位" },
+  "footerNav": [
+    { "pageIndex": 0, "label": "总览" },
+    { "pageIndex": 1, "label": "实时监控" }
+  ]
 }`;
 
 /** 阶段二：store 业务数据（行键名必须与阶段一 field 契约一致） */
@@ -132,6 +169,14 @@ export const STORE_FILL_JSON_EXAMPLE = `{
     },
     "p0.config.province_data": {
       "provinceData": { "defaultProvince": "广东省", "provinces": { "广东省": { "volume": 2800, "capacity": 3200, "sites": 8, "rate": 96 } } }
+    },
+    "p0.config.production_base": {
+      "configValue": {
+        "capacity": { "label": "设计产能", "current": 5620, "total": 8000 },
+        "plan": { "label": "月度计划", "current": 5620, "total": 8000 },
+        "capacityBars": [{ "label": "总装A线", "value": 1120, "max": 1200, "unit": "件", "dir": "up" }],
+        "planBars": [{ "label": "第1周", "value": 1400, "max": 2000, "unit": "件", "dir": "up" }]
+      }
     }
   }
 }`;
@@ -173,6 +218,19 @@ export const TEMPLATE_FILL_JSON_EXAMPLE = `{
         ]
       }
     },
+    "p0.config.production_base": {
+      "configValue": {
+        "capacity": { "label": "设计产能", "current": 5620, "total": 8000 },
+        "plan": { "label": "月度计划", "current": 5620, "total": 8000 },
+        "capacityBars": [
+          { "label": "总装A线", "value": 1120, "max": 1200, "unit": "件", "dir": "up" },
+          { "label": "总装B线", "value": 980, "max": 1100, "unit": "件", "dir": "up" }
+        ],
+        "planBars": [
+          { "label": "第1周", "value": 1400, "max": 2000, "unit": "件", "dir": "up" }
+        ]
+      }
+    },
     "p0.chart.hours_trend": {
       "title": "趋势图标题",
       "xAxisLabel": "时间",
@@ -201,11 +259,22 @@ export const TEMPLATE_FILL_JSON_EXAMPLE = `{
       }
     },
     "p0.config.map_scatter": {
-      "seedSeriesRows": [
-        { "name": "冲压车间", "value": [113.264, 23.129, 8] },
-        { "name": "焊接车间", "value": [118.78, 32.04, 6] }
-      ]
+      "seedSeriesRows": {
+        "on": [
+          { "name": "冲压车间", "value": [113.264, 23.129, 8] },
+          { "name": "焊接车间", "value": [118.78, 32.04, 6] }
+        ],
+        "off": [
+          { "name": "质检监测点", "value": [113.5, 23.2, 4] },
+          { "name": "能耗监测点", "value": [118.9, 32.1, 3] }
+        ]
+      }
     }
   },
-  "panelHeaders": { "gen_completion": "分区标题" }
+  "panelHeaders": { "gen_completion": "分区标题" },
+  "mapLegend": { "on": "● 产线点位", "off": "○ 监测点位" },
+  "footerNav": [
+    { "pageIndex": 0, "label": "总览" },
+    { "pageIndex": 1, "label": "产线监控" }
+  ]
 }`;

@@ -142,9 +142,9 @@ function normalizeProvinceMetrics(raw: unknown): ProvinceMetrics {
     "rate" in o
   ) {
     return {
-      volume: finiteNum(o.volume ?? o.volume),
+      volume: finiteNum(o.volume ?? o.power),
       capacity: finiteNum(o.capacity),
-      sites: finiteNum(o.sites ?? o.sites),
+      sites: finiteNum(o.sites ?? o.farms),
       rate: finiteNum(o.rate),
     };
   }
@@ -200,6 +200,31 @@ function normalizeRegionCard(raw: unknown): Record<string, string> {
   return out;
 }
 
+type ProvinceModeLayer = {
+  provinces?: Record<string, ProvinceMetrics>;
+  regionCard?: Record<string, string>;
+};
+
+function normalizeProvinceModeLayer(raw: unknown): ProvinceModeLayer | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  const out: ProvinceModeLayer = {};
+
+  if (o.provinces && typeof o.provinces === "object" && !Array.isArray(o.provinces)) {
+    const provincesOut: Record<string, ProvinceMetrics> = {};
+    for (const [key, row] of Object.entries(o.provinces as Record<string, unknown>)) {
+      const name = resolveProvinceDisplayName(key, row);
+      if (!name) continue;
+      provincesOut[name] = normalizeProvinceMetrics(row);
+    }
+    if (Object.keys(provincesOut).length) out.provinces = provincesOut;
+  }
+
+  if (o.regionCard != null) out.regionCard = normalizeRegionCard(o.regionCard);
+
+  return out.provinces || out.regionCard ? out : null;
+}
+
 /** p0.config.province_data → payload.value */
 export function normalizeProvinceDataValue(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -234,16 +259,49 @@ export function normalizeProvinceDataValue(value: unknown): Record<string, unkno
       ? { ...(v.header as Record<string, unknown>) }
       : undefined;
 
+  const modesIn = v.modes;
+  let modes: { on?: ProvinceModeLayer; off?: ProvinceModeLayer } | undefined;
+  if (modesIn && typeof modesIn === "object" && !Array.isArray(modesIn)) {
+    const m = modesIn as Record<string, unknown>;
+    const on = normalizeProvinceModeLayer(m.on);
+    const off = normalizeProvinceModeLayer(m.off);
+    if (on || off) {
+      modes = {};
+      if (on) modes.on = on;
+      if (off) modes.off = off;
+    }
+  }
+
   return {
     ...(header ? { header } : {}),
     defaultProvince,
     provinces: provincesOut,
     mapLegend: normalizeMapLegend(v.mapLegend),
     regionCard: normalizeRegionCard(v.regionCard),
+    ...(modes ? { modes } : {}),
   };
 }
 
 type ScatterRow = { name: string; value: [number, number, number?] };
+
+export type MapScatterByMode = { on: ScatterRow[]; off: ScatterRow[] };
+
+/** p0.config.map_scatter → { on, off } 或兼容纯数组（视为 on） */
+export function normalizeMapScatterValue(value: unknown): MapScatterByMode {
+  if (Array.isArray(value)) {
+    return { on: normalizeMapScatterRows(value), off: [] };
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const o = value as Record<string, unknown>;
+    const onRaw = o.on ?? o.facility ?? o.business;
+    const offRaw = o.off ?? o.monitoring ?? o.monitor;
+    return {
+      on: normalizeMapScatterRows(Array.isArray(onRaw) ? onRaw : []),
+      off: normalizeMapScatterRows(Array.isArray(offRaw) ? offRaw : []),
+    };
+  }
+  return { on: [], off: [] };
+}
 
 /** p0.config.map_scatter → seriesRows.value */
 export function normalizeMapScatterRows(value: unknown[]): ScatterRow[] {

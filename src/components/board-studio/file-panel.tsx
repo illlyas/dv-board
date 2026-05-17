@@ -12,6 +12,7 @@ import type { SelectedWidget } from "./editable-preview";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 import { VisualAssetsPanel } from "./visual-assets-panel";
 import { ViTokensTweaksPanel } from "./vi-tokens-tweaks-panel";
+import type { ViTokensJson } from "@/lib/board/vi-tokens-inject";
 
 function isMarkdownAgentFile(file: FileItem): boolean {
   return ["design-story.md", "pages-story.md", "vi-system.md"].includes(file.name);
@@ -53,6 +54,7 @@ interface FilePanelProps {
   onVisualAssetsSaved: (next: VisualAssetsBlock) => void;
   /** 画布与 Markdown 演示区注入的 CSS 变量（含 chart、color-scheme） */
   previewCssVariables: Record<string, string> | undefined;
+  viTokensDoc?: ViTokensJson | null;
   boardCanvasWidth: number;
   boardCanvasHeight: number;
   tweaksOpen: boolean;
@@ -84,6 +86,7 @@ export function FilePanel({
   onRetryVisualAssetsConfig,
   onVisualAssetsSaved,
   previewCssVariables,
+  viTokensDoc = null,
   boardCanvasWidth,
   boardCanvasHeight,
   tweaksOpen,
@@ -150,6 +153,7 @@ export function FilePanel({
         visualAssetsBlock={visualAssetsBlock}
         boardCanvasWidth={boardCanvasWidth}
         boardCanvasHeight={boardCanvasHeight}
+        viTokensDoc={viTokensDoc}
       />
     );
 

@@ -10,6 +10,10 @@ import { getScreenPreset } from "@/lib/board/screen-presets";
 import type { BoardTemplateBundle } from "@/lib/board-templates/types";
 import { parseDashboardWidgetsJson } from "@/lib/board/load-dashboard-widgets";
 import {
+  parseChromeFromSlotsSchemaJson,
+  resolveDashboardChrome,
+} from "@/lib/board/load-dashboard-chrome";
+import {
   parsePanelHeadersFromSlotsSchemaJson,
   resolveDashboardPanelHeaders,
 } from "@/lib/board/load-dashboard-panel-headers";
@@ -49,15 +53,19 @@ export function TemplatePreviewBody({ id }: { id: string }) {
     };
   }, [id]);
 
-  const cssVariables = useMemo(() => {
-    if (!bundle) return undefined;
+  const viTokensDoc = useMemo(() => {
+    if (!bundle) return null;
     try {
-      const doc = JSON.parse(bundle.viTokensJson) as ViTokensJson;
-      return viTokensToInjectStyleVars(doc);
+      return JSON.parse(bundle.viTokensJson) as ViTokensJson;
     } catch {
-      return undefined;
+      return null;
     }
   }, [bundle]);
+
+  const cssVariables = useMemo(
+    () => (viTokensDoc ? viTokensToInjectStyleVars(viTokensDoc) : undefined),
+    [viTokensDoc]
+  );
 
   const screen = useMemo(() => {
     if (!bundle) return getScreenPreset(undefined);
@@ -67,8 +75,8 @@ export function TemplatePreviewBody({ id }: { id: string }) {
   const dashboardFile = bundle ? defaultDashboardFile(bundle.meta) : "dashboard.jsx";
   const virtualProject = encodeBoardTemplateProjectName(id);
   const dashboardWidgets = useMemo(
-    () => (bundle?.widgetsJson ? parseDashboardWidgetsJson(bundle.widgetsJson) : null),
-    [bundle?.widgetsJson]
+    () => (bundle?.widgetsJson ? parseDashboardWidgetsJson(bundle.widgetsJson, viTokensDoc) : null),
+    [bundle?.widgetsJson, viTokensDoc]
   );
   const dashboardPanelHeaders = useMemo(
     () =>
@@ -76,6 +84,13 @@ export function TemplatePreviewBody({ id }: { id: string }) {
         ? resolveDashboardPanelHeaders(
             parsePanelHeadersFromSlotsSchemaJson(bundle.slotsSchemaJson)
           )
+        : null,
+    [bundle?.slotsSchemaJson]
+  );
+  const dashboardFooterNav = useMemo(
+    () =>
+      bundle?.slotsSchemaJson
+        ? resolveDashboardChrome(parseChromeFromSlotsSchemaJson(bundle.slotsSchemaJson)).footerNav
         : null,
     [bundle?.slotsSchemaJson]
   );
@@ -143,6 +158,7 @@ export function TemplatePreviewBody({ id }: { id: string }) {
             code={bundle.dashboardJsx}
             dashboardWidgets={dashboardWidgets}
             dashboardPanelHeaders={dashboardPanelHeaders}
+            dashboardFooterNav={dashboardFooterNav}
             cssVariables={cssVariables}
             visualAssetsBlock={null}
             canvasWidth={screen.width}

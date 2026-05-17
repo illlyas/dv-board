@@ -10,10 +10,22 @@
     "useStoreData(\"p*.config.*\") 的配置块须在 store 中存在 slotId 与路径一致（见各 slot 的 storePath）。"
   ],
   "files": {
-    "structure": "dashboard.jsx + widgets.json（props.widgets）；本文件 panelHeaders 经 props.panelHeaders 注入 PanelShell 标题",
+    "structure": "dashboard.jsx + widgets.json（props.widgets）；panelHeaders / chrome 经 props 注入分区标题、Geo 图例与 Footer",
     "data": "dashboard.store.json",
     "visual": "vi-tokens.json",
     "privateComponents": "widgets.manifest.json"
+  },
+  "chrome": {
+    "mapLegend": {
+      "on": "● 设施点位",
+      "off": "○ 监测点位",
+      "fill": "template-fill 顶层 mapLegend 或 slots['p0.config.province_data'].provinceData.mapLegend（装配时合并入 store 与 slots.schema.chrome）"
+    },
+    "footerNav": [
+      { "pageIndex": 0, "label": "总览" },
+      { "pageIndex": 1, "label": "实时监控" }
+    ],
+    "fill": "template-fill 顶层 footerNav: [{ pageIndex, label }] → 写入 slots.schema.chrome.footerNav 与 pages[].label"
   },
   "panelHeaders": {
     "gen_completion": "目标完成情况",
@@ -189,8 +201,9 @@
       "pageIndex": 0,
       "kind": "config",
       "useStoreData": "p0.config.production_base",
-      "dataShape": "{ capacity, capacityBars[], plan, planBars[] }",
-      "fill": "template-fill：configValue 替换 payload.value（capacity、capacityBars、plan、planBars）"
+      "dataShape": "{ capacity:{label,current,total}, plan:{label,current,total}, capacityBars:KpiGlowBar[], planBars:KpiGlowBar[] }",
+      "notes": "capacityBars/planBars 每项 { label,value,max,unit,dir? }；禁止对 bars 使用 current/total",
+      "fill": "template-fill：configValue 替换 payload.value（capacity/plan 用 current+total；bars 用 value+max）"
     },
     {
       "slotId": "p0.config.transit_summary",
@@ -229,15 +242,16 @@
       "pageIndex": 0,
       "kind": "config",
       "useStoreData": "p0.config.province_data",
-      "dataShape": "{ defaultProvince, provinces, header?, mapLegend?, regionCard? }；provinces 键为 GeoJSON 省级全称，值为 { volume,capacity,sites,rate }。template-fill：slots[\"p0.config.province_data\"].provinceData 整对象替换 payload.value（装配时归一化字段名）"
+      "dataShape": "{ defaultProvince, provinces, header?, mapLegend:{on,off}, regionCard?, modes?:{ off:{ provinces?, regionCard? } } }；mapLegend 为 GeoMap 左下角按钮文案（必填，语义对齐 Story）；provinces 键为省级全称。template-fill：provinceData 整对象或顶层 mapLegend",
+      "notes": "mapLegend.on=设施/业务层按钮；mapLegend.off=监测层按钮（与 map_scatter.off 数据层对应）"
     },
     {
       "slotId": "p0.config.map_scatter",
       "pageIndex": 0,
       "kind": "config",
       "useStoreData": "p0.config.map_scatter",
-      "dataShape": "GeoMap scatter 点列表；结构须符合 GeoMap 组件约定",
-      "fill": "template-fill：seedSeriesRows 整表替换 payload.value（name + value:[lng,lat,size]）"
+      "dataShape": "{ on: ScatterRow[], off: ScatterRow[] } 或 ScatterRow[]（视为 on）；ScatterRow={ name, value:[lng,lat,size] }",
+      "fill": "template-fill：seedSeriesRows 替换 payload.value（双模式散点或纯 on 数组）"
     },
     {
       "slotId": "p1.chart.realtime_primary",

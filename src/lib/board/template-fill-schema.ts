@@ -1,8 +1,24 @@
 import { z } from "zod";
+import {
+  normalizeStoreFillConfigSlots,
+  validateStoreFillConfigSlots,
+} from "@/lib/board/config-field-contract";
 import { normalizeStoreFillParsed } from "@/lib/board/store-fill-normalize";
 import { WIND_POWER_EMERALD_OPS_TEMPLATE_ID } from "@/lib/board/wind-template-id";
 import type { WindPanelHeaderKey } from "@/lib/board/wind-panels-keys";
 import { WIND_PANEL_HEADER_KEYS } from "@/lib/board/wind-panels-keys";
+
+const mapLegendChromeSchema = z.object({
+  on: z.string().min(1),
+  off: z.string().min(1),
+});
+
+const footerNavItemSchema = z.object({
+  pageIndex: z.number().int().min(0),
+  label: z.string().min(1),
+});
+
+const footerNavSchema = z.array(footerNavItemSchema).min(1);
 
 const dashboardStorePayloadSchema = z.object({
   kind: z.enum(["seriesRows", "tableRows", "kpiValue", "selectOptions"]),
@@ -41,12 +57,27 @@ export const widgetsSlotFillSchema = z
 
 export type WidgetsSlotFill = z.infer<typeof widgetsSlotFillSchema>;
 
+const seriesRowRecordSchema = z.record(z.string(), z.unknown());
+
+/** 图表种子行；GeoMap map_scatter 可为 { on, off } 双模式散点 */
+export const seedSeriesRowsSchema = z.union([
+  z.array(seriesRowRecordSchema),
+  z
+    .object({
+      on: z.array(seriesRowRecordSchema).optional(),
+      off: z.array(seriesRowRecordSchema).optional(),
+    })
+    .refine((v) => Array.isArray(v.on) || Array.isArray(v.off), {
+      message: "双模式散点须至少包含 on 或 off 数组",
+    }),
+]);
+
 /** 阶段二：仅 dashboard.store.json 业务数据 */
 export const storeSlotFillSchema = z
   .object({
     payload: dashboardStorePayloadSchema.optional(),
     configValue: z.record(z.string(), z.unknown()).optional(),
-    seedSeriesRows: z.array(z.record(z.string(), z.unknown())).optional(),
+    seedSeriesRows: seedSeriesRowsSchema.optional(),
     tableRows: z.array(z.record(z.string(), z.unknown())).optional(),
     provinceData: z.record(z.string(), z.unknown()).optional(),
     kpiGlowItems: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -83,6 +114,8 @@ export const templateFillSchema = z
     themeDocumentTitle: z.string().min(1),
     slots: z.record(z.string(), templateSlotFillSchemaOrNull).default({}),
     panelHeaders: panelHeadersSchema.optional(),
+    mapLegend: mapLegendChromeSchema.optional(),
+    footerNav: footerNavSchema.optional(),
   })
   .strict();
 
@@ -104,6 +137,8 @@ export const widgetsFillSchema = z
     themeDocumentTitle: z.string().min(1),
     slots: z.record(z.string(), widgetsSlotFillSchemaOrNull).default({}),
     panelHeaders: panelHeadersSchema.optional(),
+    mapLegend: mapLegendChromeSchema.optional(),
+    footerNav: footerNavSchema.optional(),
   })
   .strict();
 
@@ -134,7 +169,10 @@ export function parseWidgetsFillFromModelText(raw: string): WidgetsFill {
 
 export function parseStoreFillFromModelText(raw: string): StoreFill {
   const parsed = parseJsonFromModelText(raw);
-  return storeFillSchema.parse(normalizeStoreFillParsed(parsed));
+  const fill = storeFillSchema.parse(normalizeStoreFillParsed(parsed));
+  const normalized = normalizeStoreFillConfigSlots(fill);
+  validateStoreFillConfigSlots(normalized);
+  return normalized;
 }
 
 /** 合并两阶段产物为 template-fill（供装配与 pages-story） */
@@ -186,6 +224,8 @@ export function widgetsFillFromTemplateFill(fill: TemplateFill): WidgetsFill {
     templateId: WIND_POWER_EMERALD_OPS_TEMPLATE_ID,
     themeDocumentTitle: fill.themeDocumentTitle,
     panelHeaders: fill.panelHeaders,
+    mapLegend: fill.mapLegend,
+    footerNav: fill.footerNav,
     slots,
   };
 }
@@ -206,7 +246,9 @@ export function mergeWidgetsAndStoreFill(widgetsFill: WidgetsFill, storeFill: St
     version: 1,
     templateId: WIND_POWER_EMERALD_OPS_TEMPLATE_ID,
     themeDocumentTitle: widgetsFill.themeDocumentTitle,
-    panelHeaders: widgetsFill.panelHeaders,
+    panelHeaders: widgetsFill.panelHeaders ?? storeFill.panelHeaders,
+    mapLegend: widgetsFill.mapLegend,
+    footerNav: widgetsFill.footerNav,
     slots,
   };
 }
@@ -262,6 +304,17 @@ export function templateFillToPagesStoryExcerpt(fill: TemplateFill): string {
     for (const k of WIND_PANEL_HEADER_KEYS) {
       const v = fill.panelHeaders[k];
       if (v) lines.push(`- **${k}**：${v}`);
+    }
+  }
+  if (fill.mapLegend) {
+    lines.push("", "## GeoMap 图例（→ slots.schema chrome.mapLegend + provinceData.mapLegend）", "");
+    lines.push(`- **on**：${fill.mapLegend.on}`);
+    lines.push(`- **off**：${fill.mapLegend.off}`);
+  }
+  if (fill.footerNav?.length) {
+    lines.push("", "## Footer 分页（→ slots.schema chrome.footerNav）", "");
+    for (const f of fill.footerNav) {
+      lines.push(`- page ${f.pageIndex}：**${f.label}**`);
     }
   }
   return lines.join("\n");

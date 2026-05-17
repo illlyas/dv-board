@@ -15,6 +15,7 @@ import {
   applyThemeTitleToDashboardJsx,
   applyTemplateFillToSlotsSchemaJson,
   applyTemplateFillToWidgetsJson,
+  mergeMapLegendIntoProvinceSlot,
   parseWidgetsJson,
   mergeTemplateFillIntoStore,
   slotIdToWidgetKeyMap,
@@ -25,6 +26,10 @@ import {
   storeFillFromTemplateFill,
   widgetsFillFromTemplateFill,
 } from "@/lib/board/template-fill-schema";
+import {
+  normalizeStoreFillConfigSlots,
+  validateStoreFillConfigSlots,
+} from "@/lib/board/config-field-contract";
 import {
   buildFieldContractsFromWidgetsFill,
   validateStoreFillAgainstWidgets,
@@ -58,6 +63,7 @@ export async function POST(request: Request) {
       schema.slots.filter((s) => s.widgetKey).map((s) => [s.widgetKey!, s.slotId])
     );
     validateSlotIdsAgainstSchema(fill, allowed, widgetKeyToSlotId);
+    const fillWithChrome = mergeMapLegendIntoProvinceSlot(fill);
 
     const [jsxTemplate, storeRaw, widgetsRaw] = await Promise.all([
       readFile(path.join(TEMPLATE_DIR, "dashboard.jsx"), "utf8"),
@@ -69,12 +75,14 @@ export async function POST(request: Request) {
     const slotMap = slotIdToWidgetKeyMap(schema);
     const templateWidgets = parseWidgetsJson(widgetsRaw);
 
-    const patchedJsx = applyThemeTitleToDashboardJsx(jsxTemplate, fill);
-    const patchedWidgets = applyTemplateFillToWidgetsJson(templateWidgets, fill, slotMap);
-    const patchedSlotsSchema = applyTemplateFillToSlotsSchemaJson(schemaRaw, fill);
+    const patchedJsx = applyThemeTitleToDashboardJsx(jsxTemplate, fillWithChrome);
+    const patchedWidgets = applyTemplateFillToWidgetsJson(templateWidgets, fillWithChrome, slotMap);
+    const patchedSlotsSchema = applyTemplateFillToSlotsSchemaJson(schemaRaw, fillWithChrome);
 
-    const widgetsFillPart = widgetsFillFromTemplateFill(fill);
-    const storeFillPart = storeFillFromTemplateFill(fill);
+    const widgetsFillPart = widgetsFillFromTemplateFill(fillWithChrome);
+    let storeFillPart = storeFillFromTemplateFill(fillWithChrome);
+    storeFillPart = normalizeStoreFillConfigSlots(storeFillPart);
+    validateStoreFillConfigSlots(storeFillPart);
     const fieldContracts = buildFieldContractsFromWidgetsFill(
       widgetsFillPart,
       schema,
@@ -83,7 +91,7 @@ export async function POST(request: Request) {
     );
     validateStoreFillAgainstWidgets(storeFillPart, fieldContracts);
 
-    const storeForDisk = mergeTemplateFillIntoStore(store, fill);
+    const storeForDisk = mergeTemplateFillIntoStore(store, fillWithChrome);
 
     const jsxPath = dvPath(projectName, "页面", "dashboard.jsx");
     const storePath = dvPath(projectName, "页面", "dashboard.store.json");

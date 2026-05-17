@@ -240,7 +240,46 @@ mode 一旦确定，下列三个 token 必须自洽：
 
 **图表标题区（可选覆盖）**：`--dv-chart-title-color-backdrop` / `--dv-chart-title-font-size` / `--dv-chart-title-font-size-compact` / `--dv-chart-title-font-weight` / `--dv-chart-title-font-weight-compact` / `--dv-chart-title-line-height` / `--dv-chart-title-font-family` / `--dv-chart-title-gap-after-title` / `--dv-chart-title-subtitle-font-size` / `--dv-chart-title-block-margin-bottom` / `--dv-chart-title-backdrop-padding`。未写出则由应用默认引用全局 `--font-*` / `--space-*`。
 
-### 3.9 KPI 卡 `--kpi-*`（5 项必填 + 1 项可选）
+### 3.9 语义色透明度衍生 `--color-*-alpha-*` / `--chart-*-alpha-*`（widgets.json 专用）
+
+当 `widgets.json` 的 `echartsOptionOverrides` 需要半透明品牌色（渐变、阴影、面积填充）时，
+**禁止**在 widgets 中写 hex / `rgba(...)` 字面量，必须使用下列 token 引用；具体 `rgba`
+值写入 `cssVariables`。
+
+| 命名模式 | 示例 | 推导公式 |
+|---|---|---|
+| `--color-{semantic}-alpha-{pct}` | `--color-primary-alpha-35` | 取 `--color-{semantic}` 的 RGB，`rgba(R,G,B,pct/100)`；`pct` 为 0–100 整数 |
+| `--chart-{n}-alpha-{pct}` | `--chart-4-alpha-35` | 取 `chartPalette[n-1]` 的 RGB，同上 |
+| 全透明 | `transparent` | 渐变末端可用字面量 `transparent`，不必建 token |
+
+**常用 pct 档位**（按模板 widgets 约定，生成时按需补齐）：
+
+| 档位 | 典型用途 |
+|---|---|
+| 85 / 75 | 折线 `shadowColor` |
+| 60 | 告警柱渐变顶色 |
+| 55 | 地图高亮区域填充 |
+| 40 | 地图区域底 `areaColor` |
+| 35 | 柱形渐变顶色 |
+| 12 / 10 | 面积图渐变起始 |
+| 5 | 柱形渐变极弱顶色 |
+| 0 | 渐变末端（亦可用 `transparent`） |
+
+`{semantic}` 允许：`primary` / `accent` / `accent-gold` / `success` / `danger` / `info` /
+`warning` / `bg` / `text-muted` 等已有 `--color-*` 基色键的后缀名。
+
+**GeoMap 推荐 token 组合**（写入 `widgets.json` 的 `center_geo_map`）：
+
+| props 字段 | token |
+|---|---|
+| `areaColor` | `var(--color-bg-alpha-40)` |
+| `borderColor` | `var(--color-border)` |
+| `emphasisAreaColor` | `var(--color-primary-alpha-55)` |
+| `emphasisBorderColor` | `var(--color-primary)` |
+| `labelColor` | `var(--color-text-muted-alpha-80)` |
+| `scatterColor` | `var(--color-primary)` |
+
+### 3.10 KPI 卡 `--kpi-*`（5 项必填 + 1 项可选）
 
 > **特殊规则：与 mode 解耦**。无论 mode=dark 或 light，KPI 卡始终是
 > 「深底浅字」组合。
@@ -461,7 +500,31 @@ DESIGN.md 指定单一字体时（如 `SF Pro Display`），**必须补全降级
 
 ---
 
-## 10. 输出契约
+## 10. widgets.json 颜色引用与运行时解析
+
+### 10.1 磁盘格式（widgets.json）
+
+- 所有**颜色类**字段（含 `colorScheme`、`echartsOptionOverrides` 内 `color` / `shadowColor` /
+  渐变 `colorStops`、GeoMap 的 `areaColor` 等）**必须**使用 `var(--token-name)` 形式引用
+  `vi-tokens.json` 中已定义的键。
+- **禁止**在 widgets.json 中出现品牌相关的 hex、`rgba(...)` 字面量（`transparent` 除外）。
+- 平台私有地图等非 Widget 条目键名约定：`center_geo_map`（`type: "GeoMap"`）。
+
+### 10.2 运行时解析（产品端）
+
+读取 `widgets.json` 后、传入 `JsxRenderer` / ECharts 之前，调用
+[`resolveDashboardWidgetsMap`](src/lib/board/resolve-widgets-vi-tokens.ts)：
+
+1. 从当前项目的 `vi-tokens.json` 构建扁平 lookup（`cssVariables` + `chartPalette` → `--chart-N`）。
+2. 深度遍历 widgets 对象，将字符串中的 `var(--*)` 递归替换为 lookup 中的具体值。
+3. 未定义的 token 保持 `var(--*)` 原样（便于排查缺失项）。
+
+ECharts / GeoMap **只消费解析后的 hex / rgba**；画布 DOM 仍通过
+`viTokensToInjectStyleVars` 注入 CSS 变量。
+
+---
+
+## 11. 输出契约
 
 - **严格 JSON**：UTF-8、双引号、无尾逗号。
 - **禁止**：markdown 围栏（如 ```` ```json ````）、`//` 或 `/* */` 注释、
@@ -474,7 +537,7 @@ DESIGN.md 指定单一字体时（如 `SF Pro Display`），**必须补全降级
 
 ---
 
-## 11. 自检清单（生成后 AI 必走，逐条勾选）
+## 12. 自检清单（生成后 AI 必走，逐条勾选）
 
 - [ ] **C01** mode 已确定，且记录了命中的优先级与证据
 - [ ] **C02** `--color-bg` / `--color-surface` / `--color-text-primary` 与 mode 自洽（对照第 6 节）
@@ -498,7 +561,7 @@ DESIGN.md 指定单一字体时（如 `SF Pro Display`），**必须补全降级
 
 ---
 
-## 12. 反例对照
+## 13. 反例对照
 
 ### 反例 A：mode 与 bg 矛盾
 
@@ -556,6 +619,7 @@ DESIGN.md 指定单一字体时（如 `SF Pro Display`），**必须补全降级
 | 文件 | 角色 |
 |---|---|
 | [`src/lib/dv-chart-tokens.ts`](src/lib/dv-chart-tokens.ts) | 图表组件读取 `--dv-chart-*` 的常量映射；本规范的 3.8 节键集合必须与它对齐 |
+| [`src/lib/board/resolve-widgets-vi-tokens.ts`](src/lib/board/resolve-widgets-vi-tokens.ts) | widgets.json 运行时 `var(--*)` → 具体色值解析 |
 | [`src/lib/board/vi-system.ts`](src/lib/board/vi-system.ts) | Zod Schema（产品端 design-vi 流水线运行时使用），命名风格不同（驼峰），不在本规范约束内 |
 | [`board-templates/<id>/vi-tokens.json`](board-templates/) | 模板市场的成品产物，结构必须满足本规范 |
 

@@ -1318,6 +1318,20 @@
                 "rateLabel": "可利用率",
                 "rateUnit": "%",
                 "logsColumnLabel": "区域"
+              },
+              "modes": {
+                "off": {
+                  "regionCard": {
+                    "volumeLabel": "告警次数",
+                    "volumeUnit": "次",
+                    "scaleLabel": "传感器在线",
+                    "scaleUnit": "台",
+                    "sitesLabel": "监测站点",
+                    "sitesUnit": "个",
+                    "rateLabel": "数据完好率",
+                    "rateUnit": "%"
+                  }
+                }
               }
             }
           },
@@ -1341,7 +1355,8 @@
           },
           "payload": {
             "kind": "seriesRows",
-            "value": [
+            "value": {
+              "on": [
               {
                 "name": "北京",
                 "value": [
@@ -1734,7 +1749,22 @@
                   4
                 ]
               }
-            ]
+            ],
+              "off": [
+                { "name": "张家口监测站", "value": [114.88, 40.82, 3] },
+                { "name": "锡林郭勒监测站", "value": [116.09, 43.94, 3] },
+                { "name": "通辽监测站", "value": [122.26, 43.65, 2] },
+                { "name": "连云港监测站", "value": [119.22, 34.60, 3] },
+                { "name": "盐城监测站", "value": [120.16, 33.35, 3] },
+                { "name": "舟山监测站", "value": [122.11, 30.01, 2] },
+                { "name": "莆田监测站", "value": [119.01, 25.45, 2] },
+                { "name": "湛江监测站", "value": [110.36, 21.27, 3] },
+                { "name": "凉山监测站", "value": [102.27, 27.88, 3] },
+                { "name": "酒泉监测站", "value": [98.51, 39.74, 4] },
+                { "name": "哈密监测站", "value": [93.51, 42.83, 4] },
+                { "name": "达坂城监测站", "value": [88.31, 43.36, 3] }
+              ]
+            }
           },
           "filledAt": "2026-05-11T00:00:00.000Z",
           "source": "template"

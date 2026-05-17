@@ -14,11 +14,17 @@ import {
   parseDashboardWidgetsJson,
   type DashboardWidgetsMap,
 } from "@/lib/board/load-dashboard-widgets";
+import type { ViTokensJson } from "@/lib/board/vi-tokens-inject";
+import {
+  parseChromeFromSlotsSchemaJson,
+  resolveDashboardChrome,
+} from "@/lib/board/load-dashboard-chrome";
 import {
   parsePanelHeadersFromSlotsSchemaJson,
   resolveDashboardPanelHeaders,
   type DashboardPanelHeadersMap,
 } from "@/lib/board/load-dashboard-panel-headers";
+import type { FooterNavItem } from "@/lib/board/wind-chrome-keys";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 
 /** 与 innerText 一致：去掉 HTML 结构带来的异常符号，便于与 Markdown 原文对照 */
@@ -46,6 +52,8 @@ interface FileTabContentProps {
   /** 与 project screenPreset 一致的设计画布像素，用于等比缩放进预览区 */
   boardCanvasWidth?: number;
   boardCanvasHeight?: number;
+  /** 用于 widgets.json 内 var(--*) → 具体色值 的运行时解析 */
+  viTokensDoc?: ViTokensJson | null;
 }
 
 export const FileTabContent = memo(function FileTabContent({
@@ -61,11 +69,13 @@ export const FileTabContent = memo(function FileTabContent({
   visualAssetsBlock = null,
   boardCanvasWidth,
   boardCanvasHeight,
+  viTokensDoc = null,
 }: FileTabContentProps) {
   const [content, setContent] = useState<string | null>(null);
   const [dashboardWidgets, setDashboardWidgets] = useState<DashboardWidgetsMap | null>(null);
   const [dashboardPanelHeaders, setDashboardPanelHeaders] =
     useState<DashboardPanelHeadersMap | null>(null);
+  const [dashboardFooterNav, setDashboardFooterNav] = useState<FooterNavItem[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const isJsx = file.name.endsWith(".jsx");
   const isViSystem = file.name === "vi-system.md";
@@ -112,22 +122,28 @@ export const FileTabContent = memo(function FileTabContent({
     if (!dashboardPreview) {
       setDashboardWidgets(null);
       setDashboardPanelHeaders(null);
+      setDashboardFooterNav(null);
       return;
     }
     const base = `.dv/${dashboardPreview.projectName}/页面`;
     const widgetsPath = `${base}/widgets.json`;
     const slotsSchemaPath = `.dv/${dashboardPreview.projectName}/页面结构/slots.schema.json`;
     readFile(widgetsPath)
-      .then((raw) => setDashboardWidgets(parseDashboardWidgetsJson(raw)))
+      .then((raw) => setDashboardWidgets(parseDashboardWidgetsJson(raw, viTokensDoc)))
       .catch(() => setDashboardWidgets(null));
     readFile(slotsSchemaPath)
-      .then((raw) =>
+      .then((raw) => {
+        const chrome = resolveDashboardChrome(parseChromeFromSlotsSchemaJson(raw));
         setDashboardPanelHeaders(
           resolveDashboardPanelHeaders(parsePanelHeadersFromSlotsSchemaJson(raw))
-        )
-      )
-      .catch(() => setDashboardPanelHeaders(resolveDashboardPanelHeaders(null)));
-  }, [dashboardPreview?.projectName]);
+        );
+        setDashboardFooterNav(chrome.footerNav);
+      })
+      .catch(() => {
+        setDashboardPanelHeaders(resolveDashboardPanelHeaders(null));
+        setDashboardFooterNav(resolveDashboardChrome(null).footerNav);
+      });
+  }, [dashboardPreview?.projectName, viTokensDoc]);
 
   if (isLoading) {
     return (
@@ -146,6 +162,7 @@ export const FileTabContent = memo(function FileTabContent({
           code={content}
           dashboardWidgets={dashboardWidgets}
           dashboardPanelHeaders={dashboardPanelHeaders}
+          dashboardFooterNav={dashboardFooterNav}
           selectedWidgets={selectedWidgets}
           onSelectionChange={onSelectionChange}
           cssVariables={cssVariables}
@@ -158,6 +175,7 @@ export const FileTabContent = memo(function FileTabContent({
           code={content}
           dashboardWidgets={dashboardWidgets}
           dashboardPanelHeaders={dashboardPanelHeaders}
+          dashboardFooterNav={dashboardFooterNav}
           cssVariables={cssVariables}
           visualAssetsBlock={visualAssetsBlock}
           canvasWidth={boardCanvasWidth}

@@ -8,7 +8,9 @@ import { streamText } from "ai";
 import { createDeepSeekModel, toTextStreamResponse } from "@/lib/board-stream-utils";
 import { WIND_POWER_EMERALD_OPS_TEMPLATE_ID } from "@/lib/board/wind-template-id";
 import type { SlotsSchemaFile, WidgetsManifestFile } from "@/lib/board/wind-template-assembler";
+import { buildConfigFieldContractPrompt } from "@/lib/board/config-field-contract";
 import {
+  buildChromePromptLines,
   buildPanelHeaderPromptLines,
   buildWidgetSlotPromptLines,
   WIDGETS_FILL_JSON_EXAMPLE,
@@ -46,6 +48,7 @@ export async function POST(request: Request) {
     const manifest = JSON.parse(manifestRaw) as WidgetsManifestFile;
     const widgetSlotLines = buildWidgetSlotPromptLines(schema);
     const panelHeaderLines = buildPanelHeaderPromptLines(schema);
+    const chromeLines = buildChromePromptLines(schema);
     const widgetSlotIds = schema.slots.filter((s) => s.widgetKey).map((s) => s.slotId).join(", ");
 
     const system = `你是数据可视化看板的「widgets 契约」专家。模板 **${WIND_POWER_EMERALD_OPS_TEMPLATE_ID}** 布局固定。
@@ -64,7 +67,9 @@ ${WIDGETS_FILL_JSON_EXAMPLE}
 6. **Table**：必须提供 columns 数组，每项含 field 与 label。
 7. **KPI**：title/subtitle/unit；不要在本阶段写 payload/seedSeriesRows。
 8. panelHeaders 与 Story 分区语义一致。
-9. JSON 须一次 parse 成功。
+9. **mapLegend**、**footerNav** 必填：与 Story 中 GeoMap 双业务层、底栏分页语义一致（见下方 chrome 说明）。
+10. JSON 须一次 parse 成功。
+11. **Config 面板**（p0/p1.config.*）业务数据在阶段二生成，但字段形状已锁定（见下方 Config 契约）；阶段二须与图表 field 契约一并遵守。
 
 ${buildManifestPromptBlock(manifest)}
 
@@ -72,7 +77,13 @@ ${buildManifestPromptBlock(manifest)}
 ${widgetSlotLines}
 
 【PanelShell → panelHeaders】
-${panelHeaderLines}`;
+${panelHeaderLines}
+
+【看板 Chrome — mapLegend + footerNav】
+${chromeLines}
+
+【Config 面板字段契约（阶段二 store 须遵循）】
+${buildConfigFieldContractPrompt(schema)}`;
 
     let user = "";
     if (existingWidgetsFill) {

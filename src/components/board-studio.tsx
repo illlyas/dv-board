@@ -319,6 +319,7 @@ export function BoardStudio({ projectName = "", style = "" }: BoardStudioProps) 
           onRetryVisualAssetsConfig={retryVisualAssetsConfig}
           onVisualAssetsSaved={handleVisualAssetsSaved}
           previewCssVariables={viTweaks.injectVars}
+          viTokensDoc={viTweaks.workingDoc}
           boardCanvasWidth={boardCanvasWidth}
           boardCanvasHeight={boardCanvasHeight}
           tweaksOpen={tweaksOpen}

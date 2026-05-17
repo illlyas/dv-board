@@ -1,6 +1,10 @@
+import {
+  normalizeProductionBaseConfigValue,
+  normalizeWorkOrdersConfigValue,
+} from "@/lib/board/config-field-contract";
 import type { DashboardStorePayload } from "@/types/dashboard-store.types";
 import {
-  normalizeMapScatterRows,
+  normalizeMapScatterValue,
   normalizeProvinceDataValue,
 } from "@/lib/board/province-map-normalize";
 
@@ -58,7 +62,7 @@ function normalizePercentStatBlock(
   return { label: fallbackLabel, current: 0, total: 1 };
 }
 
-/** p0.config.production_base — 对齐 KpiPercentStat 所需结构 */
+/** p0.config.production_base — 圆环 KpiPercentStat + 滚动条 KpiGlowBar（bars 须 value/max） */
 function normalizeProductionBaseValue(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {
@@ -68,12 +72,16 @@ function normalizeProductionBaseValue(value: unknown): Record<string, unknown> {
       planBars: [],
     };
   }
-  const v = { ...(value as Record<string, unknown>) };
-  v.capacity = normalizePercentStatBlock(v.capacity, "产能达成");
-  v.plan = normalizePercentStatBlock(v.plan, "计划达成");
-  if (!Array.isArray(v.capacityBars)) v.capacityBars = [];
-  if (!Array.isArray(v.planBars)) v.planBars = [];
-  return v;
+  try {
+    return normalizeProductionBaseConfigValue(value);
+  } catch {
+    const v = { ...(value as Record<string, unknown>) };
+    v.capacity = normalizePercentStatBlock(v.capacity, "产能达成");
+    v.plan = normalizePercentStatBlock(v.plan, "计划达成");
+    if (!Array.isArray(v.capacityBars)) v.capacityBars = [];
+    if (!Array.isArray(v.planBars)) v.planBars = [];
+    return v;
+  }
 }
 
 const MAINTENANCE_GAUGE_ICONS = ["kpi-sync-refresh", "kpi-analytics-bars", "kpi-pharmacy"] as const;
@@ -234,10 +242,17 @@ export function normalizeStorePayload(
     };
   }
 
-  if (payload.kind === "seriesRows" && sid.endsWith("map_scatter") && Array.isArray(payload.value)) {
+  if (payload.kind === "kpiValue" && sid.endsWith("work_orders")) {
+    return {
+      kind: "kpiValue",
+      value: normalizeWorkOrdersConfigValue(payload.value),
+    };
+  }
+
+  if (payload.kind === "seriesRows" && sid.endsWith("map_scatter")) {
     return {
       kind: "seriesRows",
-      value: normalizeMapScatterRows(payload.value),
+      value: normalizeMapScatterValue(payload.value),
     };
   }
 

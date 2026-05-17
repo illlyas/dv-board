@@ -12,6 +12,7 @@ import { WIND_POWER_EMERALD_OPS_TEMPLATE_ID } from "@/lib/board/wind-template-id
 import type { SlotsSchemaFile, WidgetsManifestFile } from "@/lib/board/wind-template-assembler";
 import {
   buildAllSlotPromptLines,
+  buildChromePromptLines,
   buildPanelHeaderPromptLines,
   TEMPLATE_FILL_JSON_EXAMPLE,
 } from "@/lib/board/template-fill-prompt";
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
     const manifest = JSON.parse(manifestRaw) as WidgetsManifestFile;
     const allSlotLines = buildAllSlotPromptLines(schema);
     const panelHeaderLines = buildPanelHeaderPromptLines(schema);
+    const chromeLines = buildChromePromptLines(schema);
     const manifestBlock = buildManifestPromptBlock(manifest);
     const slotIdList = schema.slots.map((s) => s.slotId).join(", ");
 
@@ -89,7 +91,8 @@ ${TEMPLATE_FILL_JSON_EXAMPLE}
 5. KPI 的 payload.kind 为 kpiValue；折线/柱/饼/地图散点为 seriesRows；Table 为 tableRows。
 6. 有 widgetKey 的槽位同时填写 title/subtitle/unit 等展示文案（与 Story 一致）；饼/环图用 title/subtitle，**勿**自造 seriesName 等未在示例 JSON 中的顶层字段（若写 seriesName 须与 Story 一致）。
 7. panelHeaders 键名固定，文案与 Story 分区语义一致。
-8. JSON 须一次 parse 成功。
+8. **mapLegend**、**footerNav** 必填（见 chrome 说明）；provinceData 内亦须含 mapLegend。
+9. JSON 须一次 parse 成功。
 
 ${manifestBlock}
 
@@ -97,7 +100,10 @@ ${manifestBlock}
 ${allSlotLines}
 
 【PanelShell 分区标题 → panelHeaders】
-${panelHeaderLines}`;
+${panelHeaderLines}
+
+【看板 Chrome — mapLegend + footerNav】
+${chromeLines}`;
 
     let user = "";
     if (existingFill) {

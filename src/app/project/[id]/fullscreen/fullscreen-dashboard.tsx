@@ -13,10 +13,15 @@ import {
   type DashboardWidgetsMap,
 } from "@/lib/board/load-dashboard-widgets";
 import {
+  parseChromeFromSlotsSchemaJson,
+  resolveDashboardChrome,
+} from "@/lib/board/load-dashboard-chrome";
+import {
   parsePanelHeadersFromSlotsSchemaJson,
   resolveDashboardPanelHeaders,
   type DashboardPanelHeadersMap,
 } from "@/lib/board/load-dashboard-panel-headers";
+import type { FooterNavItem } from "@/lib/board/wind-chrome-keys";
 import type { VisualAssetsBlock } from "@/lib/visual-assets/types";
 import { getScreenPreset } from "@/lib/board/screen-presets";
 import type { ProjectConfig } from "@/lib/projects/project-config";
@@ -37,6 +42,7 @@ export function FullscreenDashboard() {
   const [dashboardWidgets, setDashboardWidgets] = useState<DashboardWidgetsMap | null>(null);
   const [dashboardPanelHeaders, setDashboardPanelHeaders] =
     useState<DashboardPanelHeadersMap | null>(null);
+  const [dashboardFooterNav, setDashboardFooterNav] = useState<FooterNavItem[] | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [cssVariables, setCssVariables] = useState<Record<string, string> | undefined>(undefined);
   const [visualAssetsBlock, setVisualAssetsBlock] = useState<VisualAssetsBlock | null>(null);
@@ -67,23 +73,30 @@ export function FullscreenDashboard() {
         if (cancelled) return;
 
         setCode(jsxRaw);
-        setDashboardWidgets(widgetsRaw ? parseDashboardWidgetsJson(widgetsRaw) : null);
-        setDashboardPanelHeaders(
-          resolveDashboardPanelHeaders(
-            slotsSchemaRaw ? parsePanelHeadersFromSlotsSchemaJson(slotsSchemaRaw) : null
-          )
-        );
 
+        let viDoc: ViTokensJson | null = null;
         if (tokensRaw) {
           try {
-            const doc = JSON.parse(tokensRaw) as ViTokensJson;
-            setCssVariables(viTokensToInjectStyleVars(doc));
+            viDoc = JSON.parse(tokensRaw) as ViTokensJson;
+            setCssVariables(viTokensToInjectStyleVars(viDoc));
           } catch {
+            viDoc = null;
             setCssVariables(undefined);
           }
         } else {
           setCssVariables(undefined);
         }
+
+        setDashboardWidgets(widgetsRaw ? parseDashboardWidgetsJson(widgetsRaw, viDoc) : null);
+        const chrome = resolveDashboardChrome(
+          slotsSchemaRaw ? parseChromeFromSlotsSchemaJson(slotsSchemaRaw) : null
+        );
+        setDashboardPanelHeaders(
+          resolveDashboardPanelHeaders(
+            slotsSchemaRaw ? parsePanelHeadersFromSlotsSchemaJson(slotsSchemaRaw) : null
+          )
+        );
+        setDashboardFooterNav(chrome.footerNav);
 
         try {
           await loadDashboardStoreOnce(projectId, fileName);
@@ -148,6 +161,7 @@ export function FullscreenDashboard() {
             code={code}
             dashboardWidgets={dashboardWidgets}
             dashboardPanelHeaders={dashboardPanelHeaders}
+            dashboardFooterNav={dashboardFooterNav}
             cssVariables={cssVariables}
             visualAssetsBlock={visualAssetsBlock}
             canvasWidth={boardCanvasWidth}
